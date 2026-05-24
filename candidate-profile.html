@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&amp;family=DM+Sans:wght@400;500;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "text-muted": "#6B6B80",
+                    "surface-dim": "#131318",
+                    "primary-container": "#6c5ce7",
+                    "on-primary-fixed": "#160066",
+                    "on-tertiary-fixed-variant": "#005140",
+                    "outline-variant": "#474554",
+                    "on-tertiary-container": "#dffff1",
+                    "on-tertiary": "#00382b",
+                    "on-error": "#690005",
+                    "error": "#ffb4ab",
+                    "tertiary-container": "#008167",
+                    "outline": "#928ea0",
+                    "on-primary-fixed-variant": "#4029ba",
+                    "tertiary-fixed": "#6dfad2",
+                    "on-surface-variant": "#c8c4d7",
+                    "on-secondary-container": "#005250",
+                    "border-base": "#1E1E2E",
+                    "tertiary-fixed-dim": "#4bddb7",
+                    "background": "#0A0A0F",
+                    "surface": "#131318",
+                    "danger": "#D63031",
+                    "on-background": "#e4e1e9",
+                    "on-secondary-fixed": "#00201f",
+                    "secondary-fixed-dim": "#2edcd7",
+                    "on-secondary-fixed-variant": "#00504e",
+                    "surface-tint": "#c6bfff",
+                    "inverse-primary": "#5847d2",
+                    "on-primary": "#2900a0",
+                    "surface-container-high": "#2a292f",
+                    "on-tertiary-fixed": "#002018",
+                    "sidebar-active-glow": "rgba(108, 92, 231, 0.12)",
+                    "surface-bright": "#39383e",
+                    "text-primary": "#EAEAF0",
+                    "surface-container": "#1f1f25",
+                    "primary-fixed-dim": "#c6bfff",
+                    "inverse-surface": "#e4e1e9",
+                    "error-container": "#93000a",
+                    "card-bg": "#13131A",
+                    "on-surface": "#e4e1e9",
+                    "on-primary-container": "#faf6ff",
+                    "surface-container-low": "#1b1b20",
+                    "secondary": "#00CEC9",
+                    "surface-container-lowest": "#0e0e13",
+                    "on-secondary": "#003735",
+                    "primary-fixed": "#e4dfff",
+                    "surface-container-highest": "#35343a",
+                    "secondary-fixed": "#5af9f3",
+                    "tertiary": "#4bddb7",
+                    "primary": "#6C5CE7",
+                    "inverse-on-surface": "#303036",
+                    "surface-variant": "#35343a",
+                    "on-error-container": "#ffdad6",
+                    "secondary-container": "#00cec9",
+                    "border-input": "#2A2A3E"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "8px",
+                    "xl": "12px",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xxl": "64px",
+                    "xs": "8px",
+                    "base-unit": "8px",
+                    "sm": "16px",
+                    "md": "24px",
+                    "container-max": "1280px",
+                    "xl": "48px",
+                    "gutter": "24px",
+                    "lg": "32px",
+                    "sidebar-width": "240px"
+            },
+            "fontFamily": {
+                    "display": ["Syne", "sans-serif"],
+                    "headline-lg": ["Syne", "sans-serif"],
+                    "headline-md": ["Syne", "sans-serif"],
+                    "headline-sm": ["Syne", "sans-serif"],
+                    "body-lg": ["DM Sans", "sans-serif"],
+                    "body-md": ["DM Sans", "sans-serif"],
+                    "body-sm": ["DM Sans", "sans-serif"],
+                    "label-md": ["DM Sans", "sans-serif"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body { background-color: #0A0A0F; color: #EAEAF0; font-family: 'DM Sans', sans-serif; }
+        .glass-header { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .hero-gradient { background: radial-gradient(circle at 70% 30%, rgba(108, 92, 231, 0.15) 0%, transparent 70%); }
+        .timeline-line::before { content: ''; position: absolute; left: 7px; top: 0; bottom: 0; width: 2px; background: #2A2A3E; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="min-h-screen">
+<!-- TopNavBar -->
+<nav class="bg-surface-container/70 backdrop-blur-md docked full-width top-0 sticky z-50 border-b border-outline-variant h-16">
+<div class="flex justify-between items-center px-gutter w-full max-w-container-max mx-auto h-full">
+<div class="flex items-center gap-8">
+<span class="font-display text-headline-md font-bold text-primary-container">Visume</span>
+<div class="hidden md:flex gap-6 items-center">
+<a class="text-primary-container font-bold border-b-2 border-primary-container pb-1 font-body-md text-body-md" href="#">Discover</a>
+<a class="text-text-muted font-medium hover:text-text-primary transition-colors font-body-md text-body-md" href="#">Applications</a>
+<a class="text-text-muted font-medium hover:text-text-primary transition-colors font-body-md text-body-md" href="#">Messages</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-primary px-6 py-2 rounded-lg text-white font-bold hover:opacity-90 transition-all font-body-md text-body-md">Upload Video</button>
+<div class="w-10 h-10 rounded-full bg-surface-bright flex items-center justify-center border border-outline-variant overflow-hidden cursor-pointer">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a recruitment manager in a modern office, cinematic lighting with a shallow depth of field. The background is a dark, sophisticated tech environment with purple and teal ambient glows, consistent with the Visume brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgpXjc86YyzolUjVehHfDX0ooaKQXmLeZk0qzHnZBk43XIBdu5eA_qSjZGTyX2DOq9Jg2YjG_n3-cdMoxG8ccG3YcENmmaHiKuoDBaocNVtQqYYFTVW7kKXl_fRQgxXYdsniqJZHqnm62h4v4wYHWI900FAaWTAvbHRJ4ePrn7xK1bbkiDqIqa1Vxd5UZhlh0f12gjgxhZKG_6FfpMoo9rrw_r4l6xrKRJa2J0olJcD4Zw019VtvIk6Udowo350FHxXM3vFLrJfJE"/>
+</div>
+</div>
+</div>
+</nav>
+<main class="max-w-container-max mx-auto px-gutter py-lg space-y-lg">
+<!-- Hero Section -->
+<section class="card-bg border border-border-input rounded-xl p-lg relative overflow-hidden hero-gradient">
+<div class="flex flex-col md:flex-row items-center md:items-end gap-lg relative z-10">
+<div class="w-24 h-24 rounded-full border-4 border-primary ring-4 ring-primary/20 overflow-hidden shadow-2xl shrink-0">
+<img alt="Candidate" class="w-full h-full object-cover" data-alt="A high-resolution portrait of a smiling young professional male candidate with short hair, wearing a stylish dark turtleneck. The lighting is crisp and modern, featuring electric purple rim lighting against a deep black background, maintaining a high-tech corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkfy9Feu-zDXjrtSO-Djz6s4KPq9x30a3IShW_hgguKUiS5VAxFHn-3YThX51z9mpVeMbiOsRjNmSGpSz8_1nHWQw1_n9gU4NvSsGLEZDerT-JTzuwRr1IBDx2Z_x0BJmZ8XlLRwW1GA8zjp_hsKqhhqf546R9ZOJ-sMFDtfYS_BO4LbZoXSpJKkA5f1DDH69RmnNdrGUmwg3DRJaHowy3wJZGMbjhoI7v2B-hKtjB7dWPNASplmpIlr5qIrv_4M5lLHOLIk8IRPI"/>
+</div>
+<div class="flex-grow text-center md:text-left space-y-2">
+<div class="flex flex-wrap items-center justify-center md:justify-start gap-3">
+<h1 class="font-headline-lg text-headline-lg font-bold text-text-primary">Jordan Sterling</h1>
+<span class="inline-flex items-center gap-1 bg-[#00CEC9]/10 text-[#00CEC9] border border-[#00CEC9]/30 px-3 py-1 rounded-full text-label-md font-label-md uppercase tracking-wider">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+                            KYC Verified
+                        </span>
+</div>
+<p class="font-body-lg text-body-lg text-text-muted">Senior Product Designer &amp; Motion Specialist</p>
+<div class="flex items-center justify-center md:justify-start gap-4 text-text-muted font-body-sm text-body-sm">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">location_on</span> San Francisco, CA</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> Available Immediately</span>
+</div>
+</div>
+<div class="flex flex-col gap-3 w-full md:w-auto shrink-0">
+<button class="bg-primary text-white font-bold py-3 px-8 rounded-lg hover:scale-[0.98] transition-all flex items-center justify-center gap-2 font-body-md text-body-md shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">calendar_today</span>
+                        Schedule Interview
+                    </button>
+<button class="bg-surface-container border border-outline-variant text-text-primary font-bold py-3 px-8 rounded-lg hover:bg-surface-bright/20 transition-all font-body-md text-body-md">
+                        Download CV
+                    </button>
+</div>
+</div>
+</section>
+<!-- Video Resume Section -->
+<section class="space-y-md">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-md text-headline-md font-bold text-text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">videocam</span>
+                    Video Resume
+                </h2>
+<div class="flex gap-4 text-text-muted font-label-md text-label-md">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">visibility</span> 1.2k Views</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">timer</span> 01:45</span>
+</div>
+</div>
+<div class="aspect-video w-full rounded-xl bg-surface-dim border border-border-input relative overflow-hidden group cursor-pointer">
+<div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all flex items-center justify-center">
+<div class="w-20 h-20 rounded-full bg-primary/90 flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-white text-5xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+<img alt="Video Resume Cover" class="w-full h-full object-cover" data-alt="A cinematic video thumbnail showing a creative professional speaking directly to the camera in a modern, dark-themed studio. The background features soft bokeh with purple neon light strips and a high-end microphone setup. The mood is confident, professional, and personality-driven." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlKIqavd7BZl-9QDY-2sJxoe32jflqHra0k9pX2Rs0x5YPNAs6pqgI-5P5d9TCImBjlW01w4StzoikmaOX2A28tgFWyZjZN7L4uR2IRa5RVuRM11mKBW0BY20sorz40qF-kJfjxWRaM0QpTnyNpedRxmY1xDPo416BFd5uw_ER8f6VNCo75WTMSfwS-Oa0sx1PChTNY5ej_xmxcqnVl1HGVi2Ik7odzC4_dp-XFi-6cNtDO2g7Epd3yXMeaBNnIJjAzHbMyFnZ7Y4"/>
+<div class="absolute bottom-0 left-0 right-0 p-lg bg-gradient-to-t from-black/80 to-transparent">
+<p class="font-headline-sm text-headline-sm text-white">"Designing the Future of SaaS Interfaces"</p>
+</div>
+</div>
+</section>
+<!-- Two Column Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg">
+<!-- Left Column (60%) -->
+<div class="lg:col-span-7 space-y-lg">
+<!-- Skills -->
+<div class="card-bg border border-border-input rounded-xl p-lg space-y-md">
+<h3 class="font-headline-sm text-headline-sm font-bold text-text-primary">Technical Expertise</h3>
+<div class="flex flex-wrap gap-2">
+<span class="bg-surface-container border border-outline-variant px-4 py-2 rounded-full text-text-primary font-body-sm text-body-sm hover:border-primary transition-colors cursor-default">Figma</span>
+<span class="bg-surface-container border border-outline-variant px-4 py-2 rounded-full text-text-primary font-body-sm text-body-sm hover:border-primary transition-colors cursor-default">After Effects</span>
+<span class="bg-surface-container border border-outline-variant px-4 py-2 rounded-full text-text-primary font-body-sm text-body-sm hover:border-primary transition-colors cursor-default">Three.js</span>
+<span class="bg-surface-container border border-outline-variant px-4 py-2 rounded-full text-text-primary font-body-sm text-body-sm hover:border-primary transition-colors cursor-default">Webflow</span>
+<span class="bg-surface-container border border-outline-variant px-4 py-2 rounded-full text-text-primary font-body-sm text-body-sm hover:border-primary transition-colors cursor-default">Prototyping</span>
+<span class="bg-[#00CEC9]/10 text-[#00CEC9] border border-[#00CEC9]/20 px-4 py-2 rounded-full text-text-primary font-body-sm text-body-sm">AI-Driven Design</span>
+</div>
+</div>
+<!-- Experience Timeline -->
+<div class="card-bg border border-border-input rounded-xl p-lg space-y-lg">
+<h3 class="font-headline-sm text-headline-sm font-bold text-text-primary">Professional Journey</h3>
+<div class="relative space-y-lg timeline-line pl-8">
+<!-- Item 1 -->
+<div class="relative">
+<div class="absolute -left-8 mt-1 w-4 h-4 rounded-full bg-primary ring-4 ring-primary/20 z-10"></div>
+<div class="space-y-1">
+<span class="text-primary font-label-md text-label-md font-bold">JAN 2022 — PRESENT</span>
+<h4 class="font-headline-sm text-headline-sm text-text-primary">Lead Experience Designer</h4>
+<p class="text-text-muted font-body-md text-body-md">Stellar Systems • Full-time</p>
+<p class="text-text-muted font-body-sm text-body-sm mt-2 leading-relaxed">Pioneered the design of a next-gen analytics dashboard, reducing user bounce rate by 34% through motion-driven navigation and intuitive data visualization.</p>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="relative">
+<div class="absolute -left-8 mt-1 w-4 h-4 rounded-full bg-outline-variant z-10"></div>
+<div class="space-y-1">
+<span class="text-text-muted font-label-md text-label-md font-bold">2019 — 2021</span>
+<h4 class="font-headline-sm text-headline-sm text-text-primary">UI/UX Designer</h4>
+<p class="text-text-muted font-body-md text-body-md">Vivid Digital Agency • Contract</p>
+<p class="text-text-muted font-body-sm text-body-sm mt-2 leading-relaxed">Collaborated with Fortune 500 clients to build interactive prototypes and design systems for global consumer applications.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Education -->
+<div class="card-bg border border-border-input rounded-xl p-lg space-y-md">
+<h3 class="font-headline-sm text-headline-sm font-bold text-text-primary">Education</h3>
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary">school</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-text-primary">BFA in Interactive Design</h4>
+<p class="text-text-muted font-body-md text-body-md">Academy of Art University, SF</p>
+<p class="text-text-muted font-label-md text-label-md">Class of 2018</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column (40%) -->
+<div class="lg:col-span-5 space-y-lg">
+<!-- Stats Card -->
+<div class="card-bg border border-border-input rounded-xl p-lg">
+<h3 class="font-headline-sm text-headline-sm font-bold text-text-primary mb-md">Talent Insights</h3>
+<div class="grid grid-cols-2 gap-md">
+<div class="bg-surface-container/50 p-md rounded-lg border border-outline-variant/30">
+<p class="text-text-muted font-label-md text-label-md">Match Rate</p>
+<p class="text-headline-md font-headline-md text-secondary mt-1">98%</p>
+</div>
+<div class="bg-surface-container/50 p-md rounded-lg border border-outline-variant/30">
+<p class="text-text-muted font-label-md text-label-md">Applications</p>
+<p class="text-headline-md font-headline-md text-text-primary mt-1">12</p>
+</div>
+<div class="bg-surface-container/50 p-md rounded-lg border border-outline-variant/30 col-span-2">
+<div class="flex justify-between items-end">
+<div>
+<p class="text-text-muted font-label-md text-label-md">Response Velocity</p>
+<p class="text-headline-md font-headline-md text-text-primary mt-1">High</p>
+</div>
+<div class="flex gap-1">
+<div class="w-1.5 h-4 bg-primary/30 rounded-full"></div>
+<div class="w-1.5 h-6 bg-primary/60 rounded-full"></div>
+<div class="w-1.5 h-8 bg-primary rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Portfolio Projects -->
+<div class="space-y-md">
+<h3 class="font-headline-sm text-headline-sm font-bold text-text-primary">Featured Portfolio</h3>
+<div class="space-y-md">
+<!-- Project 1 -->
+<div class="card-bg border border-border-input rounded-xl overflow-hidden group cursor-pointer hover:border-primary transition-all">
+<div class="h-40 overflow-hidden">
+<img alt="Project 1" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A sleek dark-mode UI design for a financial analytics mobile app. The interface features neon teal glow effects on data charts and a glassmorphic sidebar. The composition is clean and technical, emphasizing premium UI/UX design quality consistent with the Visume aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTGX0qfW3OBHO-GncgYEDe4VsgT5F9r_zfw3DJPN2gTumHa10C41bh77ET3KJqu4vzdu1goYVk05FB73cva0gGTJZkuL-5mShFSRzoficAmqPUfjFiWI1Whj--x5O4-DU1TlFRfL5AOgo4YHONlT3Msx30AO9F4pqjtoQXwNPn9PYML4JJbQ9EbIiiOY13LW47bF_E-xxVVv7AvZHNgnJDE5GmKFJtPJNPoryNTjQ0Ld2zRMU8FKBE4hl0nc3_zrOyndQBdCNzDek"/>
+</div>
+<div class="p-md">
+<h4 class="font-headline-sm text-headline-sm text-text-primary">Stellar Finance UI</h4>
+<p class="text-text-muted font-body-sm text-body-sm mt-1">Full redesign of an enterprise financial dashboard.</p>
+<div class="flex items-center gap-2 mt-4 text-primary font-bold text-body-sm">
+                                    View Project <span class="material-symbols-outlined text-sm">arrow_outward</span>
+</div>
+</div>
+</div>
+<!-- Project 2 -->
+<div class="card-bg border border-border-input rounded-xl overflow-hidden group cursor-pointer hover:border-primary transition-all">
+<div class="h-40 overflow-hidden">
+<img alt="Project 2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="An isometric 3D render of a futuristic dashboard interface. The design uses vibrant purple accents, semi-transparent panels, and detailed data widgets. The lighting is low-key with high-contrast glowing elements, embodying a modern high-tech software visual style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAR0_fgL7pdShqXyJUUq6Ed5T6z2cWyAT2amtNYotqW54wpMB_HZMju8I_bd3egObQyuVAuIdjhWPmgG_uzwBOStlln7IT5hnCbDx4X77uGnhdY1TmVZdx7kBkzGhJqGOhlEg0ktIXjgopaNQX1cGYISrmQUHUWMiYeurRIYAQKfmMp1kV-Akddnb5zAzdy3y_1kzMAqSU3yVlDVa7u9jopoOwUra6q5IYioV72T6oGn_CmDMTH4NNPF_c3rCoME18AxwKXsuvasY4"/>
+</div>
+<div class="p-md">
+<h4 class="font-headline-sm text-headline-sm text-text-primary">Motion Identity Pack</h4>
+<p class="text-text-muted font-body-sm text-body-sm mt-1">A collection of custom motion components for SaaS apps.</p>
+<div class="flex items-center gap-2 mt-4 text-primary font-bold text-body-sm">
+                                    View Project <span class="material-symbols-outlined text-sm">arrow_outward</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest border-t border-outline-variant mt-xxl">
+<div class="flex flex-col md:flex-row justify-between items-center px-gutter py-lg w-full max-w-container-max mx-auto">
+<div class="flex flex-col items-center md:items-start gap-2">
+<span class="font-display text-headline-sm font-bold text-text-primary">Visume</span>
+<p class="text-text-muted font-body-sm text-body-sm">© 2024 Visume. Personality-driven hiring.</p>
+</div>
+<div class="flex gap-8 mt-lg md:mt-0">
+<a class="text-text-muted hover:text-secondary transition-colors font-label-md text-label-md" href="#">Privacy Policy</a>
+<a class="text-text-muted hover:text-secondary transition-colors font-label-md text-label-md" href="#">Terms of Service</a>
+<a class="text-text-muted hover:text-secondary transition-colors font-label-md text-label-md" href="#">For Recruiters</a>
+<a class="text-text-muted hover:text-secondary transition-colors font-label-md text-label-md" href="#">About Us</a>
+</div>
+</div>
+</footer>
+<script>
+        // Micro-interaction for hover glow effects
+        document.querySelectorAll('.card-bg').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+    </script>
+</body></html>

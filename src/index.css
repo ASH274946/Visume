@@ -47,6 +47,19 @@
       border-radius: 10px;
   }
   
+  .hero-gradient { 
+    background: radial-gradient(circle at 70% 30%, rgba(108, 92, 231, 0.15) 0%, transparent 70%); 
+  }
+  .timeline-line::before { 
+    content: ''; 
+    position: absolute; 
+    left: 7px; 
+    top: 0; 
+    bottom: 0; 
+    width: 2px; 
+    background: #2A2A3E; 
+  }
+  
   /* Kanban styles */
   .glass-header { 
     backdrop-filter: blur(12px); 

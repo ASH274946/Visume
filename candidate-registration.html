@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Visume | Candidate Registration</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&amp;family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "text-muted": "#6B6B80",
+                "surface-dim": "#131318",
+                "primary-container": "#6c5ce7",
+                "on-primary-fixed": "#160066",
+                "on-tertiary-fixed-variant": "#005140",
+                "outline-variant": "#474554",
+                "on-tertiary-container": "#dffff1",
+                "on-tertiary": "#00382b",
+                "on-error": "#690005",
+                "error": "#ffb4ab",
+                "tertiary-container": "#008167",
+                "outline": "#928ea0",
+                "on-primary-fixed-variant": "#4029ba",
+                "tertiary-fixed": "#6dfad2",
+                "on-surface-variant": "#c8c4d7",
+                "on-secondary-container": "#005250",
+                "border-base": "#1E1E2E",
+                "tertiary-fixed-dim": "#4bddb7",
+                "background": "#0A0A0F",
+                "surface": "#131318",
+                "danger": "#D63031",
+                "on-background": "#e4e1e9",
+                "on-secondary-fixed": "#00201f",
+                "secondary-fixed-dim": "#2edcd7",
+                "on-secondary-fixed-variant": "#00504e",
+                "surface-tint": "#c6bfff",
+                "inverse-primary": "#5847d2",
+                "on-primary": "#2900a0",
+                "surface-container-high": "#2a292f",
+                "on-tertiary-fixed": "#002018",
+                "sidebar-active-glow": "rgba(108, 92, 231, 0.12)",
+                "surface-bright": "#39383e",
+                "text-primary": "#EAEAF0",
+                "surface-container": "#1f1f25",
+                "primary-fixed-dim": "#c6bfff",
+                "inverse-surface": "#e4e1e9",
+                "error-container": "#93000a",
+                "card-bg": "#13131A",
+                "on-surface": "#e4e1e9",
+                "on-primary-container": "#faf6ff",
+                "surface-container-low": "#1b1b20",
+                "secondary": "#46eae5",
+                "surface-container-lowest": "#0e0e13",
+                "on-secondary": "#003735",
+                "primary-fixed": "#e4dfff",
+                "surface-container-highest": "#35343a",
+                "secondary-fixed": "#5af9f3",
+                "tertiary": "#4bddb7",
+                "primary": "#c6bfff",
+                "inverse-on-surface": "#303036",
+                "surface-variant": "#35343a",
+                "on-error-container": "#ffdad6",
+                "secondary-container": "#00cec9",
+                "border-input": "#2A2A3E"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+            },
+            "spacing": {
+                "xxl": "64px",
+                "xs": "8px",
+                "base-unit": "8px",
+                "sm": "16px",
+                "md": "24px",
+                "container-max": "1280px",
+                "xl": "48px",
+                "gutter": "24px",
+                "lg": "32px",
+                "sidebar-width": "240px"
+            },
+            "fontFamily": {
+                "headline-lg-mobile": ["Syne"],
+                "body-lg": ["DM Sans"],
+                "display": ["Syne"],
+                "body-sm": ["DM Sans"],
+                "headline-sm": ["Syne"],
+                "label-md": ["DM Sans"],
+                "body-md": ["DM Sans"],
+                "headline-lg": ["Syne"],
+                "headline-md": ["Syne"]
+            },
+            "fontSize": {
+                "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body {
+            background-color: #0A0A0F;
+            color: #EAEAF0;
+            font-family: 'DM Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .glass-header {
+            background: rgba(19, 19, 26, 0.7);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid #2A2A3E;
+        }
+        .step-transition {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .role-card.active {
+            border-color: #6c5ce7;
+            box-shadow: 0 0 20px rgba(108, 92, 231, 0.2);
+            background: rgba(108, 92, 231, 0.05);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+<!-- Top Navigation Anchor (Manual Content based on Product Identity) -->
+<nav class="glass-header sticky top-0 z-50 h-16 flex items-center px-gutter w-full">
+<div class="max-w-container-max mx-auto w-full flex justify-between items-center">
+<span class="font-display text-headline-md font-bold text-primary-container">Visume</span>
+<div class="hidden md:flex gap-sm">
+<span class="text-text-muted font-body-sm">Already have an account?</span>
+<a class="text-primary-container font-label-md hover:underline" href="#">Log In</a>
+</div>
+</div>
+</nav>
+<main class="max-w-3xl mx-auto px-gutter py-xl">
+<!-- Progress Bar -->
+<div class="mb-xxl">
+<div class="flex justify-between items-center mb-sm">
+<div class="flex flex-col items-center flex-1">
+<div class="w-8 h-8 rounded-full flex items-center justify-center bg-primary-container text-on-primary font-bold transition-all duration-300" id="step-1-indicator">1</div>
+<span class="font-label-md mt-xs text-primary-container">Account Setup</span>
+</div>
+<div class="h-px bg-outline-variant flex-1 mb-6 transition-all duration-300" id="progress-line-1"></div>
+<div class="flex flex-col items-center flex-1">
+<div class="w-8 h-8 rounded-full flex items-center justify-center bg-surface-container text-text-muted font-bold transition-all duration-300" id="step-2-indicator">2</div>
+<span class="font-label-md mt-xs text-text-muted" id="step-2-label">KYC Verification</span>
+</div>
+<div class="h-px bg-outline-variant flex-1 mb-6" id="progress-line-2"></div>
+<div class="flex flex-col items-center flex-1">
+<div class="w-8 h-8 rounded-full flex items-center justify-center bg-surface-container text-text-muted font-bold transition-all duration-300" id="step-3-indicator">3</div>
+<span class="font-label-md mt-xs text-text-muted" id="step-3-label">Profile</span>
+</div>
+</div>
+</div>
+<!-- Step 1: Account Setup -->
+<section class="step-transition" id="step-1-container">
+<div class="mb-lg">
+<h1 class="font-headline-lg text-headline-lg text-text-primary mb-xs">Create Your Account</h1>
+<p class="font-body-md text-text-muted">Start your journey with a personality-first application.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md mb-lg">
+<div class="role-card active cursor-pointer p-lg border border-border-input rounded-xl flex flex-col items-center transition-all duration-300" id="role-candidate" onclick="selectRole('candidate')">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">person</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-text-primary">I'm a Candidate</span>
+<p class="font-body-sm text-text-muted text-center mt-xs">I want to showcase my personality and find a job.</p>
+</div>
+<div class="role-card cursor-pointer p-lg border border-border-input rounded-xl flex flex-col items-center transition-all duration-300" id="role-recruiter" onclick="selectRole('recruiter')">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-text-muted">work</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-text-primary">I'm a Recruiter</span>
+<p class="font-body-sm text-text-muted text-center mt-xs">I want to hire talent through video-first screening.</p>
+</div>
+</div>
+<div class="space-y-md">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-text-muted">Full Name</label>
+<input class="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="John Doe" type="text"/>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-text-muted">Email Address</label>
+<input class="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="john@example.com" type="email"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-text-muted">Password</label>
+<input class="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="••••••••" type="password"/>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-text-muted">Confirm Password</label>
+<input class="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="••••••••" type="password"/>
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-text-muted">Phone Number</label>
+<input class="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="+1 (555) 000-0000" type="tel"/>
+</div>
+<button class="w-full bg-primary-container text-white font-label-md py-md rounded-lg hover:brightness-110 active:scale-[0.98] transition-all uppercase tracking-wider font-bold" onclick="nextStep(2)">Continue</button>
+</div>
+</section>
+<!-- Step 2: KYC Verification -->
+<section class="step-transition hidden" id="step-2-container">
+<div class="mb-lg">
+<h1 class="font-headline-lg text-headline-lg text-text-primary mb-xs">Verify Your Identity</h1>
+<p class="font-body-md text-text-muted">Required for profile trust badge and secure application processing.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md mb-lg">
+<div class="p-lg border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center bg-card-bg group hover:border-primary-container transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-text-muted group-hover:text-primary-container mb-sm text-xl" style="font-size: 40px;">upload_file</span>
+<span class="font-headline-sm text-text-primary text-center">Upload Aadhaar Card</span>
+<div class="mt-md bg-[#ffc107]/10 text-[#ffc107] px-md py-1 rounded-full font-label-md">Pending Verification</div>
+</div>
+<div class="p-lg border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center bg-card-bg group hover:border-primary-container transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-text-muted group-hover:text-primary-container mb-sm text-xl" style="font-size: 40px;">upload_file</span>
+<span class="font-headline-sm text-text-primary text-center">Upload PAN Card</span>
+<div class="mt-md bg-[#ffc107]/10 text-[#ffc107] px-md py-1 rounded-full font-label-md">Pending Verification</div>
+</div>
+</div>
+<div class="mb-xl">
+<div class="bg-card-bg border border-border-input rounded-xl p-xl flex flex-col items-center justify-center text-center">
+<button class="w-20 h-20 rounded-full bg-surface-container-high flex items-center justify-center hover:bg-primary-container/20 transition-all border border-border-input group">
+<span class="material-symbols-outlined text-text-primary group-hover:text-primary-container" style="font-size: 32px;">photo_camera</span>
+</button>
+<span class="font-headline-sm text-text-primary mt-md">Take Selfie or Upload Photo</span>
+<p class="font-body-sm text-text-muted mt-xs max-w-sm">Ensure your face is clearly visible and well-lit for automated verification.</p>
+</div>
+</div>
+<button class="w-full bg-primary-container text-white font-label-md py-md rounded-lg hover:brightness-110 active:scale-[0.98] transition-all uppercase tracking-wider font-bold" onclick="nextStep(3)">Submit for Verification</button>
+</section>
+<!-- Step 3: Profile Setup -->
+<section class="step-transition hidden" id="step-3-container">
+<div class="mb-lg">
+<h1 class="font-headline-lg text-headline-lg text-text-primary mb-xs">Profile Setup</h1>
+<p class="font-body-md text-text-muted">Complete your professional identity to start applying.</p>
+</div>
+<div class="flex justify-center mb-xl">
+<div class="relative w-[96px] h-[96px] group cursor-pointer">
+<img alt="Profile" class="w-full h-full rounded-full object-cover border-2 border-primary-container" data-alt="A professional close-up studio portrait of a young person for a technology-driven resume platform. The lighting is soft and cinematic with subtle purple rim lighting to match the Visume brand identity. The background is a clean, dark aesthetic consistent with a premium glassmorphism UI design. The subject has a confident and welcoming expression." src="https://lh3.googleusercontent.com/aida-public/AB6AXuACm6nwZFh_zSvslD0I58WMRSgFPnWA4pa_o7MukiFAmnm5t6qz5m810BPqR5WwNrrH2vDr1XYm7Y_TKRl2-MYBPp4bGJPMyYBPyzb2rgGd7Fyyo6YQXP0byhgLhSvTjKdHYdVJb3ZJ-kil5KyBe5WHMHP8fcoNwRyyJNzc-lBvQENcsH7kdqJnyvpIJ_-l5QdZm0nxmsiOMB-03_iTD8xlaEat1FC05aX6UO0evyE0trZj5jzbItInC-cvAt7SH45PryPeJSscz8I"/>
+<div class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-white">photo_camera</span>
+</div>
+</div>
+</div>
+<div class="space-y-md">
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-text-muted">Professional Headline</label>
+<input class="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="e.g. Senior Frontend Developer with 5 years experience" type="text"/>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-text-muted">Skills (Press Enter to add)</label>
+<div class="bg-border-base border border-border-input rounded-lg px-md py-2 flex flex-wrap gap-2 min-h-[46px]" id="skills-container">
+<span class="bg-primary-container/20 text-primary-container text-label-md px-3 py-1 rounded-full flex items-center gap-2">React <span class="material-symbols-outlined text-[14px] cursor-pointer">close</span></span>
+<span class="bg-primary-container/20 text-primary-container text-label-md px-3 py-1 rounded-full flex items-center gap-2">Tailwind CSS <span class="material-symbols-outlined text-[14px] cursor-pointer">close</span></span>
+<input class="bg-transparent border-none outline-none focus:ring-0 p-1 flex-1 text-body-sm text-text-primary min-w-[100px]" id="skills-input" placeholder="Type + Enter" type="text"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-text-muted">Location</label>
+<select class="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary appearance-none">
+<option>San Francisco, CA</option>
+<option>New York, NY</option>
+<option>London, UK</option>
+<option>Remote</option>
+</select>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-text-muted">LinkedIn URL <span class="text-text-muted opacity-60">(Optional)</span></label>
+<input class="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="linkedin.com/in/username" type="url"/>
+</div>
+</div>
+<button class="w-full bg-primary-container text-white font-label-md py-md rounded-lg hover:brightness-110 active:scale-[0.98] transition-all uppercase tracking-wider font-bold">Complete Profile</button>
+</div>
+</section>
+</main>
+<!-- Footer Anchor -->
+<footer class="mt-auto border-t border-outline-variant bg-surface-container-lowest py-lg">
+<div class="max-w-container-max mx-auto px-gutter flex flex-col md:flex-row justify-between items-center gap-md">
+<span class="font-display text-headline-sm font-bold text-text-primary">Visume</span>
+<div class="flex gap-lg">
+<a class="font-label-md text-text-muted hover:text-secondary transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-md text-text-muted hover:text-secondary transition-colors" href="#">Terms of Service</a>
+<a class="font-label-md text-text-muted hover:text-secondary transition-colors" href="#">For Recruiters</a>
+</div>
+<p class="font-body-sm text-text-muted">© 2024 Visume. Personality-driven hiring.</p>
+</div>
+</footer>
+<script>
+        function selectRole(role) {
+            const candidate = document.getElementById('role-candidate');
+            const recruiter = document.getElementById('role-recruiter');
+            const candidateIcon = candidate.querySelector('.material-symbols-outlined');
+            const recruiterIcon = recruiter.querySelector('.material-symbols-outlined');
+
+            if (role === 'candidate') {
+                candidate.classList.add('active');
+                recruiter.classList.remove('active');
+                candidateIcon.style.fontVariationSettings = "'FILL' 1";
+                candidateIcon.classList.add('text-primary-container');
+                candidateIcon.classList.remove('text-text-muted');
+                recruiterIcon.style.fontVariationSettings = "'FILL' 0";
+                recruiterIcon.classList.remove('text-primary-container');
+                recruiterIcon.classList.add('text-text-muted');
+            } else {
+                recruiter.classList.add('active');
+                candidate.classList.remove('active');
+                recruiterIcon.style.fontVariationSettings = "'FILL' 1";
+                recruiterIcon.classList.add('text-primary-container');
+                recruiterIcon.classList.remove('text-text-muted');
+                candidateIcon.style.fontVariationSettings = "'FILL' 0";
+                candidateIcon.classList.remove('text-primary-container');
+                candidateIcon.classList.add('text-text-muted');
+            }
+        }
+
+        function nextStep(step) {
+            // Hide all
+            document.getElementById('step-1-container').classList.add('hidden');
+            document.getElementById('step-2-container').classList.add('hidden');
+            document.getElementById('step-3-container').classList.add('hidden');
+
+            // Show current
+            document.getElementById(`step-${step}-container`).classList.remove('hidden');
+
+            // Update Progress Bar
+            if (step >= 2) {
+                document.getElementById('step-1-indicator').innerHTML = '<span class="material-symbols-outlined text-[16px]">check</span>';
+                document.getElementById('progress-line-1').classList.replace('bg-outline-variant', 'bg-primary-container');
+                document.getElementById('step-2-indicator').classList.replace('bg-surface-container', 'bg-primary-container');
+                document.getElementById('step-2-indicator').classList.replace('text-text-muted', 'text-on-primary');
+                document.getElementById('step-2-label').classList.replace('text-text-muted', 'text-primary-container');
+            }
+            if (step >= 3) {
+                document.getElementById('step-2-indicator').innerHTML = '<span class="material-symbols-outlined text-[16px]">check</span>';
+                document.getElementById('progress-line-2').classList.replace('bg-outline-variant', 'bg-primary-container');
+                document.getElementById('step-3-indicator').classList.replace('bg-surface-container', 'bg-primary-container');
+                document.getElementById('step-3-indicator').classList.replace('text-text-muted', 'text-on-primary');
+                document.getElementById('step-3-label').classList.replace('text-text-muted', 'text-primary-container');
+            }
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Simple skill tagging logic
+        const skillInput = document.getElementById('skills-input');
+        const skillContainer = document.getElementById('skills-container');
+
+        skillInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && skillInput.value.trim() !== '') {
+                e.preventDefault();
+                const tag = document.createElement('span');
+                tag.className = 'bg-primary-container/20 text-primary-container text-label-md px-3 py-1 rounded-full flex items-center gap-2 animate-in fade-in zoom-in duration-200';
+                tag.innerHTML = `${skillInput.value} <span class="material-symbols-outlined text-[14px] cursor-pointer" onclick="this.parentElement.remove()">close</span>`;
+                skillContainer.insertBefore(tag, skillInput);
+                skillInput.value = '';
+            }
+        });
+    </script>
+</body></html>
