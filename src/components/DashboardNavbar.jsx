@@ -25,7 +25,6 @@ const DashboardNavbar = ({ role = 'candidate' }) => {
 
   return (
     <header className="absolute top-0 left-0 right-0 z-40 px-lg pt-4 pb-2 backdrop-blur-xl bg-background/25 pointer-events-none">
-      <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-b from-background/60 via-background/30 to-transparent pointer-events-none"></div>
       <nav className="h-16 bg-surface-container/60 border border-outline-variant/65 rounded-xl flex items-center justify-between px-6 pointer-events-auto shadow-lg">
         <div className="flex items-center gap-8">
           <Link to="/" className="font-display text-headline-sm font-bold text-primary-container">
@@ -75,6 +74,7 @@ const DashboardNavbar = ({ role = 'candidate' }) => {
           </Link>
         </div>
       </nav>
+      <div className="absolute top-full left-0 w-full h-12 bg-gradient-to-b from-background/20 to-transparent pointer-events-none"></div>
     </header>
   );
 };
