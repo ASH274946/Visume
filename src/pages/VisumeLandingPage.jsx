@@ -32,8 +32,8 @@ const Hero = () => (
           Ditch the static PDFs. Show your true personality, soft skills, and expertise through video resumes that speak louder than bullet points.
         </p>
         <div className="flex flex-wrap gap-4 pt-4">
-          <Link to="/login" state={{ redirectTo: '/recorder' }} className="bg-primary text-white px-lg py-md rounded-full font-label-md hover:scale-105 transition-transform active:scale-95 inline-block text-center">Record My Resume</Link>
-          <Link to="/discover" className="border border-secondary text-secondary px-lg py-md rounded-full font-label-md hover:bg-secondary/5 transition-colors inline-block text-center">Browse Jobs</Link>
+          <Link to="/login" state={{ redirectTo: '/recorder' }} className="bg-primary text-white px-lg py-md rounded-xl font-label-md hover:scale-105 transition-transform active:scale-95 inline-block text-center">Record My Resume</Link>
+          <Link to="/discover" className="border border-secondary text-secondary px-lg py-md rounded-xl font-label-md hover:bg-secondary/5 transition-colors inline-block text-center">Browse Jobs</Link>
         </div>
         {/* Stats Row */}
         <div className="flex flex-wrap items-center gap-6 pt-8 border-t border-outline-variant mt-8 max-w-md">
