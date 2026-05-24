@@ -1,21 +1,22 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const TopNav = () => (
   <nav className="bg-surface-container/70 backdrop-blur-md docked full-width top-0 sticky z-50 border-b border-outline-variant h-16">
     <div className="flex justify-between items-center px-gutter w-full max-w-container-max mx-auto h-full">
       <div className="flex items-center gap-8">
-        <span className="font-display text-headline-md font-bold text-primary-container">Visume</span>
+        <Link to="/" className="font-display text-headline-md font-bold text-primary-container">Visume</Link>
         <div className="hidden md:flex gap-6 items-center">
-          <a className="text-primary-container font-bold border-b-2 border-primary-container pb-1 font-body-md text-body-md" href="#">Discover</a>
-          <a className="text-text-muted font-medium hover:text-text-primary transition-colors font-body-md text-body-md" href="#">Applications</a>
-          <a className="text-text-muted font-medium hover:text-text-primary transition-colors font-body-md text-body-md" href="#">Messages</a>
+          <Link className="text-primary-container font-bold border-b-2 border-primary-container pb-1 font-body-md text-body-md" to="/discover">Discover</Link>
+          <Link className="text-text-muted font-medium hover:text-text-primary transition-colors font-body-md text-body-md" to="/applications">Applications</Link>
+          <Link className="text-text-muted font-medium hover:text-text-primary transition-colors font-body-md text-body-md" to="/dashboard">Messages</Link>
         </div>
       </div>
       <div className="flex items-center gap-4">
-        <button className="bg-primary px-6 py-2 rounded-lg text-white font-bold hover:opacity-90 transition-all font-body-md text-body-md">Upload Video</button>
-        <div className="w-10 h-10 rounded-full bg-surface-bright flex items-center justify-center border border-outline-variant overflow-hidden cursor-pointer">
+        <Link to="/recorder" className="bg-primary px-6 py-2 rounded-lg text-white font-bold hover:opacity-90 transition-all font-body-md text-body-md">Upload Video</Link>
+        <Link to="/settings" state={{ role: 'candidate' }} className="w-10 h-10 rounded-full bg-surface-bright flex items-center justify-center border border-outline-variant overflow-hidden cursor-pointer hover:border-primary transition-all">
           <img alt="Profile" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgpXjc86YyzolUjVehHfDX0ooaKQXmLeZk0qzHnZBk43XIBdu5eA_qSjZGTyX2DOq9Jg2YjG_n3-cdMoxG8ccG3YcENmmaHiKuoDBaocNVtQqYYFTVW7kKXl_fRQgxXYdsniqJZHqnm62h4v4wYHWI900FAaWTAvbHRJ4ePrn7xK1bbkiDqIqa1Vxd5UZhlh0f12gjgxhZKG_6FfpMoo9rrw_r4l6xrKRJa2J0olJcD4Zw019VtvIk6Udowo350FHxXM3vFLrJfJE"/>
-        </div>
+        </Link>
       </div>
     </div>
   </nav>
@@ -223,10 +224,10 @@ const CandidateProfile = () => {
             <p className="text-text-muted font-body-sm text-body-sm">© 2024 Visume. Personality-driven hiring.</p>
           </div>
           <div className="flex gap-8 mt-lg md:mt-0">
-            <a className="text-text-muted hover:text-secondary transition-colors font-label-md text-label-md" href="#">Privacy Policy</a>
-            <a className="text-text-muted hover:text-secondary transition-colors font-label-md text-label-md" href="#">Terms of Service</a>
-            <a className="text-text-muted hover:text-secondary transition-colors font-label-md text-label-md" href="#">For Recruiters</a>
-            <a className="text-text-muted hover:text-secondary transition-colors font-label-md text-label-md" href="#">About Us</a>
+            <Link className="text-text-muted hover:text-secondary transition-colors font-label-md text-label-md" to="/">Privacy Policy</Link>
+            <Link className="text-text-muted hover:text-secondary transition-colors font-label-md text-label-md" to="/">Terms of Service</Link>
+            <Link className="text-text-muted hover:text-secondary transition-colors font-label-md text-label-md" to="/recruiter">For Recruiters</Link>
+            <Link className="text-text-muted hover:text-secondary transition-colors font-label-md text-label-md" to="/">About Us</Link>
           </div>
         </div>
       </footer>

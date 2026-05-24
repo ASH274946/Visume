@@ -1,24 +1,26 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const TopNavBar = () => (
   <header className="bg-surface-container/70 backdrop-blur-md docked full-width top-0 sticky z-50 border-b border-outline-variant">
     <div className="flex justify-between items-center px-gutter w-full max-w-container-max mx-auto h-16">
       <div className="flex items-center gap-8">
-        <span className="font-display text-headline-md font-bold text-primary-container">Visume</span>
+        <Link to="/" className="font-display text-headline-md font-bold text-primary-container">Visume</Link>
         <nav className="hidden md:flex items-center gap-6">
-          <a className="text-text-muted font-medium hover:text-text-primary hover:bg-surface-bright/10 transition-colors" href="#">Discover</a>
-          <a className="text-text-muted font-medium hover:text-text-primary hover:bg-surface-bright/10 transition-colors" href="#">Applications</a>
-          <a className="text-text-muted font-medium hover:text-text-primary hover:bg-surface-bright/10 transition-colors" href="#">Messages</a>
+          <Link className="text-text-muted font-medium hover:text-text-primary px-3 py-1.5 rounded-lg transition-colors" to="/discover">Discover</Link>
+          <Link className="text-text-muted font-medium hover:text-text-primary px-3 py-1.5 rounded-lg transition-colors" to="/applications">Applications</Link>
+          <Link className="text-text-muted font-medium hover:text-text-primary px-3 py-1.5 rounded-lg transition-colors" to="/dashboard">Messages</Link>
         </nav>
       </div>
       <div className="flex items-center gap-4">
-        <button className="hidden md:flex items-center gap-2 bg-primary-container text-on-primary-container px-4 py-2 rounded-lg font-body-md hover:opacity-90 transition-all active:scale-95">
+        <label className="hidden md:flex items-center gap-2 bg-primary-container text-on-primary-container px-4 py-2 rounded-lg font-body-md hover:opacity-90 transition-all active:scale-95 cursor-pointer">
           <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>upload</span>
           Upload Video
-        </button>
-        <div className="w-10 h-10 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center overflow-hidden cursor-pointer">
+          <input type="file" accept="video/*" className="hidden" onChange={() => alert("Video resume uploaded successfully!")} />
+        </label>
+        <Link to="/settings" state={{ role: 'candidate' }} className="w-10 h-10 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center overflow-hidden cursor-pointer hover:border-primary transition-all">
           <img alt="Profile" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuABKz1N-_p_UxxgXh_yqFSiv_PIbRlh8QiNAZFYELPZfVidMuJqyBjKgorqrlnGmlKsJePHqO8ep-z-1rdZNs3th6oILff0zsM1UWRC6iKP3QvuWg8Mg0efDZ1EEQQwCaDWBH3IeRZW1caxzjf3PAEG5eiAIQdF7m-oWH-XLIfqOpbysDaUXDQLutFK1flxFYzLHNSH8ELUNucjcm91ZxsgkxNOLParnWQbYXAsTtoPV_j5rGIHx0_rshyKFeO6LyuiiV31GPZqxI0" />
-        </div>
+        </Link>
       </div>
     </div>
   </header>
@@ -29,10 +31,10 @@ const Footer = () => (
     <div className="flex flex-col md:flex-row justify-between items-center px-gutter py-lg w-full max-w-container-max mx-auto">
       <span className="font-display text-headline-sm font-bold text-text-primary mb-4 md:mb-0">Visume</span>
       <div className="flex gap-lg">
-        <a className="font-label-md text-label-md text-text-muted hover:text-secondary transition-colors" href="#">Privacy Policy</a>
-        <a className="font-label-md text-label-md text-text-muted hover:text-secondary transition-colors" href="#">Terms of Service</a>
-        <a className="font-label-md text-label-md text-text-muted hover:text-secondary transition-colors" href="#">For Recruiters</a>
-        <a className="font-label-md text-label-md text-text-muted hover:text-secondary transition-colors" href="#">About Us</a>
+        <Link className="font-label-md text-label-md text-text-muted hover:text-secondary transition-colors" to="/">Privacy Policy</Link>
+        <Link className="font-label-md text-label-md text-text-muted hover:text-secondary transition-colors" to="/">Terms of Service</Link>
+        <Link className="font-label-md text-label-md text-text-muted hover:text-secondary transition-colors" to="/recruiter">For Recruiters</Link>
+        <Link className="font-label-md text-label-md text-text-muted hover:text-secondary transition-colors" to="/">About Us</Link>
       </div>
       <p className="font-body-sm text-body-sm text-text-muted mt-4 md:mt-0 opacity-80 hover:opacity-100 transition-opacity">© 2024 Visume. Personality-driven hiring.</p>
     </div>
@@ -183,9 +185,9 @@ const VideoResumeRecorder = () => {
             <div className="mt-auto pt-lg">
               <p className="font-body-sm text-body-sm text-text-muted text-center mb-4">© 2024 Visume. Personality-driven hiring.</p>
               <div className="flex justify-center gap-6">
-                <a className="font-label-md text-label-md text-text-muted hover:text-secondary transition-colors" href="#">Privacy Policy</a>
-                <a className="font-label-md text-label-md text-text-muted hover:text-secondary transition-colors" href="#">Terms</a>
-                <a className="font-label-md text-label-md text-text-muted hover:text-secondary transition-colors" href="#">About Us</a>
+                <Link className="font-label-md text-label-md text-text-muted hover:text-secondary transition-colors" to="/">Privacy Policy</Link>
+                <Link className="font-label-md text-label-md text-text-muted hover:text-secondary transition-colors" to="/">Terms</Link>
+                <Link className="font-label-md text-label-md text-text-muted hover:text-secondary transition-colors" to="/">About Us</Link>
               </div>
             </div>
           </aside>

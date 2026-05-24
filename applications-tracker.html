@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Visume - Applications Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&amp;family=Syne:wght@400..800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "text-muted": "#6B6B80",
+                    "surface-dim": "#131318",
+                    "primary-container": "#6c5ce7",
+                    "on-primary-fixed": "#160066",
+                    "border-base": "#1E1E2E",
+                    "background": "#0A0A0F",
+                    "surface": "#131318",
+                    "danger": "#D63031",
+                    "text-primary": "#EAEAF0",
+                    "surface-container": "#13131A",
+                    "card-bg": "#13131A",
+                    "secondary": "#46eae5",
+                    "secondary-container": "#00cec9",
+                    "border-input": "#2A2A3E",
+                    "sidebar-active-glow": "rgba(108, 92, 231, 0.12)",
+                },
+                borderRadius: {
+                    DEFAULT: "0.25rem",
+                    lg: "0.5rem",
+                    xl: "0.75rem",
+                    full: "9999px"
+                },
+                spacing: {
+                    xxl: "64px",
+                    xs: "8px",
+                    sm: "16px",
+                    md: "24px",
+                    lg: "32px",
+                    xl: "48px"
+                },
+                fontFamily: {
+                    "body-sm": ["DM Sans"],
+                    "body-md": ["DM Sans"],
+                    "body-lg": ["DM Sans"],
+                    "headline-sm": ["Syne"],
+                    "headline-md": ["Syne"],
+                    "headline-lg": ["Syne"],
+                    "display": ["Syne"],
+                    "label-md": ["DM Sans"]
+                }
+            }
+        }
+    }
+</script>
+<style>
+    body {
+        background-color: #0A0A0F;
+        color: #EAEAF0;
+        font-family: 'DM Sans', sans-serif;
+    }
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #0A0A0F;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #2A2A3E;
+        border-radius: 10px;
+    }
+</style>
+</head>
+<body class="antialiased overflow-hidden flex h-screen">
+
+<!-- Sidebar -->
+<aside class="w-[240px] flex-shrink-0 bg-surface-container border-r border-border-base flex flex-col h-full z-50">
+    <div class="p-md">
+        <span class="font-display text-headline-sm font-bold text-primary-container">Visume</span>
+    </div>
+    <nav class="flex-1 mt-sm flex flex-col gap-1 overflow-y-auto custom-scrollbar">
+        <!-- Dashboard -->
+        <a class="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-container-high hover:text-text-primary transition-all duration-300" href="#">
+            <span class="material-symbols-outlined">dashboard</span>
+            <span class="font-label-md text-label-md">Dashboard</span>
+        </a>
+        <!-- My Profile -->
+        <a class="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-container-high hover:text-text-primary transition-all duration-300" href="#">
+            <span class="material-symbols-outlined">person</span>
+            <span class="font-label-md text-label-md">My Profile</span>
+        </a>
+        <!-- Video Resume -->
+        <a class="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-container-high hover:text-text-primary transition-all duration-300" href="#">
+            <span class="material-symbols-outlined">videocam</span>
+            <span class="font-label-md text-label-md">Video Resume</span>
+        </a>
+        <!-- Browse Jobs -->
+        <a class="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-container-high hover:text-text-primary transition-all duration-300" href="#">
+            <span class="material-symbols-outlined">work</span>
+            <span class="font-label-md text-label-md">Browse Jobs</span>
+        </a>
+        <!-- Applications Active -->
+        <a class="flex items-center gap-3 bg-sidebar-active-glow text-primary-container border-l-4 border-primary-container px-4 py-3 transition-all duration-300" href="#">
+            <span class="material-symbols-outlined">assignment</span>
+            <span class="font-label-md text-label-md">Applications</span>
+        </a>
+        <!-- Settings -->
+        <a class="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-container-high hover:text-text-primary transition-all duration-300" href="#">
+            <span class="material-symbols-outlined">settings</span>
+            <span class="font-label-md text-label-md">Settings</span>
+        </a>
+    </nav>
+    <div class="p-4 border-t border-border-base">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="relative w-10 h-10 rounded-full bg-border-input flex items-center justify-center overflow-hidden">
+                <span class="material-symbols-outlined text-text-muted">person</span>
+                <div class="absolute -bottom-1 -right-1 bg-green-500 w-3 h-3 rounded-full border-2 border-surface-container"></div>
+            </div>
+            <div class="flex flex-col">
+                <span class="font-body-sm text-text-primary font-bold">Ashwin Kumar</span>
+                <div class="flex items-center gap-1">
+                    <span class="bg-green-500/20 text-green-500 text-[10px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">KYC Verified</span>
+                </div>
+            </div>
+        </div>
+        <button class="flex items-center gap-2 text-danger font-label-md text-label-md w-full px-2 py-2 rounded-lg hover:bg-danger/10 transition-colors">
+            <span class="material-symbols-outlined">logout</span>
+            Logout
+        </button>
+    </div>
+</aside>
+
+<!-- Main Area -->
+<main class="flex-1 overflow-y-auto custom-scrollbar p-lg">
+    <header class="mb-lg">
+        <h1 class="font-display text-headline-lg text-text-primary">My Applications</h1>
+    </header>
+
+    <!-- Filter Tabs -->
+    <div class="flex gap-3 mb-xl overflow-x-auto pb-2 custom-scrollbar">
+        <button class="px-5 py-2 rounded-full bg-primary-container text-white text-sm font-medium whitespace-nowrap border border-primary-container">All (12)</button>
+        <button class="px-5 py-2 rounded-full border border-border-input text-text-muted hover:text-text-primary hover:border-text-muted transition-colors text-sm font-medium whitespace-nowrap">Applied (5)</button>
+        <button class="px-5 py-2 rounded-full border border-border-input text-text-muted hover:text-text-primary hover:border-text-muted transition-colors text-sm font-medium whitespace-nowrap">Under Review (3)</button>
+        <button class="px-5 py-2 rounded-full border border-border-input text-text-muted hover:text-text-primary hover:border-text-muted transition-colors text-sm font-medium whitespace-nowrap">Shortlisted (2)</button>
+        <button class="px-5 py-2 rounded-full border border-border-input text-text-muted hover:text-text-primary hover:border-text-muted transition-colors text-sm font-medium whitespace-nowrap">Interview (1)</button>
+        <button class="px-5 py-2 rounded-full border border-border-input text-text-muted hover:text-text-primary hover:border-text-muted transition-colors text-sm font-medium whitespace-nowrap">Rejected (1)</button>
+    </div>
+
+    <!-- Applications List -->
+    <div class="flex flex-col gap-4 max-w-[960px]">
+        
+        <!-- Interview Scheduled Card -->
+        <div class="bg-card-bg border border-border-base rounded-xl p-md border-l-[4px] border-l-secondary-container hover:shadow-lg transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center border border-border-input flex-shrink-0">
+                    <span class="text-text-muted font-bold">SA</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <h3 class="font-display text-headline-sm text-text-primary font-bold">Senior React Developer</h3>
+                    <p class="text-text-muted text-sm">Stellar AI Solutions • <span class="bg-surface-container px-2 py-0.5 rounded text-xs border border-border-input">Remote</span></p>
+                    <p class="text-text-muted text-xs mt-1">Applied: Oct 12, 2023</p>
+                </div>
+            </div>
+            
+            <div class="flex flex-col md:items-end gap-3 w-full md:w-auto mt-4 md:mt-0">
+                <div class="flex items-center gap-4 justify-between md:justify-end w-full">
+                    <span class="bg-secondary-container/20 text-secondary-container px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">
+                        Interview Scheduled
+                    </span>
+                    <div class="flex items-center gap-2">
+                        <button class="w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:bg-surface-container hover:text-text-primary transition-colors">
+                            <span class="material-symbols-outlined text-[20px]">visibility</span>
+                        </button>
+                        <button class="w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:bg-surface-container hover:text-text-primary transition-colors">
+                            <span class="material-symbols-outlined text-[20px]">more_vert</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-surface-container border border-border-input rounded-lg p-3 w-full flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <span class="text-sm text-text-primary"><span class="font-bold text-secondary-container">Interview on</span> May 28, 2026 at 3:00 PM</span>
+                    <button class="bg-secondary-container text-[#0A0A0F] px-4 py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#46eae5] transition-colors whitespace-nowrap">
+                        <span class="material-symbols-outlined text-[18px]">videocam</span> Join Meet
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shortlisted Card -->
+        <div class="bg-card-bg border border-border-base rounded-xl p-md hover:border-primary-container transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center border border-border-input flex-shrink-0">
+                    <span class="text-text-muted font-bold">NC</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <h3 class="font-display text-headline-sm text-text-primary font-bold">Product Manager</h3>
+                    <p class="text-text-muted text-sm">Nexus Creative • <span class="bg-surface-container px-2 py-0.5 rounded text-xs border border-border-input">Hybrid</span></p>
+                    <p class="text-text-muted text-xs mt-1">Applied: Oct 10, 2023</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 justify-between md:justify-end w-full md:w-auto mt-2 md:mt-0">
+                <span class="bg-primary-container/20 text-primary-container px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">
+                    Shortlisted
+                </span>
+                <div class="flex items-center gap-2">
+                    <button class="w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:bg-surface-container hover:text-text-primary transition-colors">
+                        <span class="material-symbols-outlined text-[20px]">visibility</span>
+                    </button>
+                    <button class="w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:bg-surface-container hover:text-text-primary transition-colors">
+                        <span class="material-symbols-outlined text-[20px]">more_vert</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Under Review Card -->
+        <div class="bg-card-bg border border-border-base rounded-xl p-md hover:border-yellow-500/50 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center border border-border-input flex-shrink-0">
+                    <span class="text-text-muted font-bold">CF</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <h3 class="font-display text-headline-sm text-text-primary font-bold">Frontend Developer</h3>
+                    <p class="text-text-muted text-sm">CloudFlow • <span class="bg-surface-container px-2 py-0.5 rounded text-xs border border-border-input">Remote</span></p>
+                    <p class="text-text-muted text-xs mt-1">Applied: Oct 14, 2023</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 justify-between md:justify-end w-full md:w-auto mt-2 md:mt-0">
+                <span class="bg-yellow-500/20 text-yellow-500 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">
+                    Under Review
+                </span>
+                <div class="flex items-center gap-2">
+                    <button class="w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:bg-surface-container hover:text-text-primary transition-colors">
+                        <span class="material-symbols-outlined text-[20px]">visibility</span>
+                    </button>
+                    <button class="w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:bg-surface-container hover:text-text-primary transition-colors">
+                        <span class="material-symbols-outlined text-[20px]">more_vert</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Applied Card -->
+        <div class="bg-card-bg border border-border-base rounded-xl p-md hover:border-blue-500/50 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center border border-border-input flex-shrink-0">
+                    <span class="text-text-muted font-bold">PS</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <h3 class="font-display text-headline-sm text-text-primary font-bold">Motion Designer</h3>
+                    <p class="text-text-muted text-sm">Peak Studio • <span class="bg-surface-container px-2 py-0.5 rounded text-xs border border-border-input">Onsite</span></p>
+                    <p class="text-text-muted text-xs mt-1">Applied: Oct 15, 2023</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 justify-between md:justify-end w-full md:w-auto mt-2 md:mt-0">
+                <span class="bg-blue-500/20 text-blue-500 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">
+                    Applied
+                </span>
+                <div class="flex items-center gap-2">
+                    <button class="w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:bg-surface-container hover:text-text-primary transition-colors">
+                        <span class="material-symbols-outlined text-[20px]">visibility</span>
+                    </button>
+                    <button class="w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:bg-surface-container hover:text-text-primary transition-colors">
+                        <span class="material-symbols-outlined text-[20px]">more_vert</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Rejected Card -->
+        <div class="bg-card-bg border border-border-base rounded-xl p-md hover:border-danger/50 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 opacity-70">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center border border-border-input flex-shrink-0">
+                    <span class="text-text-muted font-bold">TI</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <h3 class="font-display text-headline-sm text-text-primary font-bold">UI Engineer</h3>
+                    <p class="text-text-muted text-sm">Tech Innovators • <span class="bg-surface-container px-2 py-0.5 rounded text-xs border border-border-input">Remote</span></p>
+                    <p class="text-text-muted text-xs mt-1">Applied: Sep 20, 2023</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 justify-between md:justify-end w-full md:w-auto mt-2 md:mt-0">
+                <span class="bg-danger/20 text-danger px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">
+                    Rejected
+                </span>
+                <div class="flex items-center gap-2">
+                    <button class="w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:bg-surface-container hover:text-text-primary transition-colors">
+                        <span class="material-symbols-outlined text-[20px]">visibility</span>
+                    </button>
+                    <button class="w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:bg-surface-container hover:text-text-primary transition-colors">
+                        <span class="material-symbols-outlined text-[20px]">more_vert</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+</body>
+</html>

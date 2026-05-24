@@ -1,29 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const TopNav = () => (
   <nav className="fixed top-0 z-50 w-full h-16 bg-surface-container/70 backdrop-blur-md border-b border-outline-variant flex justify-between items-center px-gutter max-w-container-max mx-auto left-0 right-0">
     <div className="flex items-center gap-8">
-      <span className="font-display text-headline-md font-bold text-primary-container">Visume</span>
+      <Link to="/" className="font-display text-headline-md font-bold text-primary-container">Visume</Link>
       <div className="hidden md:flex items-center gap-6">
-        <a className="text-primary-container font-bold border-b-2 border-primary-container pb-1" href="#">Discover</a>
-        <a className="text-text-muted font-medium hover:text-text-primary transition-colors" href="#">Applications</a>
-        <a className="text-text-muted font-medium hover:text-text-primary transition-colors" href="#">Messages</a>
+        <Link className="text-primary-container font-bold border-b-2 border-primary-container pb-1" to="/discover">Discover</Link>
+        <Link className="text-text-muted font-medium hover:text-text-primary transition-colors" to="/applications">Applications</Link>
+        <Link className="text-text-muted font-medium hover:text-text-primary transition-colors" to="/dashboard">Messages</Link>
       </div>
     </div>
     <div className="flex items-center gap-4">
-      <button className="hidden md:flex items-center gap-2 bg-primary-container text-on-primary-container px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-all active:scale-95">
+      <Link to="/recorder" className="hidden md:flex items-center gap-2 bg-primary-container text-on-primary-container px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-all active:scale-95">
         <span className="material-symbols-outlined text-[20px]">videocam</span>
         Upload Video
-      </button>
-      <div className="w-10 h-10 rounded-full border-2 border-outline-variant overflow-hidden">
+      </Link>
+      <Link to="/settings" state={{ role: 'candidate' }} className="w-10 h-10 rounded-full border-2 border-outline-variant overflow-hidden hover:border-primary transition-all">
         <img alt="Profile" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpwpLefYN84jpH8f4wFaL4A5turgZSIciHwj8h8C1LkCsekK2uDKaLCBoyLvL7ERBi63YDv4nJztwF-QmrNMj11AUujXKilseKCO6hhxFtUjtOhTK-hlsrJNk9oZzL4QsuJSVdEOcX0A1aZ-Ls8zj5o-x4cLEURN8aFd5lnAihxE5uLOmD2a3igzboWPe_xBFEcrtZ0i3ncx5Vc3yCVCp8p3SomzS3GZVwS2G9B-fpxM6K2-wAbj44unXMwkvBS8gXub7cBEyBNA4" />
-      </div>
+      </Link>
     </div>
   </nav>
 );
 
 const FilterSidebar = () => (
-  <aside className="fixed left-0 top-16 bottom-0 w-sidebar-width bg-surface-container border-r border-outline-variant sidebar-scroll overflow-y-auto hidden lg:flex flex-col p-6 gap-8">
+  <aside className="fixed left-4 top-[80px] bottom-4 w-sidebar-width bg-surface-container border border-outline-variant rounded-2xl shadow-xl shadow-black/40 sidebar-scroll overflow-y-auto hidden lg:flex flex-col p-6 gap-8 z-40">
     <div className="flex items-center justify-between">
       <h2 className="font-display text-headline-sm font-bold text-text-primary">Filter Jobs</h2>
       <span className="material-symbols-outlined text-text-muted cursor-pointer hover:text-primary">tune</span>
@@ -90,6 +91,9 @@ const FilterSidebar = () => (
 );
 
 const JobGrid = () => {
+  const navigate = useNavigate();
+  const [applyingIdx, setApplyingIdx] = useState(null);
+
   const jobs = [
     {
       title: "Lead Product Designer",
@@ -168,8 +172,23 @@ const JobGrid = () => {
           </div>
           
           <div className="flex gap-4 mt-auto">
-            <button className="flex-1 py-2.5 rounded-lg border border-primary-container text-primary-container font-bold hover:bg-primary-container/10 transition-all">View Details</button>
-            <button className="flex-1 py-2.5 rounded-lg bg-primary-container text-white font-bold hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary-container/20">Quick Apply</button>
+            <button type="button" className="flex-1 py-2.5 rounded-lg border border-primary-container text-primary-container font-bold hover:bg-primary-container/10 transition-all">View Details</button>
+            <button 
+              type="button" 
+              onClick={() => {
+                setApplyingIdx(idx);
+                setTimeout(() => {
+                  alert(`Successfully applied to ${job.title} at ${job.company} using your Visume!`);
+                  navigate('/applications');
+                }, 800);
+              }}
+              disabled={applyingIdx !== null}
+              className="flex-1 py-2.5 rounded-lg bg-primary-container text-white font-bold hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary-container/20 flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {applyingIdx === idx ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              ) : "Quick Apply"}
+            </button>
           </div>
         </div>
       ))}
@@ -205,10 +224,10 @@ const Footer = () => (
       <p className="font-body-sm text-body-sm text-text-muted mt-2">© 2024 Visume. Personality-driven hiring.</p>
     </div>
     <div className="flex flex-wrap justify-center gap-6">
-      <a className="text-label-md font-label-md text-text-muted hover:text-secondary transition-colors" href="#">Privacy Policy</a>
-      <a className="text-label-md font-label-md text-text-muted hover:text-secondary transition-colors" href="#">Terms of Service</a>
-      <a className="text-label-md font-label-md text-text-muted hover:text-secondary transition-colors" href="#">For Recruiters</a>
-      <a className="text-label-md font-label-md text-text-muted hover:text-secondary transition-colors" href="#">About Us</a>
+      <Link className="text-label-md font-label-md text-text-muted hover:text-secondary transition-colors" to="/">Privacy Policy</Link>
+      <Link className="text-label-md font-label-md text-text-muted hover:text-secondary transition-colors" to="/">Terms of Service</Link>
+      <Link className="text-label-md font-label-md text-text-muted hover:text-secondary transition-colors" to="/recruiter">For Recruiters</Link>
+      <Link className="text-label-md font-label-md text-text-muted hover:text-secondary transition-colors" to="/">About Us</Link>
     </div>
   </footer>
 );
@@ -219,7 +238,7 @@ const JobDiscoveryPage = () => {
       <TopNav />
       <div className="flex pt-16 min-h-screen max-w-[1440px] mx-auto pb-20 md:pb-0">
         <FilterSidebar />
-        <main className="flex-1 lg:ml-sidebar-width p-lg md:p-xl space-y-8">
+        <main className="flex-1 lg:ml-[272px] p-lg md:p-xl space-y-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <h1 className="font-display text-headline-lg font-bold">Discover Roles</h1>

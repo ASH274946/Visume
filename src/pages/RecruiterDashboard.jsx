@@ -1,46 +1,49 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Sidebar = () => (
-  <aside className="fixed left-0 top-0 h-full w-[240px] bg-surface-container border-r border-outline-variant flex flex-col py-md z-40 transition-transform md:translate-x-0 -translate-x-full">
+  <aside className="fixed left-4 top-4 bottom-4 w-[240px] bg-surface-container border border-outline-variant flex flex-col py-md rounded-2xl shadow-xl shadow-black/40 z-40 transition-transform md:translate-x-0 -translate-x-full">
     {/* Brand Identity */}
     <div className="px-md mb-xl">
       <div className="flex items-center gap-xs">
-        <span className="font-display text-headline-sm font-bold text-primary-container">Visume</span>
+        <Link to="/" className="font-display text-headline-sm font-bold text-primary-container">Visume</Link>
         <span className="bg-primary-container/20 text-primary-container text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest">Recruiter</span>
       </div>
     </div>
     
     {/* Main Navigation Links */}
-    <nav className="flex-1 space-y-1">
-      <a className="flex items-center gap-3 bg-sidebar-active-glow text-primary-container border-l-4 border-primary-container px-4 py-3 font-label-md text-label-md transition-all duration-300" href="#">
+    <nav className="flex-1 mt-sm flex flex-col gap-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
+      <Link className="flex items-center gap-3 bg-sidebar-active-glow text-primary-container border-l-4 border-primary-container px-4 py-3 font-label-md text-label-md transition-all duration-300" to="/recruiter">
         <span className="material-symbols-outlined">dashboard</span>
         Dashboard
-      </a>
-      <a className="flex items-center gap-3 text-text-muted px-4 py-3 font-label-md text-label-md hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300" href="#">
+      </Link>
+      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 font-label-md text-label-md hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300" to="/discover">
         <span className="material-symbols-outlined">work</span>
         Find Candidates
-      </a>
-      <a className="flex items-center gap-3 text-text-muted px-4 py-3 font-label-md text-label-md hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300" href="#">
+      </Link>
+      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 font-label-md text-label-md hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300" to="/post-job">
         <span className="material-symbols-outlined">assignment</span>
         Job Postings
-      </a>
-      <a className="flex items-center gap-3 text-text-muted px-4 py-3 font-label-md text-label-md hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300" href="#">
+      </Link>
+      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 font-label-md text-label-md hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300" to="/pipeline">
         <span className="material-symbols-outlined">account_tree</span>
         Pipeline
-      </a>
-      <a className="flex items-center gap-3 text-text-muted px-4 py-3 font-label-md text-label-md hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300" href="#">
+      </Link>
+    </nav>
+    <div className="flex flex-col gap-1 mb-2">
+      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 font-label-md text-label-md hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300" to="/recruiter">
         <span className="material-symbols-outlined">corporate_fare</span>
         Company Profile
-      </a>
-      <a className="flex items-center gap-3 text-text-muted px-4 py-3 font-label-md text-label-md hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300" href="#">
+      </Link>
+      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 font-label-md text-label-md hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300" to="/settings" state={{ role: 'recruiter' }}>
         <span className="material-symbols-outlined">settings</span>
         Settings
-      </a>
-    </nav>
+      </Link>
+    </div>
     
     {/* Footer / Company Info */}
     <div className="mt-auto px-4 pt-md border-t border-outline-variant">
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-lg bg-surface-bright overflow-hidden">
           <img alt="Company Logo" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDr8iCAVAhPScb_vdkwDSM7i-rKehbjU9T_oH_R_LzauB3AK0hSLlYufoBO69nrWY8Blwa8jc7ma2oYYuOm9py4Ov4EAiDv0zUm2-xfXdUiIkH8mKOQdvQJ8LJiDmrcGy7fUCvQb7huHv_xEoRdXKsHXqPvUAtNiLp3wzi06JcnPGt5SJAjB9lR7DwlrnVdhdJnixqda_Qo651DsBjwFSHpriGOu2FM8g0UU-nM06NmNoMIVOaR8YnS_nJF11HG-ewhQSgxnzM-Ey8" />
         </div>
@@ -49,10 +52,6 @@ const Sidebar = () => (
           <p className="font-label-md text-text-muted">Enterprise Plan</p>
         </div>
       </div>
-      <a className="flex items-center gap-3 text-text-muted px-4 py-3 hover:text-text-primary transition-all" href="#">
-        <span className="material-symbols-outlined">logout</span>
-        Logout
-      </a>
     </div>
   </aside>
 );
@@ -63,10 +62,10 @@ const HeaderSection = () => (
       <h1 className="font-headline-lg text-headline-lg text-text-primary">Good morning, Sarah</h1>
       <p className="font-body-md text-text-muted">Here's what's happening with your hiring pipeline today.</p>
     </div>
-    <button className="bg-primary text-[#FFFFFF] px-gutter py-3 rounded-lg font-label-md font-bold hover:brightness-110 active:scale-95 transition-all flex items-center gap-2 shadow-lg shadow-primary/20">
+    <Link to="/post-job" className="bg-primary text-[#FFFFFF] px-gutter py-3 rounded-lg font-label-md font-bold hover:brightness-110 active:scale-95 transition-all flex items-center gap-2 shadow-lg shadow-primary/20">
       <span className="material-symbols-outlined">add</span>
       Post New Job
-    </button>
+    </Link>
   </header>
 );
 
@@ -243,7 +242,7 @@ const ActivePipelines = () => (
   <section className="mt-xl">
     <h2 className="font-headline-md text-headline-md text-text-primary mb-md">Active Pipelines</h2>
     <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter">
-      <div className="bg-card-bg border border-border-base rounded-xl p-md flex items-center justify-between group cursor-pointer hover:border-primary/40 transition-all">
+      <Link to="/pipeline" className="bg-card-bg border border-border-base rounded-xl p-md flex items-center justify-between group cursor-pointer hover:border-primary/40 transition-all">
         <div className="flex items-center gap-md">
           <div className="w-12 h-12 rounded-lg bg-surface-bright flex items-center justify-center text-primary">
             <span className="material-symbols-outlined text-[28px]">palette</span>
@@ -254,9 +253,9 @@ const ActivePipelines = () => (
           </div>
         </div>
         <span className="material-symbols-outlined text-text-muted group-hover:text-primary transition-colors">chevron_right</span>
-      </div>
+      </Link>
       
-      <div className="bg-card-bg border border-border-base rounded-xl p-md flex items-center justify-between group cursor-pointer hover:border-primary/40 transition-all">
+      <Link to="/pipeline" className="bg-card-bg border border-border-base rounded-xl p-md flex items-center justify-between group cursor-pointer hover:border-primary/40 transition-all">
         <div className="flex items-center gap-md">
           <div className="w-12 h-12 rounded-lg bg-surface-bright flex items-center justify-center text-secondary">
             <span className="material-symbols-outlined text-[28px]">code</span>
@@ -267,7 +266,7 @@ const ActivePipelines = () => (
           </div>
         </div>
         <span className="material-symbols-outlined text-text-muted group-hover:text-primary transition-colors">chevron_right</span>
-      </div>
+      </Link>
     </div>
   </section>
 );
@@ -276,7 +275,7 @@ const RecruiterDashboard = () => {
   return (
     <div className="bg-background text-text-primary font-body-md overflow-x-hidden min-h-screen">
       <Sidebar />
-      <main className="md:ml-[240px] min-h-screen p-gutter">
+      <main className="md:ml-[272px] min-h-screen p-gutter">
         <HeaderSection />
         <StatsRow />
         <div className="flex flex-col lg:flex-row gap-gutter">

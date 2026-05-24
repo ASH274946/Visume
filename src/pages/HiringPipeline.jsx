@@ -1,49 +1,48 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Sidebar = () => (
-  <aside className="fixed left-0 top-0 h-full w-[240px] bg-surface-container border-r border-outline-variant flex flex-col py-md z-50">
+  <aside className="fixed left-4 top-4 bottom-4 w-[240px] bg-surface-container border border-outline-variant flex flex-col py-md rounded-2xl shadow-xl shadow-black/40 z-50">
     <div className="px-gutter mb-xl">
-      <h1 className="font-display text-headline-sm font-bold text-primary-container">Visume</h1>
+      <Link to="/" className="font-display text-headline-sm font-bold text-primary-container block">Visume</Link>
       <p className="font-body-sm text-body-sm text-text-muted">Video-First Hiring</p>
     </div>
     
-    <nav className="flex-1 flex flex-col gap-1">
-      <a className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300" href="#">
+    <nav className="flex-1 flex flex-col gap-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
+      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300" to="/recruiter">
         <span className="material-symbols-outlined">dashboard</span>
         <span className="font-label-md text-label-md">Dashboard</span>
-      </a>
-      <a className="flex items-center gap-3 bg-sidebar-active-glow text-primary-container border-l-4 border-primary-container px-4 py-3 font-bold" href="#">
+      </Link>
+      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300" to="/discover">
+        <span className="material-symbols-outlined">search</span>
+        <span className="font-label-md text-label-md">Find Candidates</span>
+      </Link>
+      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300" to="/post-job">
         <span className="material-symbols-outlined">work</span>
-        <span className="font-label-md text-label-md">Jobs</span>
-      </a>
-      <a className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300" href="#">
-        <span className="material-symbols-outlined">videocam</span>
-        <span className="font-label-md text-label-md">Video Resume</span>
-      </a>
-      <a className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300" href="#">
-        <span className="material-symbols-outlined">chat</span>
-        <span className="font-label-md text-label-md">Messages</span>
-      </a>
-      <a className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300" href="#">
+        <span className="font-label-md text-label-md">Job Postings</span>
+      </Link>
+      <Link className="flex items-center gap-3 bg-sidebar-active-glow text-primary-container border-l-4 border-primary-container px-4 py-3 font-bold" to="/pipeline">
+        <span className="material-symbols-outlined">account_tree</span>
+        <span className="font-label-md text-label-md">Pipeline</span>
+      </Link>
+    </nav>
+    <div className="flex flex-col gap-1 mb-2">
+      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300" to="/settings" state={{ role: 'recruiter' }}>
         <span className="material-symbols-outlined">settings</span>
         <span className="font-label-md text-label-md">Settings</span>
-      </a>
-    </nav>
+      </Link>
+    </div>
     
     <div className="px-gutter mt-auto mb-md">
-      <button className="w-full bg-primary-container text-white py-3 rounded-lg font-label-md text-label-md font-bold hover:brightness-110 transition-all">
-        Record New Visume
-      </button>
+      <Link to="/post-job" className="block w-full text-center bg-primary-container text-white py-3 rounded-lg font-label-md text-label-md font-bold hover:brightness-110 transition-all">
+        Post New Job
+      </Link>
     </div>
     
     <div className="flex flex-col gap-1 border-t border-outline-variant pt-md">
-      <a className="flex items-center gap-3 text-text-muted px-4 py-2 hover:text-text-primary" href="#">
+      <a className="flex items-center gap-3 text-text-muted px-4 py-2 hover:text-text-primary" href="#help">
         <span className="material-symbols-outlined">help</span>
         <span className="font-label-md text-label-md">Help Center</span>
-      </a>
-      <a className="flex items-center gap-3 text-text-muted px-4 py-2 hover:text-text-primary" href="#">
-        <span className="material-symbols-outlined">logout</span>
-        <span className="font-label-md text-label-md">Logout</span>
       </a>
     </div>
   </aside>
@@ -58,17 +57,17 @@ const TopBar = () => (
     
     <div className="flex items-center gap-gutter">
       <div className="flex items-center gap-6">
-        <a className="text-text-muted font-medium hover:text-text-primary text-body-md font-body-md transition-colors" href="#">Discover</a>
-        <a className="text-primary-container font-bold border-b-2 border-primary-container pb-1 text-body-md font-body-md" href="#">Applications</a>
-        <a className="text-text-muted font-medium hover:text-text-primary text-body-md font-body-md transition-colors" href="#">Messages</a>
+        <Link className="text-text-muted font-medium hover:text-text-primary text-body-md font-body-md transition-colors" to="/discover">Discover</Link>
+        <Link className="text-primary-container font-bold border-b-2 border-primary-container pb-1 text-body-md font-body-md" to="/pipeline">Applications</Link>
+        <Link className="text-text-muted font-medium hover:text-text-primary text-body-md font-body-md transition-colors" to="/recruiter">Messages</Link>
       </div>
       <div className="flex items-center gap-4">
         <button className="bg-surface-bright/10 p-2 rounded-full hover:bg-surface-bright/20 transition-colors">
           <span className="material-symbols-outlined text-text-primary">search</span>
         </button>
-        <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
+        <Link to="/settings" state={{ role: 'recruiter' }} className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container hover:border-primary transition-all">
           <img alt="Recruiter Profile" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNf2pjUzrkRvM99OTMYedpfBrRYOSG-5UPAj6qQ6cIPo2L33Fm5Jq39erhvobw6e_WZT_lykFSQ_AZVn20xTjCiJOUgUz5-eDAXvMTz9-xcbod8siIyiAm_AtZiBlg25B43ctasBZcoGJsUozrMmZutznU9iMgqWR9jw8NMW1uWfJyO6rM5zdMwtLU0a8eOnB7LpjjN1BL5ywIOivbPgQwBZux3jlfQz65oNm6diIcOqCCJUIRPp7UnvVAU87HkNnfUmd3jnK9NB0" />
-        </div>
+        </Link>
       </div>
     </div>
   </header>
@@ -128,7 +127,7 @@ const HiringPipeline = () => {
   return (
     <div className="flex min-h-screen bg-background text-text-primary font-body-md overflow-x-hidden">
       <Sidebar />
-      <main className="ml-[240px] flex-1 flex flex-col h-screen overflow-hidden">
+      <main className="ml-[272px] flex-1 flex flex-col h-[calc(100vh-32px)] my-4 mr-4 border border-outline-variant rounded-2xl overflow-hidden shadow-xl shadow-black/40 bg-surface-container-lowest/10">
         <TopBar />
         
         {/* Kanban Board Area */}

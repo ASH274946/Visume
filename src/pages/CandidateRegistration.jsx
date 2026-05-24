@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const TopNav = () => (
   <nav className="glass-header sticky top-0 z-50 h-16 flex items-center px-gutter w-full">
     <div className="max-w-container-max mx-auto w-full flex justify-between items-center">
-      <span className="font-display text-headline-md font-bold text-primary-container">Visume</span>
-      <div className="hidden md:flex gap-sm">
+      <Link to="/" className="font-display text-headline-md font-bold text-primary-container">Visume</Link>
+      <div className="hidden md:flex gap-sm items-center">
         <span className="text-text-muted font-body-sm">Already have an account?</span>
-        <a className="text-primary-container font-label-md hover:underline" href="#">Log In</a>
+        <Link className="text-primary-container font-label-md hover:underline" to="/login">Log In</Link>
       </div>
     </div>
   </nav>
@@ -17,9 +18,9 @@ const Footer = () => (
     <div className="max-w-container-max mx-auto px-gutter flex flex-col md:flex-row justify-between items-center gap-md">
       <span className="font-display text-headline-sm font-bold text-text-primary">Visume</span>
       <div className="flex gap-lg">
-        <a className="font-label-md text-text-muted hover:text-secondary transition-colors" href="#">Privacy Policy</a>
-        <a className="font-label-md text-text-muted hover:text-secondary transition-colors" href="#">Terms of Service</a>
-        <a className="font-label-md text-text-muted hover:text-secondary transition-colors" href="#">For Recruiters</a>
+        <Link className="font-label-md text-text-muted hover:text-secondary transition-colors" to="/">Privacy Policy</Link>
+        <Link className="font-label-md text-text-muted hover:text-secondary transition-colors" to="/">Terms of Service</Link>
+        <Link className="font-label-md text-text-muted hover:text-secondary transition-colors" to="/recruiter">For Recruiters</Link>
       </div>
       <p className="font-body-sm text-text-muted">© 2024 Visume. Personality-driven hiring.</p>
     </div>
@@ -153,6 +154,7 @@ const Step2 = ({ onNext }) => (
 );
 
 const Step3 = () => {
+  const navigate = useNavigate();
   const [skills, setSkills] = useState(['React', 'Tailwind CSS']);
   const [inputVal, setInputVal] = useState('');
 
@@ -221,7 +223,7 @@ const Step3 = () => {
             <input className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="linkedin.com/in/username" type="url"/>
           </div>
         </div>
-        <button className="w-full bg-primary-container text-white font-label-md py-md rounded-lg hover:brightness-110 active:scale-[0.98] transition-all uppercase tracking-wider font-bold mt-4">Complete Profile</button>
+        <button onClick={() => navigate('/dashboard')} className="w-full bg-primary-container text-white font-label-md py-md rounded-lg hover:brightness-110 active:scale-[0.98] transition-all uppercase tracking-wider font-bold mt-4">Complete Profile</button>
       </div>
     </section>
   );

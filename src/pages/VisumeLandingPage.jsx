@@ -1,19 +1,20 @@
 import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => (
   <nav className="fixed top-0 left-0 w-full z-50 glass-nav border-b border-[#2A2A3E]">
     <div className="max-w-container-max mx-auto px-gutter h-16 flex items-center justify-between">
       <div className="flex items-center gap-12">
-        <a className="font-display text-headline-md font-bold text-primary tracking-tight" href="#">Visume</a>
+        <Link className="font-display text-headline-md font-bold text-primary tracking-tight" to="/">Visume</Link>
         <div className="hidden md:flex items-center gap-8">
-          <a className="font-label-md text-text-muted hover:text-text-primary transition-colors" href="#">How it Works</a>
-          <a className="font-label-md text-text-muted hover:text-text-primary transition-colors" href="#">For Recruiters</a>
-          <a className="font-label-md text-text-muted hover:text-text-primary transition-colors" href="#">Pricing</a>
+          <Link className="font-label-md text-text-muted hover:text-text-primary transition-colors" to="/discover">How it Works</Link>
+          <Link className="font-label-md text-text-muted hover:text-text-primary transition-colors" to="/login" state={{ redirectTo: '/dashboard' }}>For Candidates</Link>
+          <Link className="font-label-md text-text-muted hover:text-text-primary transition-colors" to="/login" state={{ redirectTo: '/recruiter' }}>For Recruiters</Link>
+          <Link className="font-label-md text-text-muted hover:text-text-primary transition-colors" to="/register">Pricing</Link>
         </div>
       </div>
       <div className="flex items-center gap-4">
-        <button className="hidden sm:block font-label-md border border-primary text-primary px-sm py-xs rounded-lg hover:bg-primary/10 transition-all duration-200">Post a Job</button>
-        <button className="font-label-md bg-primary text-white px-md py-xs rounded-lg hover:opacity-90 active:scale-95 transition-all duration-200">Record Resume</button>
+        <Link to="/login" className="font-label-md bg-primary text-white px-md py-xs rounded-lg hover:opacity-90 active:scale-95 transition-all duration-200 flex items-center justify-center">Sign In</Link>
       </div>
     </div>
   </nav>
@@ -31,8 +32,25 @@ const Hero = () => (
           Ditch the static PDFs. Show your true personality, soft skills, and expertise through video resumes that speak louder than bullet points.
         </p>
         <div className="flex flex-wrap gap-4 pt-4">
-          <button className="bg-primary text-white px-lg py-md rounded-xl font-label-md hover:scale-105 transition-transform active:scale-95">Record My Resume</button>
-          <button className="border border-secondary text-secondary px-lg py-md rounded-xl font-label-md hover:bg-secondary/5 transition-colors">Browse Jobs</button>
+          <Link to="/login" state={{ redirectTo: '/recorder' }} className="bg-primary text-white px-lg py-md rounded-full font-label-md hover:scale-105 transition-transform active:scale-95 inline-block text-center">Record My Resume</Link>
+          <Link to="/discover" className="border border-secondary text-secondary px-lg py-md rounded-full font-label-md hover:bg-secondary/5 transition-colors inline-block text-center">Browse Jobs</Link>
+        </div>
+        {/* Stats Row */}
+        <div className="flex flex-wrap items-center gap-6 pt-8 border-t border-outline-variant mt-8 max-w-md">
+          <div className="space-y-0.5">
+            <p className="font-display text-headline-sm font-extrabold text-white">2,400+</p>
+            <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Candidates</p>
+          </div>
+          <div className="h-8 w-px bg-outline-variant"></div>
+          <div className="space-y-0.5">
+            <p className="font-display text-headline-sm font-extrabold text-white">380+</p>
+            <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Companies</p>
+          </div>
+          <div className="h-8 w-px bg-outline-variant"></div>
+          <div className="space-y-0.5">
+            <p className="font-display text-headline-sm font-extrabold text-secondary">94%</p>
+            <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Match Accuracy</p>
+          </div>
         </div>
       </div>
       {/* Floating Video Card */}
@@ -52,9 +70,9 @@ const Hero = () => (
             </div>
             {/* Play Button Overlay */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 cursor-pointer hover:scale-110 transition-transform">
+              <Link to="/profile" className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 cursor-pointer hover:scale-110 transition-transform">
                 <span className="material-symbols-outlined text-white text-[32px]" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
-              </div>
+              </Link>
             </div>
             {/* Candidate Info */}
             <div className="absolute bottom-6 left-6 right-6">
@@ -80,25 +98,6 @@ const Hero = () => (
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
-);
-
-const Stats = () => (
-  <section className="bg-surface-container py-lg mt-xl">
-    <div className="max-w-container-max mx-auto px-gutter grid grid-cols-1 md:grid-cols-3 gap-md text-center">
-      <div className="space-y-1">
-        <p className="font-display text-headline-lg font-extrabold text-white">2,400+</p>
-        <p className="font-label-md text-text-muted uppercase tracking-[2px]">Candidates</p>
-      </div>
-      <div className="space-y-1 border-y md:border-y-0 md:border-x border-outline-variant py-md md:py-0">
-        <p className="font-display text-headline-lg font-extrabold text-white">380+</p>
-        <p className="font-label-md text-text-muted uppercase tracking-[2px]">Companies</p>
-      </div>
-      <div className="space-y-1">
-        <p className="font-display text-headline-lg font-extrabold text-secondary">94%</p>
-        <p className="font-label-md text-text-muted uppercase tracking-[2px]">Match Accuracy</p>
       </div>
     </div>
   </section>
@@ -151,7 +150,7 @@ const CTA = () => (
         <p className="text-white/80 font-body-md">Join 2,000+ candidates who found their match this month.</p>
       </div>
       <div className="z-10">
-        <button className="bg-white text-primary px-lg py-md rounded-xl font-bold hover:bg-on-primary-container transition-colors shadow-lg">Start Recording Now</button>
+        <Link to="/login" state={{ redirectTo: '/register' }} className="bg-white text-primary px-lg py-md rounded-xl font-bold hover:bg-on-primary-container transition-colors shadow-lg inline-block">Start Recording Now</Link>
       </div>
     </div>
   </section>
@@ -162,24 +161,24 @@ const Footer = () => (
     <div className="max-w-container-max mx-auto px-gutter py-xl">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-lg">
         <div className="space-y-4">
-          <a className="font-display text-headline-sm font-bold text-text-primary tracking-tight" href="#">Visume</a>
+          <Link className="font-display text-headline-sm font-bold text-text-primary tracking-tight" to="/">Visume</Link>
           <p className="font-body-sm text-text-muted max-w-xs">Personality-driven hiring. Empowering candidates to showcase more than just a piece of paper.</p>
         </div>
         <div className="flex flex-wrap gap-x-12 gap-y-4">
           <div className="space-y-4">
             <p className="font-label-md text-white font-bold uppercase tracking-widest">Platform</p>
             <ul className="space-y-2">
-              <li><a className="text-text-muted hover:text-secondary transition-colors text-sm" href="#">For Candidates</a></li>
-              <li><a className="text-text-muted hover:text-secondary transition-colors text-sm" href="#">For Recruiters</a></li>
-              <li><a className="text-text-muted hover:text-secondary transition-colors text-sm" href="#">Pricing</a></li>
+              <li><Link className="text-text-muted hover:text-secondary transition-colors text-sm" to="/login" state={{ redirectTo: '/dashboard' }}>For Candidates</Link></li>
+              <li><Link className="text-text-muted hover:text-secondary transition-colors text-sm" to="/login" state={{ redirectTo: '/recruiter' }}>For Recruiters</Link></li>
+              <li><Link className="text-text-muted hover:text-secondary transition-colors text-sm" to="/login" state={{ redirectTo: '/register' }}>Pricing</Link></li>
             </ul>
           </div>
           <div className="space-y-4">
             <p className="font-label-md text-white font-bold uppercase tracking-widest">Company</p>
             <ul className="space-y-2">
-              <li><a className="text-text-muted hover:text-secondary transition-colors text-sm" href="#">About Us</a></li>
-              <li><a className="text-text-muted hover:text-secondary transition-colors text-sm" href="#">Privacy Policy</a></li>
-              <li><a className="text-text-muted hover:text-secondary transition-colors text-sm" href="#">Terms of Service</a></li>
+              <li><Link className="text-text-muted hover:text-secondary transition-colors text-sm" to="/">About Us</Link></li>
+              <li><Link className="text-text-muted hover:text-secondary transition-colors text-sm" to="/">Privacy Policy</Link></li>
+              <li><Link className="text-text-muted hover:text-secondary transition-colors text-sm" to="/">Terms of Service</Link></li>
             </ul>
           </div>
         </div>
@@ -216,7 +215,6 @@ const VisumeLandingPage = () => {
     <div className="bg-background text-text-primary font-body-md selection:bg-primary/30 selection:text-primary min-h-screen">
       <Navbar />
       <Hero />
-      <Stats />
       <Features />
       <CTA />
       <Footer />
@@ -225,3 +223,4 @@ const VisumeLandingPage = () => {
 };
 
 export default VisumeLandingPage;
+

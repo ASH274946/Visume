@@ -1,38 +1,41 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Sidebar = () => (
-  <aside className="w-[240px] flex-shrink-0 bg-surface-container border-r border-outline-variant flex flex-col h-full z-50">
+  <aside className="w-[240px] flex-shrink-0 bg-surface-container border border-outline-variant flex flex-col h-[calc(100vh-32px)] my-4 ml-4 rounded-2xl shadow-xl shadow-black/40 z-50">
     <div className="p-md">
-      <span className="font-display text-headline-sm font-bold text-primary-container">Visume</span>
+      <Link to="/" className="font-display text-headline-sm font-bold text-primary-container">Visume</Link>
     </div>
-    <nav className="flex-1 mt-sm flex flex-col gap-1 overflow-y-auto custom-scrollbar">
-      <a className="flex items-center gap-3 bg-sidebar-active-glow text-primary-container border-l-4 border-primary-container px-4 py-3 transition-all duration-300" href="#">
+    <nav className="flex-1 mt-sm flex flex-col gap-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
+      <Link className="flex items-center gap-3 bg-sidebar-active-glow text-primary-container border-l-4 border-primary-container px-4 py-3 transition-all duration-300" to="/dashboard">
         <span className="material-symbols-outlined">dashboard</span>
         <span className="font-label-md text-label-md">Dashboard</span>
-      </a>
-      <a className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" href="#">
+      </Link>
+      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" to="/profile">
         <span className="material-symbols-outlined">person</span>
         <span className="font-label-md text-label-md">My Profile</span>
-      </a>
-      <a className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" href="#">
+      </Link>
+      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" to="/recorder">
         <span className="material-symbols-outlined">videocam</span>
         <span className="font-label-md text-label-md">Video Resume</span>
-      </a>
-      <a className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" href="#">
+      </Link>
+      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" to="/discover">
         <span className="material-symbols-outlined">work</span>
         <span className="font-label-md text-label-md">Browse Jobs</span>
-      </a>
-      <a className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" href="#">
+      </Link>
+      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" to="/applications">
         <span className="material-symbols-outlined">assignment</span>
         <span className="font-label-md text-label-md">Applications</span>
-      </a>
-      <a className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" href="#">
+      </Link>
+    </nav>
+    <div className="flex flex-col gap-1 mb-2">
+      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" to="/settings" state={{ role: 'candidate' }}>
         <span className="material-symbols-outlined">settings</span>
         <span className="font-label-md text-label-md">Settings</span>
-      </a>
-    </nav>
+      </Link>
+    </div>
     <div className="p-4 border-t border-outline-variant">
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex items-center gap-3">
         <div className="relative">
           <img alt="User Profile" className="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCif7mMcFeEQhrivL3z3iYapnS9er2kQ7XYLd4MuR0k9XdNq69mXT5OGqxxd69TMzoGOukTENlAj2Sv83x4bkp_Sv3X7SsVVYxKY7DqVn0lMSDDdn5UtHszx8X9yons-XE3U_VNoMV1yN3AoBQnPxsK20QsLD5z0mjpDq2EzinhRsjgwIgYS8hd_RebazNQGulE_Vbs5L86pkRVPmk1pUNont5dxsmD-5DVsS4EK_WczWR-gcIEqbw6IQdA7DRj3RSgR-GlT_7d1-Q" />
           <div className="absolute -bottom-1 -right-1 bg-green-500 w-3 h-3 rounded-full border-2 border-surface-container"></div>
@@ -44,10 +47,6 @@ const Sidebar = () => (
           </div>
         </div>
       </div>
-      <button className="flex items-center gap-2 text-danger font-label-md text-label-md w-full px-2 py-2 rounded-lg hover:bg-danger/10 transition-colors">
-        <span className="material-symbols-outlined">logout</span>
-        Logout
-      </button>
     </div>
   </aside>
 );
@@ -140,7 +139,7 @@ const RecommendedJobs = () => (
   <section>
     <div className="flex justify-between items-end mb-lg">
       <h2 className="font-display text-headline-md text-text-primary">Recommended for You</h2>
-      <a className="text-primary-container font-label-md text-label-md hover:underline" href="#">View All Openings</a>
+      <Link className="text-primary-container font-label-md text-label-md hover:underline" to="/discover">View All Openings</Link>
     </div>
     <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
       <div className="bg-card-bg border border-border-base rounded-xl p-lg hover:border-primary-container transition-all">
@@ -224,10 +223,10 @@ const Footer = () => (
   <footer className="mt-xxl pt-lg border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-md text-text-muted pb-lg">
     <span className="font-label-md text-label-md">© 2024 Visume. Personality-driven hiring.</span>
     <div className="flex gap-lg">
-      <a className="font-label-md text-label-md hover:text-secondary transition-colors" href="#">Privacy Policy</a>
-      <a className="font-label-md text-label-md hover:text-secondary transition-colors" href="#">Terms of Service</a>
-      <a className="font-label-md text-label-md hover:text-secondary transition-colors" href="#">For Recruiters</a>
-      <a className="font-label-md text-label-md hover:text-secondary transition-colors" href="#">About Us</a>
+      <Link className="font-label-md text-label-md hover:text-secondary transition-colors" to="/">Privacy Policy</Link>
+      <Link className="font-label-md text-label-md hover:text-secondary transition-colors" to="/">Terms of Service</Link>
+      <Link className="font-label-md text-label-md hover:text-secondary transition-colors" to="/recruiter">For Recruiters</Link>
+      <Link className="font-label-md text-label-md hover:text-secondary transition-colors" to="/">About Us</Link>
     </div>
   </footer>
 );
