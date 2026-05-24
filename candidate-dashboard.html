@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Visume Candidate Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&amp;family=Syne:wght@400..800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "text-muted": "#6B6B80",
+                    "surface-dim": "#131318",
+                    "primary-container": "#6c5ce7",
+                    "on-primary-fixed": "#160066",
+                    "on-tertiary-fixed-variant": "#005140",
+                    "outline-variant": "#474554",
+                    "on-tertiary-container": "#dffff1",
+                    "on-tertiary": "#00382b",
+                    "on-error": "#690005",
+                    "error": "#ffb4ab",
+                    "tertiary-container": "#008167",
+                    "outline": "#928ea0",
+                    "on-primary-fixed-variant": "#4029ba",
+                    "tertiary-fixed": "#6dfad2",
+                    "on-surface-variant": "#c8c4d7",
+                    "on-secondary-container": "#005250",
+                    "border-base": "#1E1E2E",
+                    "tertiary-fixed-dim": "#4bddb7",
+                    "background": "#0A0A0F",
+                    "surface": "#131318",
+                    "danger": "#D63031",
+                    "on-background": "#e4e1e9",
+                    "on-secondary-fixed": "#00201f",
+                    "secondary-fixed-dim": "#2edcd7",
+                    "on-secondary-fixed-variant": "#00504e",
+                    "surface-tint": "#c6bfff",
+                    "inverse-primary": "#5847d2",
+                    "on-primary": "#2900a0",
+                    "surface-container-high": "#2a292f",
+                    "on-tertiary-fixed": "#002018",
+                    "sidebar-active-glow": "rgba(108, 92, 231, 0.12)",
+                    "surface-bright": "#39383e",
+                    "text-primary": "#EAEAF0",
+                    "surface-container": "#13131A",
+                    "primary-fixed-dim": "#c6bfff",
+                    "inverse-surface": "#e4e1e9",
+                    "error-container": "#93000a",
+                    "card-bg": "#13131A",
+                    "on-surface": "#e4e1e9",
+                    "on-primary-container": "#faf6ff",
+                    "surface-container-low": "#1b1b20",
+                    "secondary": "#46eae5",
+                    "surface-container-lowest": "#0e0e13",
+                    "on-secondary": "#003735",
+                    "primary-fixed": "#e4dfff",
+                    "surface-container-highest": "#35343a",
+                    "secondary-fixed": "#5af9f3",
+                    "tertiary": "#4bddb7",
+                    "primary": "#c6bfff",
+                    "inverse-on-surface": "#303036",
+                    "surface-variant": "#35343a",
+                    "on-error-container": "#ffdad6",
+                    "secondary-container": "#00cec9",
+                    "border-input": "#2A2A3E"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xxl": "64px",
+                    "xs": "8px",
+                    "base-unit": "8px",
+                    "sm": "16px",
+                    "md": "24px",
+                    "container-max": "1280px",
+                    "xl": "48px",
+                    "gutter": "24px",
+                    "lg": "32px",
+                    "sidebar-width": "240px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Syne"],
+                    "body-lg": ["DM Sans"],
+                    "display": ["Syne"],
+                    "body-sm": ["DM Sans"],
+                    "headline-sm": ["Syne"],
+                    "label-md": ["DM Sans"],
+                    "body-md": ["DM Sans"],
+                    "headline-lg": ["Syne"],
+                    "headline-md": ["Syne"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0A0A0F;
+            color: #EAEAF0;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .glass-nav {
+            background: rgba(19, 19, 26, 0.7);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid #2A2A3E;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0A0A0F;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #2A2A3E;
+            border-radius: 10px;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="antialiased overflow-hidden">
+<!-- Sidebar Layout -->
+<div class="flex h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-[240px] flex-shrink-0 bg-surface-container border-r border-outline-variant flex flex-col h-full z-50">
+<div class="p-md">
+<span class="font-display text-headline-sm font-bold text-primary-container">Visume</span>
+</div>
+<nav class="flex-1 mt-sm flex flex-col gap-1 overflow-y-auto custom-scrollbar">
+<!-- Dashboard Active -->
+<a class="flex items-center gap-3 bg-sidebar-active-glow text-primary-container border-l-4 border-primary-container px-4 py-3 transition-all duration-300" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<!-- My Profile -->
+<a class="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">My Profile</span>
+</a>
+<!-- Video Resume -->
+<a class="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">videocam</span>
+<span class="font-label-md text-label-md">Video Resume</span>
+</a>
+<!-- Browse Jobs -->
+<a class="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">work</span>
+<span class="font-label-md text-label-md">Browse Jobs</span>
+</a>
+<!-- Applications -->
+<a class="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="font-label-md text-label-md">Applications</span>
+</a>
+<!-- Settings -->
+<a class="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<div class="p-4 border-t border-outline-variant">
+<div class="flex items-center gap-3 mb-4">
+<div class="relative">
+<img alt="User Profile" class="w-10 h-10 rounded-full object-cover" data-alt="A professional close-up portrait of a young man with a confident expression, set against a dark, moody background with subtle atmospheric blue and purple lighting. The style is modern and high-end, reflecting a premium professional candidate profile in a high-tech recruitment environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCif7mMcFeEQhrivL3z3iYapnS9er2kQ7XYLd4MuR0k9XdNq69mXT5OGqxxd69TMzoGOukTENlAj2Sv83x4bkp_Sv3X7SsVVYxKY7DqVn0lMSDDdn5UtHszx8X9yons-XE3U_VNoMV1yN3AoBQnPxsK20QsLD5z0mjpDq2EzinhRsjgwIgYS8hd_RebazNQGulE_Vbs5L86pkRVPmk1pUNont5dxsmD-5DVsS4EK_WczWR-gcIEqbw6IQdA7DRj3RSgR-GlT_7d1-Q"/>
+<div class="absolute -bottom-1 -right-1 bg-green-500 w-3 h-3 rounded-full border-2 border-surface-container"></div>
+</div>
+<div class="flex flex-col">
+<span class="font-body-sm text-text-primary font-bold">Ashwin Kumar</span>
+<div class="flex items-center gap-1">
+<span class="bg-tertiary-container/20 text-tertiary text-[10px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">KYC Verified</span>
+</div>
+</div>
+</div>
+<button class="flex items-center gap-2 text-danger font-label-md text-label-md w-full px-2 py-2 rounded-lg hover:bg-danger/10 transition-colors">
+<span class="material-symbols-outlined">logout</span>
+                    Logout
+                </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto custom-scrollbar p-lg">
+<header class="flex justify-between items-center mb-xl">
+<div class="flex items-center gap-4">
+<h1 class="font-display text-headline-lg text-text-primary">Welcome back, Ashwin</h1>
+<span class="flex items-center gap-1 bg-tertiary-container/15 text-tertiary px-3 py-1 rounded-full text-[12px] font-bold border border-tertiary/20">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+                        KYC Verified
+                    </span>
+</div>
+<div class="flex gap-4">
+<button class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center border border-outline-variant hover:border-primary-container transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="bg-primary-container text-white px-lg py-3 rounded-lg font-bold hover:shadow-[0_0_15px_rgba(108,92,231,0.4)] transition-all">
+                        Record New Visume
+                    </button>
+</div>
+</header>
+<!-- Stats Row -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-md mb-xl">
+<!-- Stat Card 1 -->
+<div class="bg-card-bg border border-outline-variant p-md rounded-xl hover:border-primary-container/50 hover:-translate-y-1 transition-all group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-primary-container text-[36px] font-display font-bold">12</span>
+<span class="material-symbols-outlined text-text-muted group-hover:text-primary-container">send</span>
+</div>
+<p class="text-text-muted font-body-sm">Jobs Applied</p>
+</div>
+<!-- Stat Card 2 -->
+<div class="bg-card-bg border border-outline-variant p-md rounded-xl hover:border-primary-container/50 hover:-translate-y-1 transition-all group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-primary-container text-[36px] font-display font-bold">284</span>
+<span class="material-symbols-outlined text-text-muted group-hover:text-primary-container">visibility</span>
+</div>
+<p class="text-text-muted font-body-sm">Profile Views</p>
+</div>
+<!-- Stat Card 3 -->
+<div class="bg-card-bg border border-outline-variant p-md rounded-xl hover:border-primary-container/50 hover:-translate-y-1 transition-all group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-primary-container text-[36px] font-display font-bold">3</span>
+<span class="material-symbols-outlined text-text-muted group-hover:text-primary-container">call</span>
+</div>
+<p class="text-text-muted font-body-sm">Interview Calls</p>
+</div>
+<!-- Stat Card 4 -->
+<div class="bg-card-bg border border-outline-variant p-md rounded-xl hover:border-primary-container/50 hover:-translate-y-1 transition-all group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-secondary text-[36px] font-display font-bold">97%</span>
+<span class="material-symbols-outlined text-text-muted group-hover:text-secondary">psychology</span>
+</div>
+<p class="text-text-muted font-body-sm">Top Match</p>
+</div>
+</section>
+<!-- Video Resume Card -->
+<section class="bg-card-bg border border-outline-variant rounded-xl p-lg mb-xl flex flex-col md:flex-row gap-lg items-center">
+<div class="w-full md:w-1/2 aspect-video rounded-xl overflow-hidden relative group cursor-pointer border border-outline-variant">
+<img alt="Video Resume Preview" class="w-full h-full object-cover" data-alt="A high-quality 16:9 cinematic thumbnail of a young professional man recording a video resume in a sleek, minimalist home office. Warm ambient lighting glows in the background, contrasting with the cool purple-tinted UI overlay. The focus is sharp on the subject, suggesting a polished and modern visual aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_GF5MJ5bsHxGVaK7hfiEk4JsPfW918undolrN6k6kvZSaSeW9lED9IULTwqvgxAYRBxQfpwoBK3PGEUowoHLkakXcdbtyuyfq9ysOhcyMWScdoUe1MXt6-V-NrVOcz5ytnycpVDaqQNfnVRTjMvpesUrhRfjIaS0LXQGsl1DtIyRaAuZIlhhKsZVLkHt0ZoufCLH9b5tmDDhMm_h6hILURl6Agw71lEOM1rgLpQZNuKTI9YvySXZHIyGmMKYsvh3vTinIB_3Hnco"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/20 transition-all">
+<div class="w-16 h-16 rounded-full bg-primary-container flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-white text-3xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+<div class="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md px-2 py-1 rounded text-[12px] font-bold">
+                        01:42
+                    </div>
+</div>
+<div class="w-full md:w-1/2">
+<h2 class="font-display text-headline-md text-text-primary mb-2">My Video Resume</h2>
+<div class="flex gap-4 text-text-muted font-body-sm mb-6">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_month</span> Uploaded: Oct 12, 2023</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">visibility</span> 142 Views</span>
+</div>
+<div class="flex gap-4">
+<button class="flex-1 border border-primary-container text-primary-container py-3 rounded-lg font-bold hover:bg-primary-container/10 transition-colors">
+                            Replace Video
+                        </button>
+<button class="flex-1 text-text-muted py-3 rounded-lg font-bold hover:bg-surface-bright/5 transition-colors">
+                            Re-record
+                        </button>
+</div>
+</div>
+</section>
+<!-- Recommended Jobs -->
+<section>
+<div class="flex justify-between items-end mb-lg">
+<h2 class="font-display text-headline-md text-text-primary">Recommended for You</h2>
+<a class="text-primary-container font-label-md text-label-md hover:underline" href="#">View All Openings</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<!-- Job Card 1 -->
+<div class="bg-card-bg border border-border-base rounded-xl p-lg hover:border-primary-container transition-all">
+<div class="flex justify-between items-start mb-4">
+<div class="flex gap-4 items-center">
+<div class="w-12 h-12 rounded-full bg-surface-bright/20 flex items-center justify-center border border-outline-variant overflow-hidden">
+<img alt="Company Logo" class="w-full h-full object-cover" data-alt="A clean, minimalist logo of a modern tech company featuring geometric abstract shapes in a vibrant purple and teal palette, presented on a dark, circular background for a high-tech corporate identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzKPmbzbR76U4h2XDpCWhDK4r1MxV_fxJrT1PDyDBQN0J0ZiGg_i1Dsz1e0cY08_LSOWF0jCvrddSgI9qhsFr5Po6yCN9w3ViUDimQJ8k7qo0Qs_wIsQoEGBbcGPIwWP67FORaWTgj-Cx2gz6VDAQ6V4bhrzrdYf6pJRGNbtcRRHWmlWIeDNfvwUSrDdupp0WFhaAFIhn4qrC6BBbiP1MlRm4T0rZPLQQoDr30mQNx6jecOdfH-s7OKYcoIMu5gD9wKY3ZzeR4uIE"/>
+</div>
+<div>
+<h3 class="font-display text-headline-sm text-text-primary">Lead UI Designer</h3>
+<p class="text-text-muted text-label-md">Stellar AI Solutions</p>
+</div>
+</div>
+<div class="bg-secondary/10 text-secondary px-3 py-1.5 rounded-full flex flex-col items-center">
+<span class="text-[18px] font-bold">98%</span>
+<span class="text-[8px] uppercase font-bold">Match</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mb-6">
+<span class="px-3 py-1 rounded-full bg-surface-container-high text-text-muted text-[12px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> San Francisco
+                            </span>
+<span class="px-3 py-1 rounded-full bg-surface-container-high text-text-muted text-[12px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">home_work</span> Remote
+                            </span>
+<span class="px-3 py-1 rounded-full bg-surface-container-high text-text-muted text-[12px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">payments</span> $140k - $180k
+                            </span>
+</div>
+<div class="flex gap-2 mb-6">
+<span class="bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">Figma</span>
+<span class="bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">Product Strategy</span>
+<span class="bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">Design Systems</span>
+</div>
+<button class="w-full bg-primary-container text-white py-3 rounded-lg font-bold hover:bg-on-primary-fixed-variant transition-colors">
+                            Apply Now
+                        </button>
+</div>
+<!-- Job Card 2 -->
+<div class="bg-card-bg border border-border-base rounded-xl p-lg hover:border-primary-container transition-all">
+<div class="flex justify-between items-start mb-4">
+<div class="flex gap-4 items-center">
+<div class="w-12 h-12 rounded-full bg-surface-bright/20 flex items-center justify-center border border-outline-variant overflow-hidden">
+<img alt="Company Logo" class="w-full h-full object-cover" data-alt="A sleek corporate emblem for a creative agency, featuring minimalist typographic elements in a neon blue and charcoal gray color scheme, designed for a professional and innovative brand aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiZC7QvM4WWJjYrKE_YJOGoHxaepeutJan3fxUnBZ4mqW-FtYIAWrSb4HqXrW7go6GePkBPSmxUKjgtIgXDGIFyCNndbQeAQZ77IeFjU2s-u0zE398Xc2qn2ttFVPDrbCWFq7A7UwTlVVNXn2CY_nSwivijM1n7VHc-67DiCqRomEElpwdIqqYGKUnDqFskPBFcCi9Gz31RYt4Z-tz0506I_3FmWxoJmNjiUNZ1cgsPtM61nSgTDYqUthZfa3H6OkmHDPn4gSnC_I"/>
+</div>
+<div>
+<h3 class="font-display text-headline-sm text-text-primary">Product Manager</h3>
+<p class="text-text-muted text-label-md">Nexus Creative</p>
+</div>
+</div>
+<div class="bg-secondary/10 text-secondary px-3 py-1.5 rounded-full flex flex-col items-center">
+<span class="text-[18px] font-bold">92%</span>
+<span class="text-[8px] uppercase font-bold">Match</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mb-6">
+<span class="px-3 py-1 rounded-full bg-surface-container-high text-text-muted text-[12px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> New York
+                            </span>
+<span class="px-3 py-1 rounded-full bg-surface-container-high text-text-muted text-[12px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">apartment</span> Hybrid
+                            </span>
+<span class="px-3 py-1 rounded-full bg-surface-container-high text-text-muted text-[12px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">payments</span> $120k - $160k
+                            </span>
+</div>
+<div class="flex gap-2 mb-6">
+<span class="bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">Agile</span>
+<span class="bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">Data Analysis</span>
+<span class="bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">User Testing</span>
+</div>
+<button class="w-full bg-primary-container text-white py-3 rounded-lg font-bold hover:bg-on-primary-fixed-variant transition-colors">
+                            Apply Now
+                        </button>
+</div>
+<!-- Job Card 3 -->
+<div class="bg-card-bg border border-border-base rounded-xl p-lg hover:border-primary-container transition-all">
+<div class="flex justify-between items-start mb-4">
+<div class="flex gap-4 items-center">
+<div class="w-12 h-12 rounded-full bg-surface-bright/20 flex items-center justify-center border border-outline-variant overflow-hidden">
+<img alt="Company Logo" class="w-full h-full object-cover" data-alt="A modern tech logo featuring interconnected circles in vibrant teal, symbolizing networking and cloud technology, set against a dark premium background with a glassmorphic finish." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBg0XKzThVjOPcaKOtchCM5wc71oR-f1A3ZowHlPFz_PS2IygpeVBKN_Z-g4HV0AokxPmRUN1fgS9Wax0RQRtkRgiYKNMLbciTwhe6d-0RhXlAP3FyWqlPRUCJ3bpHzy7yTHuCP9vKgpfWRWHWAcGP95_8XcZ-4XIR8HcysaVCVqNpxt8_teUFKc8zTEfBoc-pXR3HMpePDcdl3bdMjAi33St0-fKgBqMV8tcMlYWXKkTFI1LEc0YBI9qQSWS_-_R8DCBNHmEQ_6u8"/>
+</div>
+<div>
+<h3 class="font-display text-headline-sm text-text-primary">Frontend Developer</h3>
+<p class="text-text-muted text-label-md">CloudFlow</p>
+</div>
+</div>
+<div class="bg-secondary/10 text-secondary px-3 py-1.5 rounded-full flex flex-col items-center">
+<span class="text-[18px] font-bold">88%</span>
+<span class="text-[8px] uppercase font-bold">Match</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mb-6">
+<span class="px-3 py-1 rounded-full bg-surface-container-high text-text-muted text-[12px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> Austin, TX
+                            </span>
+<span class="px-3 py-1 rounded-full bg-surface-container-high text-text-muted text-[12px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">home_work</span> Remote
+                            </span>
+<span class="px-3 py-1 rounded-full bg-surface-container-high text-text-muted text-[12px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">payments</span> $110k - $150k
+                            </span>
+</div>
+<div class="flex gap-2 mb-6">
+<span class="bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">React</span>
+<span class="bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">Tailwind</span>
+<span class="bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">TypeScript</span>
+</div>
+<button class="w-full bg-primary-container text-white py-3 rounded-lg font-bold hover:bg-on-primary-fixed-variant transition-colors">
+                            Apply Now
+                        </button>
+</div>
+<!-- Job Card 4 -->
+<div class="bg-card-bg border border-border-base rounded-xl p-lg hover:border-primary-container transition-all">
+<div class="flex justify-between items-start mb-4">
+<div class="flex gap-4 items-center">
+<div class="w-12 h-12 rounded-full bg-surface-bright/20 flex items-center justify-center border border-outline-variant overflow-hidden">
+<img alt="Company Logo" class="w-full h-full object-cover" data-alt="An elegant logo for a financial technology firm, showcasing a minimalist mountain peak silhouette in silver and deep purple, evoking a sense of stability and peak performance in a modern digital environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvvND_56REJVqw0n6S0zVMb6Lq_FxkLoad3aOKulURXDLQJLupa5hghbHJxfmTsY2_YPj-c7wcJux14cw9fJ5SbhR8brXadw0JBsEkUfa3nOArAMehWCH9vHbNar6JO-WCw7jTjYyrYhUOJGIcupCa0aJPaBJtuoZMqeFTi7sqKKhOdsvwdJhDGSpgLDJTtSzmQ49gqH-bs7n_4VFdGBHMsEq68MR-rGFaU1UKdkeqCE0oHh8usdca7eIcCtAfotFzHuS58_cU4nw"/>
+</div>
+<div>
+<h3 class="font-display text-headline-sm text-text-primary">Motion Designer</h3>
+<p class="text-text-muted text-label-md">Peak Studio</p>
+</div>
+</div>
+<div class="bg-secondary/10 text-secondary px-3 py-1.5 rounded-full flex flex-col items-center">
+<span class="text-[18px] font-bold">85%</span>
+<span class="text-[8px] uppercase font-bold">Match</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mb-6">
+<span class="px-3 py-1 rounded-full bg-surface-container-high text-text-muted text-[12px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> London, UK
+                            </span>
+<span class="px-3 py-1 rounded-full bg-surface-container-high text-text-muted text-[12px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">apartment</span> Onsite
+                            </span>
+<span class="px-3 py-1 rounded-full bg-surface-container-high text-text-muted text-[12px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">payments</span> £60k - £80k
+                            </span>
+</div>
+<div class="flex gap-2 mb-6">
+<span class="bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">After Effects</span>
+<span class="bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">Cinema 4D</span>
+<span class="bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">Rive</span>
+</div>
+<button class="w-full bg-primary-container text-white py-3 rounded-lg font-bold hover:bg-on-primary-fixed-variant transition-colors">
+                            Apply Now
+                        </button>
+</div>
+</div>
+</section>
+<!-- Footer from JSON pattern -->
+<footer class="mt-xxl pt-lg border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-md text-text-muted pb-lg">
+<span class="font-label-md text-label-md">© 2024 Visume. Personality-driven hiring.</span>
+<div class="flex gap-lg">
+<a class="font-label-md text-label-md hover:text-secondary transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-md text-label-md hover:text-secondary transition-colors" href="#">Terms of Service</a>
+<a class="font-label-md text-label-md hover:text-secondary transition-colors" href="#">For Recruiters</a>
+<a class="font-label-md text-label-md hover:text-secondary transition-colors" href="#">About Us</a>
+</div>
+</footer>
+</main>
+</div>
+<script>
+        // Subtle micro-interaction: Add hover glow effect to cards
+        document.querySelectorAll('.bg-card-bg').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+                
+                // Optional: Dynamic border gradient or shadow following mouse
+                // card.style.boxShadow = `0 0 20px rgba(108, 92, 231, 0.05)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.boxShadow = 'none';
+            });
+        });
+    </script>
+</body></html>

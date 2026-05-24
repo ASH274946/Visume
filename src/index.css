@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-text-primary;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  .glass-nav {
+      background: rgba(19, 19, 26, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+  }
+  .hero-glow {
+      background: radial-gradient(circle at 50% 50%, rgba(108, 92, 231, 0.15) 0%, rgba(10, 10, 15, 0) 70%);
+  }
+  .ai-badge-glow {
+      box-shadow: 0 0 15px rgba(0, 206, 201, 0.2);
+  }
+  .card-hover:hover {
+      transform: translateY(-4px);
+      border-color: #6C5CE7;
+      box-shadow: 0 0 20px rgba(108, 92, 231, 0.1);
+  }
+  
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar {
+      width: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0A0A0F;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #2A2A3E;
+      border-radius: 10px;
+  }
+  
+  /* Kanban styles */
+  .glass-header { 
+    backdrop-filter: blur(12px); 
+    border-bottom: 1px solid #2A2A3E; 
+  }
+  .kanban-column { 
+    min-width: 260px; 
+    max-width: 260px; 
+    background-color: #13131A; 
+    border-radius: 12px; 
+  }
+  .candidate-card { 
+    background-color: #1A1A24; 
+    border: 1px solid #2A2A3E; 
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    cursor: grab; 
+  }
+  .candidate-card:hover { 
+    border-color: #6C5CE7; 
+    transform: translateY(-4px); 
+    box-shadow: 0 10px 20px -10px rgba(108, 92, 231, 0.3); 
+  }
+  .candidate-card:active { 
+    cursor: grabbing; 
+    scale: 0.98; 
+  }
+  .drag-handle { 
+    opacity: 0.3; 
+    transition: opacity 0.2s; 
+  }
+  .candidate-card:hover .drag-handle { 
+    opacity: 1; 
+  }
+  .quick-actions { 
+    opacity: 0; 
+    transform: translateY(5px); 
+    transition: all 0.2s; 
+  }
+  .candidate-card:hover .quick-actions { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Visume | Discover Career Opportunities</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&amp;family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "text-muted": "#6B6B80",
+                        "surface-dim": "#131318",
+                        "primary-container": "#6c5ce7",
+                        "on-primary-fixed": "#160066",
+                        "on-tertiary-fixed-variant": "#005140",
+                        "outline-variant": "#474554",
+                        "on-tertiary-container": "#dffff1",
+                        "on-tertiary": "#00382b",
+                        "on-error": "#690005",
+                        "error": "#ffb4ab",
+                        "tertiary-container": "#008167",
+                        "outline": "#928ea0",
+                        "on-primary-fixed-variant": "#4029ba",
+                        "tertiary-fixed": "#6dfad2",
+                        "on-surface-variant": "#c8c4d7",
+                        "on-secondary-container": "#005250",
+                        "border-base": "#1E1E2E",
+                        "tertiary-fixed-dim": "#4bddb7",
+                        "background": "#0A0A0F",
+                        "surface": "#131318",
+                        "danger": "#D63031",
+                        "on-background": "#e4e1e9",
+                        "on-secondary-fixed": "#00201f",
+                        "secondary-fixed-dim": "#2edcd7",
+                        "on-secondary-fixed-variant": "#00504e",
+                        "surface-tint": "#c6bfff",
+                        "inverse-primary": "#5847d2",
+                        "on-primary": "#2900a0",
+                        "surface-container-high": "#2a292f",
+                        "on-tertiary-fixed": "#002018",
+                        "sidebar-active-glow": "rgba(108, 92, 231, 0.12)",
+                        "surface-bright": "#39383e",
+                        "text-primary": "#EAEAF0",
+                        "surface-container": "#13131A",
+                        "primary-fixed-dim": "#c6bfff",
+                        "inverse-surface": "#e4e1e9",
+                        "error-container": "#93000a",
+                        "card-bg": "#13131A",
+                        "on-surface": "#e4e1e9",
+                        "on-primary-container": "#faf6ff",
+                        "surface-container-low": "#1b1b20",
+                        "secondary": "#46eae5",
+                        "surface-container-lowest": "#0e0e13",
+                        "on-secondary": "#003735",
+                        "primary-fixed": "#e4dfff",
+                        "surface-container-highest": "#35343a",
+                        "secondary-fixed": "#5af9f3",
+                        "tertiary": "#4bddb7",
+                        "primary": "#c6bfff",
+                        "inverse-on-surface": "#303036",
+                        "surface-variant": "#35343a",
+                        "on-error-container": "#ffdad6",
+                        "secondary-container": "#00cec9",
+                        "border-input": "#2A2A3E"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xxl": "64px",
+                        "xs": "8px",
+                        "base-unit": "8px",
+                        "sm": "16px",
+                        "md": "24px",
+                        "container-max": "1280px",
+                        "xl": "48px",
+                        "gutter": "24px",
+                        "lg": "32px",
+                        "sidebar-width": "280px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Syne"],
+                        "body-lg": ["DM Sans"],
+                        "display": ["Syne"],
+                        "body-sm": ["DM Sans"],
+                        "headline-sm": ["Syne"],
+                        "label-md": ["DM Sans"],
+                        "body-md": ["DM Sans"],
+                        "headline-lg": ["Syne"],
+                        "headline-md": ["Syne"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'DM Sans', sans-serif; background-color: #0A0A0F; color: #EAEAF0; }
+        .glass-nav { backdrop-filter: blur(12px); border-bottom: 1px solid #2A2A3E; }
+        .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+        .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-scroll::-webkit-scrollbar-thumb { background: #2A2A3E; border-radius: 10px; }
+        .job-card:hover { transform: translateY(-4px); border-color: #6c5ce7; box-shadow: 0 10px 30px -10px rgba(108, 92, 231, 0.2); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #6c5ce7;
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid #FFFFFF;
+        }
+    </style>
+</head>
+<body class="bg-background text-text-primary overflow-x-hidden">
+<!-- Top Navigation -->
+<nav class="fixed top-0 z-50 w-full h-16 bg-surface-container/70 backdrop-blur-md border-b border-outline-variant flex justify-between items-center px-gutter max-w-container-max mx-auto left-0 right-0">
+<div class="flex items-center gap-8">
+<span class="font-display text-headline-md font-bold text-primary-container">Visume</span>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-primary-container font-bold border-b-2 border-primary-container pb-1" href="#">Discover</a>
+<a class="text-text-muted font-medium hover:text-text-primary transition-colors" href="#">Applications</a>
+<a class="text-text-muted font-medium hover:text-text-primary transition-colors" href="#">Messages</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="hidden md:flex items-center gap-2 bg-primary-container text-on-primary-container px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-all active:scale-95">
+<span class="material-symbols-outlined text-[20px]">videocam</span>
+                Upload Video
+            </button>
+<div class="w-10 h-10 rounded-full border-2 border-outline-variant overflow-hidden">
+<img alt="Profile" data-alt="A professional studio portrait of a confident young tech worker with short hair and glasses, wearing a sleek black turtleneck. The lighting is dramatic and cinematic with purple and teal rim lights against a dark, tech-inspired background, embodying a high-end futuristic corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpwpLefYN84jpH8f4wFaL4A5turgZSIciHwj8h8C1LkCsekK2uDKaLCBoyLvL7ERBi63YDv4nJztwF-QmrNMj11AUujXKilseKCO6hhxFtUjtOhTK-hlsrJNk9oZzL4QsuJSVdEOcX0A1aZ-Ls8zj5o-x4cLEURN8aFd5lnAihxE5uLOmD2a3igzboWPe_xBFEcrtZ0i3ncx5Vc3yCVCp8p3SomzS3GZVwS2G9B-fpxM6K2-wAbj44unXMwkvBS8gXub7cBEyBNA4"/>
+</div>
+</div>
+</nav>
+<div class="flex pt-16 min-h-screen max-w-[1440px] mx-auto">
+<!-- Filter Sidebar -->
+<aside class="fixed left-0 top-16 bottom-0 w-sidebar-width bg-surface-container border-r border-outline-variant sidebar-scroll overflow-y-auto hidden lg:flex flex-col p-6 gap-8">
+<div class="flex items-center justify-between">
+<h2 class="font-display text-headline-sm font-bold text-text-primary">Filter Jobs</h2>
+<span class="material-symbols-outlined text-text-muted cursor-pointer hover:text-primary">tune</span>
+</div>
+<!-- Search Field -->
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">search</span>
+<input class="w-full bg-surface-container-low border border-border-input rounded-lg pl-10 pr-4 py-3 text-body-sm focus:outline-none focus:border-primary-container transition-all" placeholder="Search roles, skills..." type="text"/>
+</div>
+<!-- Work Mode Chips -->
+<div class="space-y-4">
+<h3 class="font-label-md text-label-md text-text-muted uppercase tracking-wider">Work Mode</h3>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 rounded-full border border-primary-container bg-primary-container/10 text-primary-container text-body-sm font-medium">Remote</button>
+<button class="px-4 py-2 rounded-full border border-outline text-text-muted hover:border-text-primary hover:text-text-primary text-body-sm transition-all">Hybrid</button>
+<button class="px-4 py-2 rounded-full border border-outline text-text-muted hover:border-text-primary hover:text-text-primary text-body-sm transition-all">Onsite</button>
+</div>
+</div>
+<!-- Salary Range -->
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<h3 class="font-label-md text-label-md text-text-muted uppercase tracking-wider">Salary (Annual)</h3>
+<span class="text-body-sm text-primary-container font-bold">₹4L — ₹18L</span>
+</div>
+<input class="w-full h-1 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary-container" max="50" min="4" type="range" value="18"/>
+</div>
+<!-- Experience Level -->
+<div class="space-y-4">
+<h3 class="font-label-md text-label-md text-text-muted uppercase tracking-wider">Experience</h3>
+<div class="flex flex-col gap-3">
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="w-5 h-5 rounded border-outline-variant bg-surface-container-low text-primary-container focus:ring-primary-container" type="checkbox"/>
+<span class="text-body-sm text-on-surface-variant group-hover:text-text-primary">Entry Level (0-2y)</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input checked="" class="w-5 h-5 rounded border-outline-variant bg-surface-container-low text-primary-container focus:ring-primary-container" type="checkbox"/>
+<span class="text-body-sm text-on-surface-variant group-hover:text-text-primary">Intermediate (2-5y)</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="w-5 h-5 rounded border-outline-variant bg-surface-container-low text-primary-container focus:ring-primary-container" type="checkbox"/>
+<span class="text-body-sm text-on-surface-variant group-hover:text-text-primary">Senior (5y+)</span>
+</label>
+</div>
+</div>
+<!-- AI Match Toggle -->
+<div class="p-4 rounded-xl bg-secondary-container/5 border border-secondary-container/20 space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="text-body-sm font-bold text-tertiary">AI Smart Match</span>
+</div>
+<div class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-tertiary-container"></div>
+</div>
+</div>
+<p class="text-label-md text-text-muted leading-tight">Only show roles with 80%+ match to your Visume profile.</p>
+</div>
+<button class="w-full bg-primary-container text-white py-3 rounded-lg font-bold hover:brightness-110 active:scale-95 transition-all mt-auto">
+                Apply Filters
+            </button>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 lg:ml-sidebar-width p-lg md:p-xl space-y-8">
+<!-- Header & Meta -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<div>
+<h1 class="font-display text-headline-lg font-bold">Discover Roles</h1>
+<p class="text-body-md text-text-muted">Showing 24 jobs matching your profile and filters</p>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-body-sm text-text-muted">Sort by:</span>
+<button class="flex items-center gap-2 bg-surface-container border border-outline-variant px-4 py-2 rounded-lg text-body-sm font-medium">
+                        Best Match
+                        <span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Active Filters -->
+<div class="flex flex-wrap gap-2">
+<span class="flex items-center gap-2 px-3 py-1 bg-surface-container border border-outline-variant rounded-full text-label-md text-on-surface-variant">
+                    Remote
+                    <span class="material-symbols-outlined text-[14px] cursor-pointer hover:text-danger">close</span>
+</span>
+<span class="flex items-center gap-2 px-3 py-1 bg-surface-container border border-outline-variant rounded-full text-label-md text-on-surface-variant">
+                    ₹10L - ₹20L
+                    <span class="material-symbols-outlined text-[14px] cursor-pointer hover:text-danger">close</span>
+</span>
+<button class="text-label-md text-primary-container font-bold hover:underline">Clear all</button>
+</div>
+<!-- Job Grid -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-gutter">
+<!-- Card 1 -->
+<div class="job-card bg-surface-container border border-border-input p-6 rounded-xl transition-all duration-300 flex flex-col gap-5">
+<div class="flex justify-between items-start">
+<div class="flex gap-4">
+<div class="w-14 h-14 rounded-lg bg-white/5 flex items-center justify-center border border-outline-variant overflow-hidden p-2">
+<img alt="Stripe" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDV5e4vAgXZRv0Wi0xXXP-AUbs95CyYHPi3KB9g9CgpBrUUtV4bRDj42IQ8Xg6GzfVyjQDg2sBfS3zbUtPJ9CbFch0UE-QVdYdUv3PK6MOTYRWar9jLW-AG7Yq_GCO6EkspjoG5gkeCSmTrYQe_rKLfqkC4JB_odZpT4jJGKwIBQeNJGc5ohX3sr5EalT4Q0dI8T5aTWgkhPeePuspvxmslJqxOb37uFp6ocrtcNykzCTXGECmZNBxYXnNcFpESWzOUHyZhIrB_0s0"/>
+</div>
+<div>
+<h3 class="font-display text-headline-sm font-bold text-text-primary">Lead Product Designer</h3>
+<p class="text-body-sm text-text-muted mt-1">Stripe • Bengaluru, Remote</p>
+</div>
+</div>
+<button class="p-2 rounded-lg hover:bg-surface-bright text-text-muted transition-colors">
+<span class="material-symbols-outlined">bookmark</span>
+</button>
+</div>
+<div class="flex flex-wrap gap-3">
+<div class="flex items-center gap-1 px-2 py-1 rounded bg-secondary-container/10 text-tertiary text-label-md font-bold">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                            94% Match
+                        </div>
+<span class="px-2 py-1 rounded bg-surface-container-highest text-text-muted text-label-md">Full-time</span>
+<span class="px-2 py-1 rounded bg-surface-container-highest text-primary-container text-label-md font-bold">₹32L - ₹45L</span>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 rounded-full bg-surface-container-low border border-outline-variant text-label-md text-text-muted">Figma</span>
+<span class="px-3 py-1 rounded-full bg-surface-container-low border border-outline-variant text-label-md text-text-muted">React</span>
+<span class="px-3 py-1 rounded-full bg-surface-container-low border border-outline-variant text-label-md text-text-muted">System Design</span>
+</div>
+<div class="flex gap-4 mt-auto">
+<button class="flex-1 py-2.5 rounded-lg border border-primary-container text-primary-container font-bold hover:bg-primary-container/10 transition-all">View Details</button>
+<button class="flex-1 py-2.5 rounded-lg bg-primary-container text-white font-bold hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary-container/20">Quick Apply</button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="job-card bg-surface-container border border-border-input p-6 rounded-xl transition-all duration-300 flex flex-col gap-5">
+<div class="flex justify-between items-start">
+<div class="flex gap-4">
+<div class="w-14 h-14 rounded-lg bg-white/5 flex items-center justify-center border border-outline-variant overflow-hidden p-2">
+<img alt="Linear" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-lhqKOjGP6xHFcqBouv7dl2bE83smaRrnB-1K2RdX-L2qptNszpOeGQ5ib2B3aLtEkRO3kwk2PNoHEedIWQX1l0-PW6dCFJbJbD3HvofWPotf7hjRSP9hDwxeNZQogUYVoCDNYiaN02ufPRrBGuqPkvNXssgE5qouWboSLqUUw9tQ5BKYXmEqJaBeUKca7rWbNiEoCkmnj-Ak5Yld3Q3lCfN_mzYlYjYbK3QC6SK-6vTccj5pRDjRUi2W_nH4zpClvPA64kDVe-o"/>
+</div>
+<div>
+<h3 class="font-display text-headline-sm font-bold text-text-primary">Senior Frontend Engineer</h3>
+<p class="text-body-sm text-text-muted mt-1">Linear • Remote, Worldwide</p>
+</div>
+</div>
+<button class="p-2 rounded-lg hover:bg-surface-bright text-text-muted transition-colors">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+</button>
+</div>
+<div class="flex flex-wrap gap-3">
+<div class="flex items-center gap-1 px-2 py-1 rounded bg-secondary-container/10 text-tertiary text-label-md font-bold">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                            88% Match
+                        </div>
+<span class="px-2 py-1 rounded bg-surface-container-highest text-text-muted text-label-md">Contract</span>
+<span class="px-2 py-1 rounded bg-surface-container-highest text-primary-container text-label-md font-bold">₹18L - ₹24L</span>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 rounded-full bg-surface-container-low border border-outline-variant text-label-md text-text-muted">TypeScript</span>
+<span class="px-3 py-1 rounded-full bg-surface-container-low border border-outline-variant text-label-md text-text-muted">Next.js</span>
+<span class="px-3 py-1 rounded-full bg-surface-container-low border border-outline-variant text-label-md text-text-muted">Tailwind</span>
+</div>
+<div class="flex gap-4 mt-auto">
+<button class="flex-1 py-2.5 rounded-lg border border-primary-container text-primary-container font-bold hover:bg-primary-container/10 transition-all">View Details</button>
+<button class="flex-1 py-2.5 rounded-lg bg-primary-container text-white font-bold hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary-container/20">Quick Apply</button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="job-card bg-surface-container border border-border-input p-6 rounded-xl transition-all duration-300 flex flex-col gap-5">
+<div class="flex justify-between items-start">
+<div class="flex gap-4">
+<div class="w-14 h-14 rounded-lg bg-white/5 flex items-center justify-center border border-outline-variant overflow-hidden p-2">
+<img alt="Airbnb" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxduIDdQnJKZfs_o2kWY8ZPhvweUTTxv4agnhI04KksPs2Ik5bF1hSfkCEBUMsxy3MEWiD5Wmm8ZTSyTNDtXIQlUUidz6_egF4OamUM5ibflmgOgZIhlHF6YbkBze4FL8panyBGYNUlpvD2PdXnYHZGZJr8RierMQ116fmv2-sjNs8nKUXnhx9-nZxLyP-oFO7382bfRzm99WwKRRKIeTspkYaNHWzfIEwJkksuMhiNC59qtPqKtsbfXwdJEdBNjhKhkldQdz1o3Q"/>
+</div>
+<div>
+<h3 class="font-display text-headline-sm font-bold text-text-primary">Growth Marketing Manager</h3>
+<p class="text-body-sm text-text-muted mt-1">Airbnb • Mumbai, Hybrid</p>
+</div>
+</div>
+<button class="p-2 rounded-lg hover:bg-surface-bright text-text-muted transition-colors">
+<span class="material-symbols-outlined">bookmark</span>
+</button>
+</div>
+<div class="flex flex-wrap gap-3">
+<div class="flex items-center gap-1 px-2 py-1 rounded bg-secondary-container/10 text-tertiary text-label-md font-bold">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                            82% Match
+                        </div>
+<span class="px-2 py-1 rounded bg-surface-container-highest text-text-muted text-label-md">Full-time</span>
+<span class="px-2 py-1 rounded bg-surface-container-highest text-primary-container text-label-md font-bold">₹22L - ₹28L</span>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 rounded-full bg-surface-container-low border border-outline-variant text-label-md text-text-muted">SEO</span>
+<span class="px-3 py-1 rounded-full bg-surface-container-low border border-outline-variant text-label-md text-text-muted">Analytics</span>
+<span class="px-3 py-1 rounded-full bg-surface-container-low border border-outline-variant text-label-md text-text-muted">Content Strategy</span>
+</div>
+<div class="flex gap-4 mt-auto">
+<button class="flex-1 py-2.5 rounded-lg border border-primary-container text-primary-container font-bold hover:bg-primary-container/10 transition-all">View Details</button>
+<button class="flex-1 py-2.5 rounded-lg bg-primary-container text-white font-bold hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary-container/20">Quick Apply</button>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="job-card bg-surface-container border border-border-input p-6 rounded-xl transition-all duration-300 flex flex-col gap-5">
+<div class="flex justify-between items-start">
+<div class="flex gap-4">
+<div class="w-14 h-14 rounded-lg bg-white/5 flex items-center justify-center border border-outline-variant overflow-hidden p-2">
+<img alt="Discord" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRB-8eb0mm0mj3bIRrxa_i3FqMCwkhopnm_2AELOGoyjCmQHqHJkKYTfCufEaAwJLmQ-xS1vKpJaTLHpwYHZ5FpjK_NkxbJPDtjx6uEYZBHqeUd3pes-VhhclRpuQsnupq5SuTGKZcYML7xhtPBBSsNOpjrFeUnXRDqMP77vUaUeaI0kdNy1XwrWSiB6-CG86-YJuNljRqWyG26OsUviRCwOZHOAnhpkx9ZE_J1K5kX0zufACc2KdloIbfXr_xXQfCRi8DEx7zFmc"/>
+</div>
+<div>
+<h3 class="font-display text-headline-sm font-bold text-text-primary">iOS Developer (Visume Only)</h3>
+<p class="text-body-sm text-text-muted mt-1">Discord • Remote</p>
+</div>
+</div>
+<button class="p-2 rounded-lg hover:bg-surface-bright text-text-muted transition-colors">
+<span class="material-symbols-outlined">bookmark</span>
+</button>
+</div>
+<div class="flex flex-wrap gap-3">
+<div class="flex items-center gap-1 px-2 py-1 rounded bg-secondary-container/10 text-tertiary text-label-md font-bold">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                            97% Match
+                        </div>
+<span class="px-2 py-1 rounded bg-surface-container-highest text-text-muted text-label-md">Full-time</span>
+<span class="px-2 py-1 rounded bg-surface-container-highest text-primary-container text-label-md font-bold">₹40L - ₹55L</span>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 rounded-full bg-surface-container-low border border-outline-variant text-label-md text-text-muted">SwiftUI</span>
+<span class="px-3 py-1 rounded-full bg-surface-container-low border border-outline-variant text-label-md text-text-muted">Combine</span>
+<span class="px-3 py-1 rounded-full bg-surface-container-low border border-outline-variant text-label-md text-text-muted">WebRTC</span>
+</div>
+<div class="flex gap-4 mt-auto">
+<button class="flex-1 py-2.5 rounded-lg border border-primary-container text-primary-container font-bold hover:bg-primary-container/10 transition-all">View Details</button>
+<button class="flex-1 py-2.5 rounded-lg bg-primary-container text-white font-bold hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary-container/20">Quick Apply</button>
+</div>
+</div>
+</div>
+<!-- Footer Section -->
+<footer class="mt-xxl border-t border-outline-variant py-lg flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="text-center md:text-left">
+<span class="font-display text-headline-sm font-bold text-text-primary">Visume</span>
+<p class="font-body-sm text-body-sm text-text-muted mt-2">© 2024 Visume. Personality-driven hiring.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-6">
+<a class="text-label-md font-label-md text-text-muted hover:text-secondary transition-colors" href="#">Privacy Policy</a>
+<a class="text-label-md font-label-md text-text-muted hover:text-secondary transition-colors" href="#">Terms of Service</a>
+<a class="text-label-md font-label-md text-text-muted hover:text-secondary transition-colors" href="#">For Recruiters</a>
+<a class="text-label-md font-label-md text-text-muted hover:text-secondary transition-colors" href="#">About Us</a>
+</div>
+</footer>
+</main>
+</div>
+<!-- Mobile Navigation Bar -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full h-16 bg-surface-container border-t border-outline-variant flex justify-around items-center px-4 z-50">
+<button class="flex flex-col items-center gap-1 text-primary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="text-[10px] font-bold">Discover</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-text-muted">
+<span class="material-symbols-outlined">work</span>
+<span class="text-[10px]">Applied</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-text-muted">
+<span class="material-symbols-outlined">chat</span>
+<span class="text-[10px]">Messages</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-text-muted">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="text-[10px]">Profile</span>
+</button>
+</nav>
+<script>
+        // Simple Interaction Logic
+        document.querySelectorAll('.job-card button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const isApply = e.target.innerText.includes('Apply');
+                if (isApply) {
+                    const originalText = e.target.innerText;
+                    e.target.innerText = 'Applied!';
+                    e.target.classList.add('bg-tertiary-container');
+                    setTimeout(() => {
+                        e.target.innerText = originalText;
+                        e.target.classList.remove('bg-tertiary-container');
+                    }, 2000);
+                }
+            });
+        });
+
+        // Floating Action Button logic for Mobile if needed
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('.glass-nav');
+            if (window.scrollY > 20) {
+                nav?.classList.add('shadow-xl');
+            } else {
+                nav?.classList.remove('shadow-xl');
+            }
+        });
+    </script>
+</body></html>

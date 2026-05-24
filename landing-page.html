@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Visume | Personality-Driven Hiring</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&amp;family=DM+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "text-muted": "#6B6B80",
+                        "surface-dim": "#131318",
+                        "primary-container": "#6c5ce7",
+                        "on-primary-fixed": "#160066",
+                        "on-tertiary-fixed-variant": "#005140",
+                        "outline-variant": "#474554",
+                        "on-tertiary-container": "#dffff1",
+                        "on-tertiary": "#00382b",
+                        "on-error": "#690005",
+                        "error": "#ffb4ab",
+                        "tertiary-container": "#008167",
+                        "outline": "#928ea0",
+                        "on-primary-fixed-variant": "#4029ba",
+                        "tertiary-fixed": "#6dfad2",
+                        "on-surface-variant": "#c8c4d7",
+                        "on-secondary-container": "#005250",
+                        "border-base": "#1E1E2E",
+                        "tertiary-fixed-dim": "#4bddb7",
+                        "background": "#0A0A0F",
+                        "surface": "#131318",
+                        "danger": "#D63031",
+                        "on-background": "#e4e1e9",
+                        "on-secondary-fixed": "#00201f",
+                        "secondary-fixed-dim": "#2edcd7",
+                        "on-secondary-fixed-variant": "#00504e",
+                        "surface-tint": "#c6bfff",
+                        "inverse-primary": "#5847d2",
+                        "on-primary": "#2900a0",
+                        "surface-container-high": "#2a292f",
+                        "on-tertiary-fixed": "#002018",
+                        "sidebar-active-glow": "rgba(108, 92, 231, 0.12)",
+                        "surface-bright": "#39383e",
+                        "text-primary": "#EAEAF0",
+                        "surface-container": "#1f1f25",
+                        "primary-fixed-dim": "#c6bfff",
+                        "inverse-surface": "#e4e1e9",
+                        "error-container": "#93000a",
+                        "card-bg": "#13131A",
+                        "on-surface": "#e4e1e9",
+                        "on-primary-container": "#faf6ff",
+                        "surface-container-low": "#1b1b20",
+                        "secondary": "#00CEC9",
+                        "surface-container-lowest": "#0e0e13",
+                        "on-secondary": "#003735",
+                        "primary-fixed": "#e4dfff",
+                        "surface-container-highest": "#35343a",
+                        "secondary-fixed": "#5af9f3",
+                        "tertiary": "#4bddb7",
+                        "primary": "#6C5CE7",
+                        "inverse-on-surface": "#303036",
+                        "surface-variant": "#35343a",
+                        "on-error-container": "#ffdad6",
+                        "secondary-container": "rgba(0, 206, 201, 0.1)",
+                        "border-input": "#2A2A3E"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "8px",
+                        "xl": "12px",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xxl": "64px",
+                        "xs": "8px",
+                        "base-unit": "8px",
+                        "sm": "16px",
+                        "md": "24px",
+                        "container-max": "1280px",
+                        "xl": "48px",
+                        "gutter": "24px",
+                        "lg": "32px",
+                        "sidebar-width": "240px"
+                    },
+                    "fontFamily": {
+                        "display": ["Syne"],
+                        "headline-lg": ["Syne"],
+                        "headline-md": ["Syne"],
+                        "headline-sm": ["Syne"],
+                        "body-lg": ["DM Sans"],
+                        "body-md": ["DM Sans"],
+                        "body-sm": ["DM Sans"],
+                        "label-md": ["DM Sans"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-nav {
+            background: rgba(19, 19, 26, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .hero-glow {
+            background: radial-gradient(circle at 50% 50%, rgba(108, 92, 231, 0.15) 0%, rgba(10, 10, 15, 0) 70%);
+        }
+        .ai-badge-glow {
+            box-shadow: 0 0 15px rgba(0, 206, 201, 0.2);
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            border-color: #6C5CE7;
+            box-shadow: 0 0 20px rgba(108, 92, 231, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-background text-text-primary font-body-md selection:bg-primary/30 selection:text-primary">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 left-0 w-full z-50 glass-nav border-b border-[#2A2A3E]">
+<div class="max-w-container-max mx-auto px-gutter h-16 flex items-center justify-between">
+<div class="flex items-center gap-12">
+<a class="font-display text-headline-md font-bold text-primary tracking-tight" href="#">Visume</a>
+<div class="hidden md:flex items-center gap-8">
+<a class="font-label-md text-text-muted hover:text-text-primary transition-colors" href="#">How it Works</a>
+<a class="font-label-md text-text-muted hover:text-text-primary transition-colors" href="#">For Recruiters</a>
+<a class="font-label-md text-text-muted hover:text-text-primary transition-colors" href="#">Pricing</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="hidden sm:block font-label-md border border-primary text-primary px-sm py-xs rounded-lg hover:bg-primary/10 transition-all duration-200">Post a Job</button>
+<button class="font-label-md bg-primary text-white px-md py-xs rounded-lg hover:opacity-90 active:scale-95 transition-all duration-200">Record Resume</button>
+</div>
+</div>
+</nav>
+<!-- Hero Section -->
+<section class="relative pt-xxl pb-xl px-gutter max-w-container-max mx-auto overflow-hidden">
+<div class="hero-glow absolute inset-0 -z-10"></div>
+<div class="grid lg:grid-cols-2 gap-xl items-center pt-xl">
+<div class="space-y-lg">
+<h1 class="font-display text-[56px] leading-[1.1] font-extrabold tracking-tight">
+                    Get Hired by <br/> <span class="text-primary">Being Seen</span>
+</h1>
+<p class="font-body-lg text-text-muted max-w-lg">
+                    Ditch the static PDFs. Show your true personality, soft skills, and expertise through video resumes that speak louder than bullet points.
+                </p>
+<div class="flex flex-wrap gap-4 pt-4">
+<button class="bg-primary text-white px-lg py-md rounded-xl font-label-md hover:scale-105 transition-transform active:scale-95">Record My Resume</button>
+<button class="border border-secondary text-secondary px-lg py-md rounded-xl font-label-md hover:bg-secondary/5 transition-colors">Browse Jobs</button>
+</div>
+</div>
+<!-- Floating Video Card -->
+<div class="relative flex justify-center lg:justify-end">
+<div class="w-full max-w-[420px] bg-card-bg border border-border-input rounded-xl overflow-hidden shadow-2xl relative">
+<div class="aspect-[9/16] relative">
+<img alt="Candidate profile video thumbnail" class="w-full h-full object-cover" data-alt="A professional young woman with a confident smile, standing in a bright modern office with large windows. She is dressed in smart business casual attire. The lighting is warm and cinematic, highlighting her personality. The image has a high-end commercial photography feel, using deep blacks in the shadows and vibrant tones in the skin, fitting a premium tech-focused UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDQ3tj9nezhfYkb39Tf8eyXO5DRnd7y-VjGi8sEjkzEr-9r_LkswXuT6W__y2BDQgqimDxLsGq8nKTPOMJaH3xJt-5eXhj1dm69clyBXR3huOYBD__BV2dsbF7ALTK6UQW8hfQCpzZKXwtbTm8yLj3SvIhg_6RGX5XRzPwQ4b9VQfeyY4jNVin2Zsj7iGZ9JohbtuiXzM9yteolIG_gp09ourdcPamQnhLnFuBvubNJ4gYfohxayaZuQc_aqwt3y_9lAg7YeDetTc"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+<!-- AI Badge -->
+<div class="absolute top-4 right-4 bg-secondary-container backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 ai-badge-glow">
+<span class="material-symbols-outlined text-[16px] text-secondary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="text-secondary font-label-md font-bold tracking-wider">94% MATCH</span>
+</div>
+<!-- Play Button Overlay -->
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 cursor-pointer hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-white text-[32px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+<!-- Candidate Info -->
+<div class="absolute bottom-6 left-6 right-6">
+<h3 class="font-headline-sm text-white">Sarah Jenkins</h3>
+<p class="font-body-sm text-gray-300">Senior Product Designer &amp; Creative Lead</p>
+<div class="flex gap-2 mt-3 overflow-x-auto no-scrollbar">
+<span class="bg-white/10 px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest text-white border border-white/10">UI/UX</span>
+<span class="bg-white/10 px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest text-white border border-white/10">Design Systems</span>
+<span class="bg-white/10 px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest text-white border border-white/10">Team Lead</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Floating Decorative Element -->
+<div class="absolute -bottom-8 -left-8 hidden md:block bg-surface-container border border-border-input p-4 rounded-xl shadow-xl animate-bounce" style="animation-duration: 3s;">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">chat</span>
+</div>
+<div>
+<p class="font-label-md text-white">New Interview Request</p>
+<p class="text-[10px] text-text-muted">From TechCorp Solutions</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats Bar -->
+<section class="bg-surface-container py-lg mt-xl">
+<div class="max-w-container-max mx-auto px-gutter grid grid-cols-1 md:grid-cols-3 gap-md text-center">
+<div class="space-y-1">
+<p class="font-display text-headline-lg font-extrabold text-white">2,400+</p>
+<p class="font-label-md text-text-muted uppercase tracking-[2px]">Candidates</p>
+</div>
+<div class="space-y-1 border-y md:border-y-0 md:border-x border-outline-variant py-md md:py-0">
+<p class="font-display text-headline-lg font-extrabold text-white">380+</p>
+<p class="font-label-md text-text-muted uppercase tracking-[2px]">Companies</p>
+</div>
+<div class="space-y-1">
+<p class="font-display text-headline-lg font-extrabold text-secondary">94%</p>
+<p class="font-label-md text-text-muted uppercase tracking-[2px]">Match Accuracy</p>
+</div>
+</div>
+</section>
+<!-- Features Section -->
+<section class="py-xxl px-gutter max-w-container-max mx-auto">
+<div class="text-center mb-xxl">
+<h2 class="font-display text-headline-lg font-bold mb-sm">Revolutionizing Recruitment</h2>
+<p class="text-text-muted max-w-2xl mx-auto font-body-md">We’ve built the technology to bridge the gap between human personality and professional skill sets.</p>
+</div>
+<div class="grid md:grid-cols-3 gap-lg">
+<!-- Card 1 -->
+<div class="bg-card-bg border border-border-input p-lg rounded-xl card-hover transition-all duration-300">
+<div class="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-primary text-[32px]">videocam</span>
+</div>
+<h3 class="font-headline-sm mb-sm text-white">Video Resume</h3>
+<p class="text-text-muted font-body-md leading-relaxed">
+                    Record yourself in 60 seconds with our built-in prompter and AI editor. No professional equipment needed.
+                </p>
+</div>
+<!-- Card 2 -->
+<div class="bg-card-bg border border-border-input p-lg rounded-xl card-hover transition-all duration-300">
+<div class="w-14 h-14 bg-secondary/10 rounded-xl flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-secondary text-[32px]">psychology</span>
+</div>
+<h3 class="font-headline-sm mb-sm text-white">AI Matching</h3>
+<p class="text-text-muted font-body-md leading-relaxed">
+                    Our smart scoring system analyzes sentiment, skills, and culture fit to find you the perfect role automatically.
+                </p>
+</div>
+<!-- Card 3 -->
+<div class="bg-card-bg border border-border-input p-lg rounded-xl card-hover transition-all duration-300">
+<div class="w-14 h-14 bg-tertiary-container/10 rounded-xl flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-tertiary text-[32px]">bolt</span>
+</div>
+<h3 class="font-headline-sm mb-sm text-white">Instant Interviews</h3>
+<p class="text-text-muted font-body-md leading-relaxed">
+                    Skip the screening calls. Recruiters reach you directly based on your video profile for one-click interview scheduling.
+                </p>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="max-w-container-max mx-auto px-gutter mb-xxl">
+<div class="relative bg-gradient-to-r from-primary to-[#4029ba] rounded-2xl p-xl overflow-hidden text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-lg">
+<div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
+<div class="z-10">
+<h2 class="font-display text-headline-lg font-extrabold text-white mb-2">Ready to land your dream job?</h2>
+<p class="text-white/80 font-body-md">Join 2,000+ candidates who found their match this month.</p>
+</div>
+<div class="z-10">
+<button class="bg-white text-primary px-lg py-md rounded-xl font-bold hover:bg-on-primary-container transition-colors shadow-lg">Start Recording Now</button>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest border-t border-outline-variant">
+<div class="max-w-container-max mx-auto px-gutter py-xl">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-lg">
+<div class="space-y-4">
+<a class="font-display text-headline-sm font-bold text-text-primary tracking-tight" href="#">Visume</a>
+<p class="font-body-sm text-text-muted max-w-xs">Personality-driven hiring. Empowering candidates to showcase more than just a piece of paper.</p>
+</div>
+<div class="flex flex-wrap gap-x-12 gap-y-4">
+<div class="space-y-4">
+<p class="font-label-md text-white font-bold uppercase tracking-widest">Platform</p>
+<ul class="space-y-2">
+<li><a class="text-text-muted hover:text-secondary transition-colors text-sm" href="#">For Candidates</a></li>
+<li><a class="text-text-muted hover:text-secondary transition-colors text-sm" href="#">For Recruiters</a></li>
+<li><a class="text-text-muted hover:text-secondary transition-colors text-sm" href="#">Pricing</a></li>
+</ul>
+</div>
+<div class="space-y-4">
+<p class="font-label-md text-white font-bold uppercase tracking-widest">Company</p>
+<ul class="space-y-2">
+<li><a class="text-text-muted hover:text-secondary transition-colors text-sm" href="#">About Us</a></li>
+<li><a class="text-text-muted hover:text-secondary transition-colors text-sm" href="#">Privacy Policy</a></li>
+<li><a class="text-text-muted hover:text-secondary transition-colors text-sm" href="#">Terms of Service</a></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="mt-xl pt-lg border-t border-outline-variant flex flex-col md:flex-row justify-between gap-4">
+<p class="font-body-sm text-text-muted">© 2024 Visume. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="text-text-muted hover:text-white transition-colors" href="#"><span class="material-symbols-outlined text-sm">share</span></a>
+<a class="text-text-muted hover:text-white transition-colors" href="#"><span class="material-symbols-outlined text-sm">public</span></a>
+<a class="text-text-muted hover:text-white transition-colors" href="#"><span class="material-symbols-outlined text-sm">group</span></a>
+</div>
+</div>
+</div>
+</footer>
+<script>
+        // Micro-interactions and subtle scroll effects
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 20) {
+                nav.classList.add('bg-surface-container/90');
+            } else {
+                nav.classList.remove('bg-surface-container/90');
+            }
+        });
+
+        // Hover effects for the AI badge
+        const aiBadge = document.querySelector('.ai-badge-glow');
+        if (aiBadge) {
+            aiBadge.addEventListener('mouseover', () => {
+                aiBadge.style.boxShadow = '0 0 25px rgba(0, 206, 201, 0.4)';
+            });
+            aiBadge.addEventListener('mouseout', () => {
+                aiBadge.style.boxShadow = '0 0 15px rgba(0, 206, 201, 0.2)';
+            });
+        }
+    </script>
+</body></html>
