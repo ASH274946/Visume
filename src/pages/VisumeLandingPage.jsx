@@ -1,24 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-
-const Navbar = () => (
-  <nav className="fixed top-0 left-0 w-full z-50 glass-nav border-b border-[#2A2A3E]">
-    <div className="max-w-container-max mx-auto px-gutter h-16 flex items-center justify-between">
-      <div className="flex items-center gap-12">
-        <Link className="font-display text-headline-md font-bold text-primary tracking-tight" to="/">Visume</Link>
-        <div className="hidden md:flex items-center gap-8">
-          <Link className="font-label-md text-text-muted hover:text-text-primary transition-colors" to="/discover">How it Works</Link>
-          <Link className="font-label-md text-text-muted hover:text-text-primary transition-colors" to="/login" state={{ redirectTo: '/dashboard' }}>For Candidates</Link>
-          <Link className="font-label-md text-text-muted hover:text-text-primary transition-colors" to="/login" state={{ redirectTo: '/recruiter' }}>For Recruiters</Link>
-          <Link className="font-label-md text-text-muted hover:text-text-primary transition-colors" to="/register">Pricing</Link>
-        </div>
-      </div>
-      <div className="flex items-center gap-4">
-        <Link to="/login" className="font-label-md bg-primary text-white px-md py-xs rounded-lg hover:opacity-90 active:scale-95 transition-all duration-200 flex items-center justify-center">Sign In</Link>
-      </div>
-    </div>
-  </nav>
-);
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 const Hero = () => (
   <section className="relative pt-xxl pb-xl px-gutter max-w-container-max mx-auto overflow-hidden">
@@ -33,7 +16,7 @@ const Hero = () => (
         </p>
         <div className="flex flex-wrap gap-4 pt-4">
           <Link to="/login" state={{ redirectTo: '/recorder' }} className="bg-primary text-white px-lg py-md rounded-xl font-label-md hover:scale-105 transition-transform active:scale-95 inline-block text-center">Record My Resume</Link>
-          <Link to="/discover" className="border border-secondary text-secondary px-lg py-md rounded-xl font-label-md hover:bg-secondary/5 transition-colors inline-block text-center">Browse Jobs</Link>
+          <Link to="/login" state={{ redirectTo: '/discover' }} className="border border-secondary text-secondary px-lg py-md rounded-xl font-label-md hover:bg-secondary/5 transition-colors inline-block text-center">Browse Jobs</Link>
         </div>
         {/* Stats Row */}
         <div className="flex flex-wrap items-center gap-6 pt-8 border-t border-outline-variant mt-8 max-w-md">
@@ -104,7 +87,7 @@ const Hero = () => (
 );
 
 const Features = () => (
-  <section className="py-xxl px-gutter max-w-container-max mx-auto">
+  <section className="pt-[120px] pb-xxl px-gutter max-w-container-max mx-auto">
     <div className="text-center mb-xxl">
       <h2 className="font-display text-headline-lg font-bold mb-sm">Revolutionizing Recruitment</h2>
       <p className="text-text-muted max-w-2xl mx-auto font-body-md">We’ve built the technology to bridge the gap between human personality and professional skill sets.</p>
@@ -150,50 +133,12 @@ const CTA = () => (
         <p className="text-white/80 font-body-md">Join 2,000+ candidates who found their match this month.</p>
       </div>
       <div className="z-10">
-        <Link to="/login" state={{ redirectTo: '/register' }} className="bg-white text-primary px-lg py-md rounded-xl font-bold hover:bg-on-primary-container transition-colors shadow-lg inline-block">Start Recording Now</Link>
+        <Link to="/login" state={{ redirectTo: '/recorder' }} className="bg-white text-primary px-lg py-md rounded-xl font-bold hover:bg-on-primary-container transition-colors shadow-lg inline-block">Start Recording Now</Link>
       </div>
     </div>
   </section>
 );
 
-const Footer = () => (
-  <footer className="bg-surface-container-lowest border-t border-outline-variant">
-    <div className="max-w-container-max mx-auto px-gutter py-xl">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-lg">
-        <div className="space-y-4">
-          <Link className="font-display text-headline-sm font-bold text-text-primary tracking-tight" to="/">Visume</Link>
-          <p className="font-body-sm text-text-muted max-w-xs">Personality-driven hiring. Empowering candidates to showcase more than just a piece of paper.</p>
-        </div>
-        <div className="flex flex-wrap gap-x-12 gap-y-4">
-          <div className="space-y-4">
-            <p className="font-label-md text-white font-bold uppercase tracking-widest">Platform</p>
-            <ul className="space-y-2">
-              <li><Link className="text-text-muted hover:text-secondary transition-colors text-sm" to="/login" state={{ redirectTo: '/dashboard' }}>For Candidates</Link></li>
-              <li><Link className="text-text-muted hover:text-secondary transition-colors text-sm" to="/login" state={{ redirectTo: '/recruiter' }}>For Recruiters</Link></li>
-              <li><Link className="text-text-muted hover:text-secondary transition-colors text-sm" to="/login" state={{ redirectTo: '/register' }}>Pricing</Link></li>
-            </ul>
-          </div>
-          <div className="space-y-4">
-            <p className="font-label-md text-white font-bold uppercase tracking-widest">Company</p>
-            <ul className="space-y-2">
-              <li><Link className="text-text-muted hover:text-secondary transition-colors text-sm" to="/">About Us</Link></li>
-              <li><Link className="text-text-muted hover:text-secondary transition-colors text-sm" to="/">Privacy Policy</Link></li>
-              <li><Link className="text-text-muted hover:text-secondary transition-colors text-sm" to="/">Terms of Service</Link></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div className="mt-xl pt-lg border-t border-outline-variant flex flex-col md:flex-row justify-between gap-4">
-        <p className="font-body-sm text-text-muted">© 2024 Visume. All rights reserved.</p>
-        <div className="flex gap-6">
-          <a className="text-text-muted hover:text-white transition-colors" href="#"><span className="material-symbols-outlined text-sm">share</span></a>
-          <a className="text-text-muted hover:text-white transition-colors" href="#"><span className="material-symbols-outlined text-sm">public</span></a>
-          <a className="text-text-muted hover:text-white transition-colors" href="#"><span className="material-symbols-outlined text-sm">group</span></a>
-        </div>
-      </div>
-    </div>
-  </footer>
-);
 
 const VisumeLandingPage = () => {
   useEffect(() => {

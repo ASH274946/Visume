@@ -1,55 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-
-const Sidebar = () => (
-  <aside className="w-[240px] flex-shrink-0 bg-surface-container border border-outline-variant flex flex-col h-[calc(100vh-32px)] my-4 ml-4 rounded-2xl shadow-xl shadow-black/40 z-50">
-    <div className="p-md">
-      <Link to="/" className="font-display text-headline-sm font-bold text-primary-container">Visume</Link>
-    </div>
-    <nav className="flex-1 mt-sm flex flex-col gap-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
-      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" to="/dashboard">
-        <span className="material-symbols-outlined">dashboard</span>
-        <span className="font-label-md text-label-md">Dashboard</span>
-      </Link>
-      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" to="/profile">
-        <span className="material-symbols-outlined">person</span>
-        <span className="font-label-md text-label-md">My Profile</span>
-      </Link>
-      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" to="/recorder">
-        <span className="material-symbols-outlined">videocam</span>
-        <span className="font-label-md text-label-md">Video Resume</span>
-      </Link>
-      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" to="/discover">
-        <span className="material-symbols-outlined">work</span>
-        <span className="font-label-md text-label-md">Browse Jobs</span>
-      </Link>
-      <Link className="flex items-center gap-3 bg-sidebar-active-glow text-primary-container border-l-4 border-primary-container px-4 py-3 transition-all duration-300" to="/applications">
-        <span className="material-symbols-outlined">assignment</span>
-        <span className="font-label-md text-label-md">Applications</span>
-      </Link>
-    </nav>
-    <div className="flex flex-col gap-1 mb-2">
-      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" to="/settings" state={{ role: 'candidate' }}>
-        <span className="material-symbols-outlined">settings</span>
-        <span className="font-label-md text-label-md">Settings</span>
-      </Link>
-    </div>
-    <div className="p-4 border-t border-outline-variant">
-      <div className="flex items-center gap-3">
-        <div className="relative">
-          <img alt="User Profile" className="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCif7mMcFeEQhrivL3z3iYapnS9er2kQ7XYLd4MuR0k9XdNq69mXT5OGqxxd69TMzoGOukTENlAj2Sv83x4bkp_Sv3X7SsVVYxKY7DqVn0lMSDDdn5UtHszx8X9yons-XE3U_VNoMV1yN3AoBQnPxsK20QsLD5z0mjpDq2EzinhRsjgwIgYS8hd_RebazNQGulE_Vbs5L86pkRVPmk1pUNont5dxsmD-5DVsS4EK_WczWR-gcIEqbw6IQdA7DRj3RSgR-GlT_7d1-Q" />
-          <div className="absolute -bottom-1 -right-1 bg-green-500 w-3 h-3 rounded-full border-2 border-surface-container"></div>
-        </div>
-        <div className="flex flex-col">
-          <span className="font-body-sm text-text-primary font-bold">Ashwin Kumar</span>
-          <div className="flex items-center gap-1">
-            <span className="bg-tertiary-container/20 text-tertiary text-[10px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">KYC Verified</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </aside>
-);
+import Sidebar from '../components/Sidebar';
+import DashboardNavbar from '../components/DashboardNavbar';
 
 const ApplicationsTracker = () => {
   const [filter, setFilter] = useState('all');
@@ -122,103 +74,105 @@ const ApplicationsTracker = () => {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background text-text-primary font-body-md selection:bg-primary/30 selection:text-primary antialiased">
-      <Sidebar />
+      <Sidebar role="candidate" activePage="applications" />
+      <div className="flex-grow flex flex-col h-screen overflow-hidden relative">
+        <DashboardNavbar role="candidate" />
+        <main className="flex-grow overflow-y-auto custom-scrollbar p-lg pt-[104px]">
+          <header className="mb-lg">
+            <h1 className="font-display text-headline-lg text-text-primary">My Applications</h1>
+          </header>
 
-      <main className="flex-1 overflow-y-auto custom-scrollbar p-lg">
-        <header className="mb-lg">
-          <h1 className="font-display text-headline-lg text-text-primary">My Applications</h1>
-        </header>
-
-        {/* Filter Tabs */}
-        <div className="flex gap-3 mb-xl overflow-x-auto pb-2 custom-scrollbar">
-          <button 
-            onClick={() => setFilter('all')}
-            className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap border transition-all ${filter === 'all' ? 'bg-primary-container text-white border-primary-container' : 'border-border-input text-text-muted hover:text-text-primary hover:border-text-muted'}`}
-          >
-            All ({applications.length})
-          </button>
-          <button 
-            onClick={() => setFilter('applied')}
-            className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap border transition-all ${filter === 'applied' ? 'bg-primary-container text-white border-primary-container' : 'border-border-input text-text-muted hover:text-text-primary hover:border-text-muted'}`}
-          >
-            Applied ({applications.filter(a => a.status === 'applied').length})
-          </button>
-          <button 
-            onClick={() => setFilter('review')}
-            className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap border transition-all ${filter === 'review' ? 'bg-primary-container text-white border-primary-container' : 'border-border-input text-text-muted hover:text-text-primary hover:border-text-muted'}`}
-          >
-            Under Review ({applications.filter(a => a.status === 'review').length})
-          </button>
-          <button 
-            onClick={() => setFilter('shortlisted')}
-            className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap border transition-all ${filter === 'shortlisted' ? 'bg-primary-container text-white border-primary-container' : 'border-border-input text-text-muted hover:text-text-primary hover:border-text-muted'}`}
-          >
-            Shortlisted ({applications.filter(a => a.status === 'shortlisted').length})
-          </button>
-          <button 
-            onClick={() => setFilter('interview')}
-            className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap border transition-all ${filter === 'interview' ? 'bg-primary-container text-white border-primary-container' : 'border-border-input text-text-muted hover:text-text-primary hover:border-text-muted'}`}
-          >
-            Interview ({applications.filter(a => a.status === 'interview').length})
-          </button>
-          <button 
-            onClick={() => setFilter('rejected')}
-            className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap border transition-all ${filter === 'rejected' ? 'bg-primary-container text-white border-primary-container' : 'border-border-input text-text-muted hover:text-text-primary hover:border-text-muted'}`}
-          >
-            Rejected ({applications.filter(a => a.status === 'rejected').length})
-          </button>
-        </div>
-
-        {/* Applications List */}
-        <div className="flex flex-col gap-4 max-w-[960px]">
-          {filteredApplications.map(app => (
-            <div 
-              key={app.id} 
-              className={`bg-card-bg border border-border-base rounded-xl p-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-lg ${app.status === 'interview' ? 'border-l-[4px] border-l-secondary' : ''} ${app.status === 'rejected' ? 'opacity-70 hover:opacity-100' : ''}`}
+          {/* Filter Tabs */}
+          <div className="flex gap-3 mb-xl overflow-x-auto pb-2 custom-scrollbar">
+            <button 
+              onClick={() => setFilter('all')}
+              className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap border transition-all ${filter === 'all' ? 'bg-primary-container text-white border-primary-container' : 'border-border-input text-text-muted hover:text-text-primary hover:border-text-muted'}`}
             >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center border border-border-input flex-shrink-0">
-                  <span className="text-text-muted font-bold">{app.logo}</span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <h3 className="font-display text-headline-sm text-text-primary font-bold">{app.title}</h3>
-                  <p className="text-text-muted text-sm">{app.company} • <span className="bg-surface-container px-2 py-0.5 rounded text-xs border border-border-input">{app.location}</span></p>
-                  <p className="text-text-muted text-xs mt-1">Applied: {app.date}</p>
-                </div>
-              </div>
+              All ({applications.length})
+            </button>
+            <button 
+              onClick={() => setFilter('applied')}
+              className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap border transition-all ${filter === 'applied' ? 'bg-primary-container text-white border-primary-container' : 'border-border-input text-text-muted hover:text-text-primary hover:border-text-muted'}`}
+            >
+              Applied ({applications.filter(a => a.status === 'applied').length})
+            </button>
+            <button 
+              onClick={() => setFilter('review')}
+              className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap border transition-all ${filter === 'review' ? 'bg-primary-container text-white border-primary-container' : 'border-border-input text-text-muted hover:text-text-primary hover:border-text-muted'}`}
+            >
+              Under Review ({applications.filter(a => a.status === 'review').length})
+            </button>
+            <button 
+              onClick={() => setFilter('shortlisted')}
+              className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap border transition-all ${filter === 'shortlisted' ? 'bg-primary-container text-white border-primary-container' : 'border-border-input text-text-muted hover:text-text-primary hover:border-text-muted'}`}
+            >
+              Shortlisted ({applications.filter(a => a.status === 'shortlisted').length})
+            </button>
+            <button 
+              onClick={() => setFilter('interview')}
+              className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap border transition-all ${filter === 'interview' ? 'bg-primary-container text-white border-primary-container' : 'border-border-input text-text-muted hover:text-text-primary hover:border-text-muted'}`}
+            >
+              Interview ({applications.filter(a => a.status === 'interview').length})
+            </button>
+            <button 
+              onClick={() => setFilter('rejected')}
+              className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap border transition-all ${filter === 'rejected' ? 'bg-primary-container text-white border-primary-container' : 'border-border-input text-text-muted hover:text-text-primary hover:border-text-muted'}`}
+            >
+              Rejected ({applications.filter(a => a.status === 'rejected').length})
+            </button>
+          </div>
 
-              <div className="flex flex-col md:items-end gap-3 w-full md:w-auto mt-4 md:mt-0">
-                <div className="flex items-center gap-4 justify-between md:justify-end w-full">
-                  <span className={`bg-${app.status === 'interview' ? 'secondary' : app.status === 'shortlisted' ? 'primary' : app.status === 'review' ? 'status-review' : app.status === 'applied' ? 'status-applied' : 'danger'}/20 text-${app.status === 'interview' ? 'secondary' : app.status === 'shortlisted' ? 'primary-fixed' : app.status === 'review' ? 'status-review' : app.status === 'applied' ? 'status-applied' : 'danger'} px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap`}>
-                    {app.statusText}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <button className="w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:bg-surface-container hover:text-text-primary transition-colors">
-                      <span className="material-symbols-outlined text-[20px]">visibility</span>
-                    </button>
-                    <button className="w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:bg-surface-container hover:text-text-primary transition-colors">
-                      <span className="material-symbols-outlined text-[20px]">more_vert</span>
-                    </button>
+          {/* Applications List */}
+          <div className="flex flex-col gap-4 max-w-[960px]">
+            {filteredApplications.map(app => (
+              <div 
+                key={app.id} 
+                className={`bg-card-bg border border-border-base rounded-xl p-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-lg ${app.status === 'interview' ? 'border-l-[4px] border-l-secondary' : ''} ${app.status === 'rejected' ? 'opacity-70 hover:opacity-100' : ''}`}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center border border-border-input flex-shrink-0">
+                    <span className="text-text-muted font-bold">{app.logo}</span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <h3 className="font-display text-headline-sm text-text-primary font-bold">{app.title}</h3>
+                    <p className="text-text-muted text-sm">{app.company} • <span className="bg-surface-container px-2 py-0.5 rounded text-xs border border-border-input">{app.location}</span></p>
+                    <p className="text-text-muted text-xs mt-1">Applied: {app.date}</p>
                   </div>
                 </div>
 
-                {app.details && (
-                  <div className="bg-surface-container border border-border-input rounded-lg p-3 w-full flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <span className="text-sm text-text-primary">
-                      <span className="font-bold text-secondary">{app.details.timeText.split('on')[0]}on</span>
-                      {app.details.timeText.split('on')[1]}
+                <div className="flex flex-col md:items-end gap-3 w-full md:w-auto mt-4 md:mt-0">
+                  <div className="flex items-center gap-4 justify-between md:justify-end w-full">
+                    <span className={`bg-${app.status === 'interview' ? 'secondary' : app.status === 'shortlisted' ? 'primary' : app.status === 'review' ? 'status-review' : app.status === 'applied' ? 'status-applied' : 'danger'}/20 text-${app.status === 'interview' ? 'secondary' : app.status === 'shortlisted' ? 'primary-fixed' : app.status === 'review' ? 'status-review' : app.status === 'applied' ? 'status-applied' : 'danger'} px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap`}>
+                      {app.statusText}
                     </span>
-                    <button className="bg-secondary text-[#0A0A0F] px-4 py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#46eae5] transition-colors whitespace-nowrap">
-                      <span className="material-symbols-outlined text-[18px]">videocam</span> 
-                      {app.details.actionText}
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button className="w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:bg-surface-container hover:text-text-primary transition-colors">
+                        <span className="material-symbols-outlined text-[20px]">visibility</span>
+                      </button>
+                      <button className="w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:bg-surface-container hover:text-text-primary transition-colors">
+                        <span className="material-symbols-outlined text-[20px]">more_vert</span>
+                      </button>
+                    </div>
                   </div>
-                )}
+
+                  {app.details && (
+                    <div className="bg-surface-container border border-border-input rounded-lg p-3 w-full flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <span className="text-sm text-text-primary">
+                        <span className="font-bold text-secondary">{app.details.timeText.split('on')[0]}on</span>
+                        {app.details.timeText.split('on')[1]}
+                      </span>
+                      <button className="bg-secondary text-[#0A0A0F] px-4 py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#46eae5] transition-colors whitespace-nowrap">
+                        <span className="material-symbols-outlined text-[18px]">videocam</span> 
+                        {app.details.actionText}
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </main>
+            ))}
+          </div>
+        </main>
+      </div>
     </div>
   );
 };

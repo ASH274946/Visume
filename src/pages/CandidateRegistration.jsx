@@ -18,9 +18,9 @@ const Footer = () => (
     <div className="max-w-container-max mx-auto px-gutter flex flex-col md:flex-row justify-between items-center gap-md">
       <span className="font-display text-headline-sm font-bold text-text-primary">Visume</span>
       <div className="flex gap-lg">
-        <Link className="font-label-md text-text-muted hover:text-secondary transition-colors" to="/">Privacy Policy</Link>
-        <Link className="font-label-md text-text-muted hover:text-secondary transition-colors" to="/">Terms of Service</Link>
-        <Link className="font-label-md text-text-muted hover:text-secondary transition-colors" to="/recruiter">For Recruiters</Link>
+        <Link className="font-label-md text-text-muted hover:text-secondary transition-colors" to="/privacy">Privacy Policy</Link>
+        <Link className="font-label-md text-text-muted hover:text-secondary transition-colors" to="/terms">Terms of Service</Link>
+        <Link className="font-label-md text-text-muted hover:text-secondary transition-colors" to="/login" state={{ redirectTo: '/recruiter' }}>For Recruiters</Link>
       </div>
       <p className="font-body-sm text-text-muted">© 2024 Visume. Personality-driven hiring.</p>
     </div>

@@ -1,55 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
-const Sidebar = () => (
-  <aside className="w-[240px] flex-shrink-0 bg-surface-container border border-outline-variant flex flex-col h-[calc(100vh-32px)] my-4 ml-4 rounded-2xl shadow-xl shadow-black/40 z-50">
-    <div className="p-md">
-      <Link to="/" className="font-display text-headline-sm font-bold text-primary-container">Visume</Link>
-    </div>
-    <nav className="flex-1 mt-sm flex flex-col gap-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
-      <Link className="flex items-center gap-3 bg-sidebar-active-glow text-primary-container border-l-4 border-primary-container px-4 py-3 transition-all duration-300" to="/dashboard">
-        <span className="material-symbols-outlined">dashboard</span>
-        <span className="font-label-md text-label-md">Dashboard</span>
-      </Link>
-      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" to="/profile">
-        <span className="material-symbols-outlined">person</span>
-        <span className="font-label-md text-label-md">My Profile</span>
-      </Link>
-      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" to="/recorder">
-        <span className="material-symbols-outlined">videocam</span>
-        <span className="font-label-md text-label-md">Video Resume</span>
-      </Link>
-      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" to="/discover">
-        <span className="material-symbols-outlined">work</span>
-        <span className="font-label-md text-label-md">Browse Jobs</span>
-      </Link>
-      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" to="/applications">
-        <span className="material-symbols-outlined">assignment</span>
-        <span className="font-label-md text-label-md">Applications</span>
-      </Link>
-    </nav>
-    <div className="flex flex-col gap-1 mb-2">
-      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300 translate-x-0 hover:translate-x-1" to="/settings" state={{ role: 'candidate' }}>
-        <span className="material-symbols-outlined">settings</span>
-        <span className="font-label-md text-label-md">Settings</span>
-      </Link>
-    </div>
-    <div className="p-4 border-t border-outline-variant">
-      <div className="flex items-center gap-3">
-        <div className="relative">
-          <img alt="User Profile" className="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCif7mMcFeEQhrivL3z3iYapnS9er2kQ7XYLd4MuR0k9XdNq69mXT5OGqxxd69TMzoGOukTENlAj2Sv83x4bkp_Sv3X7SsVVYxKY7DqVn0lMSDDdn5UtHszx8X9yons-XE3U_VNoMV1yN3AoBQnPxsK20QsLD5z0mjpDq2EzinhRsjgwIgYS8hd_RebazNQGulE_Vbs5L86pkRVPmk1pUNont5dxsmD-5DVsS4EK_WczWR-gcIEqbw6IQdA7DRj3RSgR-GlT_7d1-Q" />
-          <div className="absolute -bottom-1 -right-1 bg-green-500 w-3 h-3 rounded-full border-2 border-surface-container"></div>
-        </div>
-        <div className="flex flex-col">
-          <span className="font-body-sm text-text-primary font-bold">Ashwin Kumar</span>
-          <div className="flex items-center gap-1">
-            <span className="bg-tertiary-container/20 text-tertiary text-[10px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">KYC Verified</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </aside>
-);
+import Sidebar from '../components/Sidebar';
+import DashboardNavbar from '../components/DashboardNavbar';
 
 const Header = () => (
   <header className="flex justify-between items-center mb-xl">
@@ -234,14 +186,17 @@ const Footer = () => (
 const CandidateDashboard = () => {
   return (
     <div className="flex h-screen overflow-hidden bg-background text-text-primary font-body-md selection:bg-primary/30 selection:text-primary antialiased">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto custom-scrollbar p-lg">
-        <Header />
-        <StatsRow />
-        <VideoResumeCard />
-        <RecommendedJobs />
-        <Footer />
-      </main>
+      <Sidebar role="candidate" activePage="dashboard" />
+      <div className="flex-grow flex flex-col h-screen overflow-hidden relative">
+        <DashboardNavbar role="candidate" />
+        <main className="flex-1 overflow-y-auto custom-scrollbar p-lg pt-[104px]">
+          <Header />
+          <StatsRow />
+          <VideoResumeCard />
+          <RecommendedJobs />
+          <Footer />
+        </main>
+      </div>
     </div>
   );
 };

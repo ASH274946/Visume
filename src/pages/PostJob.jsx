@@ -1,53 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
-const Sidebar = () => (
-  <aside className="fixed left-4 top-4 bottom-4 w-[240px] bg-surface-container border border-outline-variant flex flex-col py-md rounded-2xl shadow-xl shadow-black/40 z-40 transition-transform md:translate-x-0 -translate-x-full">
-    {/* Brand Identity */}
-    <div className="px-md mb-xl">
-      <div className="flex items-center gap-xs">
-        <Link to="/" className="font-display text-headline-sm font-bold text-primary-container">Visume</Link>
-        <span className="bg-primary-container/20 text-primary-container text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest">Recruiter</span>
-      </div>
-    </div>
-
-    {/* Navigation */}
-    <nav className="flex-1 flex flex-col gap-1 px-sm overflow-y-auto overflow-x-hidden custom-scrollbar">
-      <Link to="/recruiter" className="flex items-center gap-3 px-3 py-2 rounded-lg text-text-muted hover:bg-surface-bright/5 hover:text-text-primary transition-colors">
-        <span className="material-symbols-outlined text-[20px]">dashboard</span>
-        <span className="font-label-md">Dashboard</span>
-      </Link>
-      <Link to="/discover" className="flex items-center gap-3 px-3 py-2 rounded-lg text-text-muted hover:bg-surface-bright/5 hover:text-text-primary transition-colors">
-        <span className="material-symbols-outlined text-[20px]">search</span>
-        <span className="font-label-md">Find Candidates</span>
-      </Link>
-      <Link to="/post-job" className="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary-container/10 text-primary-container transition-colors">
-        <span className="material-symbols-outlined text-[20px]">work</span>
-        <span className="font-label-md">Job Postings</span>
-      </Link>
-      <Link to="/pipeline" className="flex items-center gap-3 px-3 py-2 rounded-lg text-text-muted hover:bg-surface-bright/5 hover:text-text-primary transition-colors">
-        <span className="material-symbols-outlined text-[20px]">view_kanban</span>
-        <span className="font-label-md">Pipeline</span>
-      </Link>
-    </nav>
-    <div className="flex flex-col gap-1 px-sm mb-2">
-      <Link to="/recruiter" className="flex items-center gap-3 px-3 py-2 rounded-lg text-text-muted hover:bg-surface-bright/5 hover:text-text-primary transition-colors">
-        <span className="material-symbols-outlined text-[20px]">domain</span>
-        <span className="font-label-md">Company Profile</span>
-      </Link>
-      <Link to="/settings" state={{ role: 'recruiter' }} className="flex items-center gap-3 px-3 py-2 rounded-lg text-text-muted hover:bg-surface-bright/5 hover:text-text-primary transition-colors">
-        <span className="material-symbols-outlined text-[20px]">settings</span>
-        <span className="font-label-md">Settings</span>
-      </Link>
-    </div>
-  </aside>
-);
+import Sidebar from '../components/Sidebar';
+import DashboardNavbar from '../components/DashboardNavbar';
 
 const PostJob = () => {
   return (
-    <div className="bg-background min-h-screen text-text-primary font-body-md pl-0 md:pl-[272px] pr-4 py-4">
-      <Sidebar />
-      <main className="w-full max-w-[720px] mx-auto p-md md:p-xl custom-scrollbar">
+    <div className="flex h-screen overflow-hidden bg-background text-text-primary font-body-md selection:bg-primary/30 selection:text-primary antialiased">
+      <Sidebar role="recruiter" activePage="post-job" />
+      <div className="flex-grow flex flex-col h-screen overflow-hidden relative">
+        <DashboardNavbar role="recruiter" />
+        <main className="flex-grow overflow-y-auto custom-scrollbar p-lg pt-[104px]">
+          <div className="w-full max-w-[720px] mx-auto">
         {/* Form Card */}
         <div className="bg-card-bg border border-border-base rounded-xl p-lg md:p-xl shadow-2xl">
           <header className="mb-lg">
@@ -172,7 +135,9 @@ const PostJob = () => {
 
           </form>
         </div>
+      </div>
       </main>
+      </div>
     </div>
   );
 };

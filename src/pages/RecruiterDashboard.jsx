@@ -1,60 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
-const Sidebar = () => (
-  <aside className="fixed left-4 top-4 bottom-4 w-[240px] bg-surface-container border border-outline-variant flex flex-col py-md rounded-2xl shadow-xl shadow-black/40 z-40 transition-transform md:translate-x-0 -translate-x-full">
-    {/* Brand Identity */}
-    <div className="px-md mb-xl">
-      <div className="flex items-center gap-xs">
-        <Link to="/" className="font-display text-headline-sm font-bold text-primary-container">Visume</Link>
-        <span className="bg-primary-container/20 text-primary-container text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest">Recruiter</span>
-      </div>
-    </div>
-    
-    {/* Main Navigation Links */}
-    <nav className="flex-1 mt-sm flex flex-col gap-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
-      <Link className="flex items-center gap-3 bg-sidebar-active-glow text-primary-container border-l-4 border-primary-container px-4 py-3 font-label-md text-label-md transition-all duration-300" to="/recruiter">
-        <span className="material-symbols-outlined">dashboard</span>
-        Dashboard
-      </Link>
-      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 font-label-md text-label-md hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300" to="/discover">
-        <span className="material-symbols-outlined">work</span>
-        Find Candidates
-      </Link>
-      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 font-label-md text-label-md hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300" to="/post-job">
-        <span className="material-symbols-outlined">assignment</span>
-        Job Postings
-      </Link>
-      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 font-label-md text-label-md hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300" to="/pipeline">
-        <span className="material-symbols-outlined">account_tree</span>
-        Pipeline
-      </Link>
-    </nav>
-    <div className="flex flex-col gap-1 mb-2">
-      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 font-label-md text-label-md hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300" to="/recruiter">
-        <span className="material-symbols-outlined">corporate_fare</span>
-        Company Profile
-      </Link>
-      <Link className="flex items-center gap-3 text-text-muted px-4 py-3 font-label-md text-label-md hover:bg-surface-bright/5 hover:text-text-primary transition-all duration-300" to="/settings" state={{ role: 'recruiter' }}>
-        <span className="material-symbols-outlined">settings</span>
-        Settings
-      </Link>
-    </div>
-    
-    {/* Footer / Company Info */}
-    <div className="mt-auto px-4 pt-md border-t border-outline-variant">
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-lg bg-surface-bright overflow-hidden">
-          <img alt="Company Logo" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDr8iCAVAhPScb_vdkwDSM7i-rKehbjU9T_oH_R_LzauB3AK0hSLlYufoBO69nrWY8Blwa8jc7ma2oYYuOm9py4Ov4EAiDv0zUm2-xfXdUiIkH8mKOQdvQJ8LJiDmrcGy7fUCvQb7huHv_xEoRdXKsHXqPvUAtNiLp3wzi06JcnPGt5SJAjB9lR7DwlrnVdhdJnixqda_Qo651DsBjwFSHpriGOu2FM8g0UU-nM06NmNoMIVOaR8YnS_nJF11HG-ewhQSgxnzM-Ey8" />
-        </div>
-        <div className="overflow-hidden">
-          <p className="font-body-sm text-text-primary font-bold truncate">NovaStream AI</p>
-          <p className="font-label-md text-text-muted">Enterprise Plan</p>
-        </div>
-      </div>
-    </div>
-  </aside>
-);
+import Sidebar from '../components/Sidebar';
+import DashboardNavbar from '../components/DashboardNavbar';
 
 const HeaderSection = () => (
   <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-md mb-lg">
@@ -273,17 +220,20 @@ const ActivePipelines = () => (
 
 const RecruiterDashboard = () => {
   return (
-    <div className="bg-background text-text-primary font-body-md overflow-x-hidden min-h-screen">
-      <Sidebar />
-      <main className="md:ml-[272px] min-h-screen p-gutter">
-        <HeaderSection />
-        <StatsRow />
-        <div className="flex flex-col lg:flex-row gap-gutter">
-          <AIMatchedCandidates />
-          <RecentActivity />
-        </div>
-        <ActivePipelines />
-      </main>
+    <div className="flex h-screen overflow-hidden bg-background text-text-primary font-body-md selection:bg-primary/30 selection:text-primary antialiased">
+      <Sidebar role="recruiter" activePage="dashboard" />
+      <div className="flex-grow flex flex-col h-screen overflow-hidden relative">
+        <DashboardNavbar role="recruiter" />
+        <main className="flex-grow overflow-y-auto custom-scrollbar p-lg pt-[104px]">
+          <HeaderSection />
+          <StatsRow />
+          <div className="flex flex-col lg:flex-row gap-gutter">
+            <AIMatchedCandidates />
+            <RecentActivity />
+          </div>
+          <ActivePipelines />
+        </main>
+      </div>
     </div>
   );
 };

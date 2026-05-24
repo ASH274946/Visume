@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import VisumeLandingPage from './pages/VisumeLandingPage';
 import CandidateDashboard from './pages/CandidateDashboard';
@@ -11,6 +12,11 @@ import VisumeLoginPage from './pages/VisumeLoginPage';
 import PostJob from './pages/PostJob';
 import SettingsPage from './pages/SettingsPage';
 import ApplicationsTracker from './pages/ApplicationsTracker';
+import HowItWorksPage from './pages/HowItWorksPage';
+import PricingPage from './pages/PricingPage';
+import AboutUsPage from './pages/AboutUsPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import TermsOfServicePage from './pages/TermsOfServicePage';
 import './index.css';
 
 function ProtectedRoute({ children }) {
@@ -33,6 +39,17 @@ function PublicRoute({ children }) {
 }
 
 function App() {
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('visume_theme');
+    if (savedTheme === 'light') {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    } else {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    }
+  }, []);
+
   return (
     <Router>
       <div className="bg-background text-text-primary min-h-screen font-body-md selection:bg-primary-container/30">
@@ -42,13 +59,20 @@ function App() {
           <Route path="/login" element={<PublicRoute><VisumeLoginPage /></PublicRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><CandidateDashboard /></ProtectedRoute>} />
           <Route path="/profile" element={<CandidateProfile />} />
-          <Route path="/discover" element={<JobDiscoveryPage />} />
+          <Route path="/discover" element={<ProtectedRoute><JobDiscoveryPage /></ProtectedRoute>} />
           <Route path="/recorder" element={<ProtectedRoute><VideoResumeRecorder /></ProtectedRoute>} />
           <Route path="/recruiter" element={<ProtectedRoute><RecruiterDashboard /></ProtectedRoute>} />
           <Route path="/pipeline" element={<ProtectedRoute><HiringPipeline /></ProtectedRoute>} />
           <Route path="/post-job" element={<ProtectedRoute><PostJob /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
           <Route path="/applications" element={<ProtectedRoute><ApplicationsTracker /></ProtectedRoute>} />
+          
+          {/* New Public Pages */}
+          <Route path="/how-it-works" element={<HowItWorksPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/about" element={<AboutUsPage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms" element={<TermsOfServicePage />} />
         </Routes>
       </div>
     </Router>

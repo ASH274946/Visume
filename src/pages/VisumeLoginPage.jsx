@@ -41,7 +41,6 @@ const VisumeLoginPage = () => {
                 className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" 
                 placeholder="you@example.com" 
                 type="email"
-                required
               />
             </div>
             
@@ -54,7 +53,6 @@ const VisumeLoginPage = () => {
                 className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" 
                 placeholder="••••••••" 
                 type="password"
-                required
               />
             </div>
 

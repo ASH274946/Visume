@@ -1,30 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-
-const TopNav = () => (
-  <nav className="fixed top-0 z-50 w-full h-16 bg-surface-container/70 backdrop-blur-md border-b border-outline-variant flex justify-between items-center px-gutter max-w-container-max mx-auto left-0 right-0">
-    <div className="flex items-center gap-8">
-      <Link to="/" className="font-display text-headline-md font-bold text-primary-container">Visume</Link>
-      <div className="hidden md:flex items-center gap-6">
-        <Link className="text-primary-container font-bold border-b-2 border-primary-container pb-1" to="/discover">Discover</Link>
-        <Link className="text-text-muted font-medium hover:text-text-primary transition-colors" to="/applications">Applications</Link>
-        <Link className="text-text-muted font-medium hover:text-text-primary transition-colors" to="/dashboard">Messages</Link>
-      </div>
-    </div>
-    <div className="flex items-center gap-4">
-      <Link to="/recorder" className="hidden md:flex items-center gap-2 bg-primary-container text-on-primary-container px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-all active:scale-95">
-        <span className="material-symbols-outlined text-[20px]">videocam</span>
-        Upload Video
-      </Link>
-      <Link to="/settings" state={{ role: 'candidate' }} className="w-10 h-10 rounded-full border-2 border-outline-variant overflow-hidden hover:border-primary transition-all">
-        <img alt="Profile" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpwpLefYN84jpH8f4wFaL4A5turgZSIciHwj8h8C1LkCsekK2uDKaLCBoyLvL7ERBi63YDv4nJztwF-QmrNMj11AUujXKilseKCO6hhxFtUjtOhTK-hlsrJNk9oZzL4QsuJSVdEOcX0A1aZ-Ls8zj5o-x4cLEURN8aFd5lnAihxE5uLOmD2a3igzboWPe_xBFEcrtZ0i3ncx5Vc3yCVCp8p3SomzS3GZVwS2G9B-fpxM6K2-wAbj44unXMwkvBS8gXub7cBEyBNA4" />
-      </Link>
-    </div>
-  </nav>
-);
+import Sidebar from '../components/Sidebar';
+import DashboardNavbar from '../components/DashboardNavbar';
 
 const FilterSidebar = () => (
-  <aside className="fixed left-4 top-[80px] bottom-4 w-sidebar-width bg-surface-container border border-outline-variant rounded-2xl shadow-xl shadow-black/40 sidebar-scroll overflow-y-auto hidden lg:flex flex-col p-6 gap-8 z-40">
+  <aside className="w-sidebar-width bg-surface-container border border-outline-variant rounded-2xl shadow-xl sidebar-scroll overflow-y-auto hidden lg:flex flex-col p-6 gap-8 shrink-0">
     <div className="flex items-center justify-between">
       <h2 className="font-display text-headline-sm font-bold text-text-primary">Filter Jobs</h2>
       <span className="material-symbols-outlined text-text-muted cursor-pointer hover:text-primary">tune</span>
@@ -233,40 +213,47 @@ const Footer = () => (
 );
 
 const JobDiscoveryPage = () => {
+  const role = localStorage.getItem('visume_role') || 'candidate';
+
   return (
-    <div className="bg-background text-text-primary overflow-x-hidden min-h-screen">
-      <TopNav />
-      <div className="flex pt-16 min-h-screen max-w-[1440px] mx-auto pb-20 md:pb-0">
-        <FilterSidebar />
-        <main className="flex-1 lg:ml-[272px] p-lg md:p-xl space-y-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h1 className="font-display text-headline-lg font-bold">Discover Roles</h1>
-              <p className="text-body-md text-text-muted">Showing 24 jobs matching your profile and filters</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-body-sm text-text-muted">Sort by:</span>
-              <button className="flex items-center gap-2 bg-surface-container border border-outline-variant px-4 py-2 rounded-lg text-body-sm font-medium">
-                Best Match
-                <span className="material-symbols-outlined text-[18px]">expand_more</span>
-              </button>
+    <div className="flex h-screen overflow-hidden bg-background text-text-primary font-body-md selection:bg-primary/30 selection:text-primary antialiased">
+      <Sidebar role={role} activePage="discover" />
+      <div className="flex-grow flex flex-col h-screen overflow-hidden">
+        <DashboardNavbar role={role} />
+        <main className="flex-grow overflow-y-auto custom-scrollbar p-lg">
+          <div className="flex gap-lg items-start relative pb-20">
+            <FilterSidebar />
+            <div className="flex-grow space-y-8">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                  <h1 className="font-display text-headline-lg font-bold">Discover Roles</h1>
+                  <p className="text-body-md text-text-muted">Showing 24 jobs matching your profile and filters</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-body-sm text-text-muted">Sort by:</span>
+                  <button className="flex items-center gap-2 bg-surface-container border border-outline-variant px-4 py-2 rounded-lg text-body-sm font-medium">
+                    Best Match
+                    <span className="material-symbols-outlined text-[18px]">expand_more</span>
+                  </button>
+                </div>
+              </div>
+              
+              <div className="flex flex-wrap gap-2">
+                <span className="flex items-center gap-2 px-3 py-1 bg-surface-container border border-outline-variant rounded-full text-label-md text-on-surface-variant">
+                  Remote
+                  <span className="material-symbols-outlined text-[14px] cursor-pointer hover:text-danger">close</span>
+                </span>
+                <span className="flex items-center gap-2 px-3 py-1 bg-surface-container border border-outline-variant rounded-full text-label-md text-on-surface-variant">
+                  ₹10L - ₹20L
+                  <span className="material-symbols-outlined text-[14px] cursor-pointer hover:text-danger">close</span>
+                </span>
+                <button className="text-label-md text-primary-container font-bold hover:underline">Clear all</button>
+              </div>
+              
+              <JobGrid />
+              <Footer />
             </div>
           </div>
-          
-          <div className="flex flex-wrap gap-2">
-            <span className="flex items-center gap-2 px-3 py-1 bg-surface-container border border-outline-variant rounded-full text-label-md text-on-surface-variant">
-              Remote
-              <span className="material-symbols-outlined text-[14px] cursor-pointer hover:text-danger">close</span>
-            </span>
-            <span className="flex items-center gap-2 px-3 py-1 bg-surface-container border border-outline-variant rounded-full text-label-md text-on-surface-variant">
-              ₹10L - ₹20L
-              <span className="material-symbols-outlined text-[14px] cursor-pointer hover:text-danger">close</span>
-            </span>
-            <button className="text-label-md text-primary-container font-bold hover:underline">Clear all</button>
-          </div>
-          
-          <JobGrid />
-          <Footer />
         </main>
       </div>
       <MobileNav />

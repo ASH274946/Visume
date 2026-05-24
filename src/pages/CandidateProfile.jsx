@@ -1,26 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
-const TopNav = () => (
-  <nav className="bg-surface-container/70 backdrop-blur-md docked full-width top-0 sticky z-50 border-b border-outline-variant h-16">
-    <div className="flex justify-between items-center px-gutter w-full max-w-container-max mx-auto h-full">
-      <div className="flex items-center gap-8">
-        <Link to="/" className="font-display text-headline-md font-bold text-primary-container">Visume</Link>
-        <div className="hidden md:flex gap-6 items-center">
-          <Link className="text-primary-container font-bold border-b-2 border-primary-container pb-1 font-body-md text-body-md" to="/discover">Discover</Link>
-          <Link className="text-text-muted font-medium hover:text-text-primary transition-colors font-body-md text-body-md" to="/applications">Applications</Link>
-          <Link className="text-text-muted font-medium hover:text-text-primary transition-colors font-body-md text-body-md" to="/dashboard">Messages</Link>
-        </div>
-      </div>
-      <div className="flex items-center gap-4">
-        <Link to="/recorder" className="bg-primary px-6 py-2 rounded-lg text-white font-bold hover:opacity-90 transition-all font-body-md text-body-md">Upload Video</Link>
-        <Link to="/settings" state={{ role: 'candidate' }} className="w-10 h-10 rounded-full bg-surface-bright flex items-center justify-center border border-outline-variant overflow-hidden cursor-pointer hover:border-primary transition-all">
-          <img alt="Profile" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgpXjc86YyzolUjVehHfDX0ooaKQXmLeZk0qzHnZBk43XIBdu5eA_qSjZGTyX2DOq9Jg2YjG_n3-cdMoxG8ccG3YcENmmaHiKuoDBaocNVtQqYYFTVW7kKXl_fRQgxXYdsniqJZHqnm62h4v4wYHWI900FAaWTAvbHRJ4ePrn7xK1bbkiDqIqa1Vxd5UZhlh0f12gjgxhZKG_6FfpMoo9rrw_r4l6xrKRJa2J0olJcD4Zw019VtvIk6Udowo350FHxXM3vFLrJfJE"/>
-        </Link>
-      </div>
-    </div>
-  </nav>
-);
+import Sidebar from '../components/Sidebar';
+import DashboardNavbar from '../components/DashboardNavbar';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 const HeroSection = () => (
   <section className="card-bg border border-border-input rounded-xl p-lg relative overflow-hidden hero-gradient">
@@ -199,9 +182,38 @@ const Portfolio = () => (
 );
 
 const CandidateProfile = () => {
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  const role = localStorage.getItem('visume_role') || 'candidate';
+
+  if (isLoggedIn) {
+    return (
+      <div className="flex h-screen overflow-hidden bg-background text-text-primary font-body-md selection:bg-primary/30 selection:text-primary antialiased">
+        <Sidebar role={role} activePage="profile" />
+        <div className="flex-grow flex flex-col h-screen overflow-hidden relative">
+          <DashboardNavbar role={role} />
+          <main className="flex-grow overflow-y-auto custom-scrollbar p-lg pt-[104px] space-y-lg">
+            <HeroSection />
+            <VideoResume />
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
+              <div className="lg:col-span-7 space-y-lg">
+                <Skills />
+                <Experience />
+                <Education />
+              </div>
+              <div className="lg:col-span-5 space-y-lg">
+                <StatsCard />
+                <Portfolio />
+              </div>
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-background text-text-primary font-body-md">
-      <TopNav />
+    <div className="min-h-screen bg-background text-text-primary font-body-md pt-24">
+      <Navbar />
       <main className="max-w-container-max mx-auto px-gutter py-lg space-y-lg">
         <HeroSection />
         <VideoResume />
@@ -217,20 +229,7 @@ const CandidateProfile = () => {
           </div>
         </div>
       </main>
-      <footer className="bg-surface-container-lowest border-t border-outline-variant mt-xxl">
-        <div className="flex flex-col md:flex-row justify-between items-center px-gutter py-lg w-full max-w-container-max mx-auto">
-          <div className="flex flex-col items-center md:items-start gap-2">
-            <span className="font-display text-headline-sm font-bold text-text-primary">Visume</span>
-            <p className="text-text-muted font-body-sm text-body-sm">© 2024 Visume. Personality-driven hiring.</p>
-          </div>
-          <div className="flex gap-8 mt-lg md:mt-0">
-            <Link className="text-text-muted hover:text-secondary transition-colors font-label-md text-label-md" to="/">Privacy Policy</Link>
-            <Link className="text-text-muted hover:text-secondary transition-colors font-label-md text-label-md" to="/">Terms of Service</Link>
-            <Link className="text-text-muted hover:text-secondary transition-colors font-label-md text-label-md" to="/recruiter">For Recruiters</Link>
-            <Link className="text-text-muted hover:text-secondary transition-colors font-label-md text-label-md" to="/">About Us</Link>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
