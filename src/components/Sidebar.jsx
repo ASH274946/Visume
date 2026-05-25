@@ -19,19 +19,20 @@ const Sidebar = ({ role = 'candidate', activePage = '' }) => {
             <span className="material-symbols-outlined">dashboard</span>
             Dashboard
           </Link>
-          <Link 
-            className={`flex items-center gap-3 px-4 py-3 font-label-md text-label-md transition-all duration-300 ${activePage === 'discover' ? 'bg-sidebar-active-glow text-primary-container border-l-4 border-primary-container' : 'text-text-muted hover:bg-surface-bright/5 hover:text-text-primary'}`} 
-            to="/discover"
-          >
-            <span className="material-symbols-outlined">search</span>
-            Find Candidates
-          </Link>
+
           <Link 
             className={`flex items-center gap-3 px-4 py-3 font-label-md text-label-md transition-all duration-300 ${activePage === 'post-job' ? 'bg-sidebar-active-glow text-primary-container border-l-4 border-primary-container' : 'text-text-muted hover:bg-surface-bright/5 hover:text-text-primary'}`} 
             to="/post-job"
           >
             <span className="material-symbols-outlined">work</span>
             Job Postings
+          </Link>
+          <Link 
+            className={`flex items-center gap-3 px-4 py-3 font-label-md text-label-md transition-all duration-300 ${activePage === 'find-candidates' ? 'bg-sidebar-active-glow text-primary-container border-l-4 border-primary-container' : 'text-text-muted hover:bg-surface-bright/5 hover:text-text-primary'}`} 
+            to="/find-candidates"
+          >
+            <span className="material-symbols-outlined">person_search</span>
+            Find Candidates
           </Link>
           <Link 
             className={`flex items-center gap-3 px-4 py-3 font-label-md text-label-md transition-all duration-300 ${activePage === 'pipeline' ? 'bg-sidebar-active-glow text-primary-container border-l-4 border-primary-container' : 'text-text-muted hover:bg-surface-bright/5 hover:text-text-primary'}`} 

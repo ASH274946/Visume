@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
-import DashboardNavbar from '../components/DashboardNavbar';
+
 
 const Header = () => (
   <header className="flex justify-between items-center mb-xl">
@@ -185,19 +184,13 @@ const Footer = () => (
 
 const CandidateDashboard = () => {
   return (
-    <div className="flex h-screen overflow-hidden bg-background text-text-primary font-body-md selection:bg-primary/30 selection:text-primary antialiased">
-      <Sidebar role="candidate" activePage="dashboard" />
-      <div className="flex-grow flex flex-col h-screen overflow-hidden relative">
-        <DashboardNavbar role="candidate" />
-        <main className="flex-1 overflow-y-auto custom-scrollbar p-lg pt-[104px]">
-          <Header />
-          <StatsRow />
-          <VideoResumeCard />
-          <RecommendedJobs />
-          <Footer />
-        </main>
-      </div>
-    </div>
+    <>
+      <Header />
+      <StatsRow />
+      <VideoResumeCard />
+      <RecommendedJobs />
+      <Footer />
+    </>
   );
 };
 

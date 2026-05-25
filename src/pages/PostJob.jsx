@@ -1,16 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
-import DashboardNavbar from '../components/DashboardNavbar';
+
 
 const PostJob = () => {
   return (
-    <div className="flex h-screen overflow-hidden bg-background text-text-primary font-body-md selection:bg-primary/30 selection:text-primary antialiased">
-      <Sidebar role="recruiter" activePage="post-job" />
-      <div className="flex-grow flex flex-col h-screen overflow-hidden relative">
-        <DashboardNavbar role="recruiter" />
-        <main className="flex-grow overflow-y-auto custom-scrollbar p-lg pt-[104px]">
-          <div className="w-full max-w-[720px] mx-auto">
+    <>
+      <div className="w-full max-w-[720px] mx-auto">
         {/* Form Card */}
         <div className="bg-card-bg border border-border-base rounded-xl p-lg md:p-xl shadow-2xl">
           <header className="mb-lg">
@@ -136,9 +131,7 @@ const PostJob = () => {
           </form>
         </div>
       </div>
-      </main>
-      </div>
-    </div>
+    </>
   );
 };
 

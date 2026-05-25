@@ -6,13 +6,12 @@ const DashboardNavbar = ({ role = 'candidate' }) => {
   const currentPath = location.pathname;
 
   const candidateLinks = [
-    { label: 'Discover', path: '/discover' },
-    { label: 'Applications', path: '/applications' },
-    { label: 'Messages', path: '/dashboard' } // Dummy links for dashboard messages
+    { label: 'Browse Jobs', path: '/discover' },
+    { label: 'Applications', path: '/applications' }
   ];
 
   const recruiterLinks = [
-    { label: 'Discover', path: '/discover' },
+    { label: 'Find Candidates', path: '/find-candidates' },
     { label: 'Pipeline', path: '/pipeline' },
     { label: 'Job Postings', path: '/post-job' }
   ];

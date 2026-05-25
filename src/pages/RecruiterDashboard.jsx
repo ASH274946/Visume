@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
-import DashboardNavbar from '../components/DashboardNavbar';
+
 
 const HeaderSection = () => (
   <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-md mb-lg">
@@ -220,21 +219,15 @@ const ActivePipelines = () => (
 
 const RecruiterDashboard = () => {
   return (
-    <div className="flex h-screen overflow-hidden bg-background text-text-primary font-body-md selection:bg-primary/30 selection:text-primary antialiased">
-      <Sidebar role="recruiter" activePage="dashboard" />
-      <div className="flex-grow flex flex-col h-screen overflow-hidden relative">
-        <DashboardNavbar role="recruiter" />
-        <main className="flex-grow overflow-y-auto custom-scrollbar p-lg pt-[104px]">
-          <HeaderSection />
-          <StatsRow />
-          <div className="flex flex-col lg:flex-row gap-gutter">
-            <AIMatchedCandidates />
-            <RecentActivity />
-          </div>
-          <ActivePipelines />
-        </main>
+    <>
+      <HeaderSection />
+      <StatsRow />
+      <div className="flex flex-col lg:flex-row gap-gutter">
+        <AIMatchedCandidates />
+        <RecentActivity />
       </div>
-    </div>
+      <ActivePipelines />
+    </>
   );
 };
 

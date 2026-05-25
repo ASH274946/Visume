@@ -75,20 +75,20 @@
     background-color: #1A1A24; 
     border: 1px solid #2A2A3E; 
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-    cursor: grab; 
   }
   .candidate-card:hover { 
     border-color: #6C5CE7; 
     transform: translateY(-4px); 
     box-shadow: 0 10px 20px -10px rgba(108, 92, 231, 0.3); 
   }
-  .candidate-card:active { 
-    cursor: grabbing; 
-    scale: 0.98; 
-  }
   .drag-handle { 
     opacity: 0.3; 
-    transition: opacity 0.2s; 
+    transition: opacity 0.2s, transform 0.2s; 
+    cursor: grab; 
+  }
+  .drag-handle:active {
+    cursor: grabbing;
+    transform: scale(1.1);
   }
   .candidate-card:hover .drag-handle { 
     opacity: 1; 
@@ -101,6 +101,21 @@
   .candidate-card:hover .quick-actions { 
     opacity: 1; 
     transform: translateY(0); 
+  }
+
+  /* Page Transition */
+  @keyframes pageFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .page-transition {
+    animation: pageFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 }
 

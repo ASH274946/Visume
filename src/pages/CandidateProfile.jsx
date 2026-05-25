@@ -187,27 +187,21 @@ const CandidateProfile = () => {
 
   if (isLoggedIn) {
     return (
-      <div className="flex h-screen overflow-hidden bg-background text-text-primary font-body-md selection:bg-primary/30 selection:text-primary antialiased">
-        <Sidebar role={role} activePage="profile" />
-        <div className="flex-grow flex flex-col h-screen overflow-hidden relative">
-          <DashboardNavbar role={role} />
-          <main className="flex-grow overflow-y-auto custom-scrollbar p-lg pt-[104px] space-y-lg">
-            <HeroSection />
-            <VideoResume />
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
-              <div className="lg:col-span-7 space-y-lg">
-                <Skills />
-                <Experience />
-                <Education />
-              </div>
-              <div className="lg:col-span-5 space-y-lg">
-                <StatsCard />
-                <Portfolio />
-              </div>
-            </div>
-          </main>
+      <>
+        <HeroSection />
+        <VideoResume />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
+          <div className="lg:col-span-7 space-y-lg">
+            <Skills />
+            <Experience />
+            <Education />
+          </div>
+          <div className="lg:col-span-5 space-y-lg">
+            <StatsCard />
+            <Portfolio />
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 

@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
-import DashboardNavbar from '../components/DashboardNavbar';
 
 const FilterSidebar = () => (
   <aside className="w-sidebar-width bg-surface-container border border-outline-variant rounded-2xl shadow-xl sidebar-scroll overflow-y-auto hidden lg:flex flex-col p-6 gap-8 shrink-0">
@@ -204,60 +202,52 @@ const Footer = () => (
       <p className="font-body-sm text-body-sm text-text-muted mt-2">© 2024 Visume. Personality-driven hiring.</p>
     </div>
     <div className="flex flex-wrap justify-center gap-6">
-      <Link className="text-label-md font-label-md text-text-muted hover:text-secondary transition-colors" to="/">Privacy Policy</Link>
-      <Link className="text-label-md font-label-md text-text-muted hover:text-secondary transition-colors" to="/">Terms of Service</Link>
-      <Link className="text-label-md font-label-md text-text-muted hover:text-secondary transition-colors" to="/recruiter">For Recruiters</Link>
-      <Link className="text-label-md font-label-md text-text-muted hover:text-secondary transition-colors" to="/">About Us</Link>
+      <Link className="text-label-md font-label-md text-text-muted hover:text-secondary transition-colors" to="/privacy">Privacy Policy</Link>
+      <Link className="text-label-md font-label-md text-text-muted hover:text-secondary transition-colors" to="/terms">Terms of Service</Link>
+      <Link className="text-label-md font-label-md text-text-muted hover:text-secondary transition-colors" to="/login" state={{ redirectTo: '/recruiter' }}>For Recruiters</Link>
+      <Link className="text-label-md font-label-md text-text-muted hover:text-secondary transition-colors" to="/about">About Us</Link>
     </div>
   </footer>
 );
 
 const JobDiscoveryPage = () => {
-  const role = localStorage.getItem('visume_role') || 'candidate';
-
   return (
-    <div className="flex h-screen overflow-hidden bg-background text-text-primary font-body-md selection:bg-primary/30 selection:text-primary antialiased">
-      <Sidebar role={role} activePage="discover" />
-      <div className="flex-grow flex flex-col h-screen overflow-hidden">
-        <DashboardNavbar role={role} />
-        <main className="flex-grow overflow-y-auto custom-scrollbar p-lg">
-          <div className="flex gap-lg items-start relative pb-20">
-            <FilterSidebar />
-            <div className="flex-grow space-y-8">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                  <h1 className="font-display text-headline-lg font-bold">Discover Roles</h1>
-                  <p className="text-body-md text-text-muted">Showing 24 jobs matching your profile and filters</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-body-sm text-text-muted">Sort by:</span>
-                  <button className="flex items-center gap-2 bg-surface-container border border-outline-variant px-4 py-2 rounded-lg text-body-sm font-medium">
-                    Best Match
-                    <span className="material-symbols-outlined text-[18px]">expand_more</span>
-                  </button>
-                </div>
-              </div>
-              
-              <div className="flex flex-wrap gap-2">
-                <span className="flex items-center gap-2 px-3 py-1 bg-surface-container border border-outline-variant rounded-full text-label-md text-on-surface-variant">
-                  Remote
-                  <span className="material-symbols-outlined text-[14px] cursor-pointer hover:text-danger">close</span>
-                </span>
-                <span className="flex items-center gap-2 px-3 py-1 bg-surface-container border border-outline-variant rounded-full text-label-md text-on-surface-variant">
-                  ₹10L - ₹20L
-                  <span className="material-symbols-outlined text-[14px] cursor-pointer hover:text-danger">close</span>
-                </span>
-                <button className="text-label-md text-primary-container font-bold hover:underline">Clear all</button>
-              </div>
-              
-              <JobGrid />
-              <Footer />
+    <>
+      <div className="flex gap-lg items-start relative pb-20">
+        <FilterSidebar />
+        <div className="flex-grow space-y-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h1 className="font-display text-headline-lg font-bold">Discover Roles</h1>
+              <p className="text-body-md text-text-muted">Showing 24 jobs matching your profile and filters</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-body-sm text-text-muted">Sort by:</span>
+              <button className="flex items-center gap-2 bg-surface-container border border-outline-variant px-4 py-2 rounded-lg text-body-sm font-medium">
+                Best Match
+                <span className="material-symbols-outlined text-[18px]">expand_more</span>
+              </button>
             </div>
           </div>
-        </main>
+          
+          <div className="flex flex-wrap gap-2">
+            <span className="flex items-center gap-2 px-3 py-1 bg-surface-container border border-outline-variant rounded-full text-label-md text-on-surface-variant">
+              Remote
+              <span className="material-symbols-outlined text-[14px] cursor-pointer hover:text-danger">close</span>
+            </span>
+            <span className="flex items-center gap-2 px-3 py-1 bg-surface-container border border-outline-variant rounded-full text-label-md text-on-surface-variant">
+              ₹10L - ₹20L
+              <span className="material-symbols-outlined text-[14px] cursor-pointer hover:text-danger">close</span>
+            </span>
+            <button className="text-label-md text-primary-container font-bold hover:underline">Clear all</button>
+          </div>
+          
+          <JobGrid />
+          <Footer />
+        </div>
       </div>
       <MobileNav />
-    </div>
+    </>
   );
 };
 
