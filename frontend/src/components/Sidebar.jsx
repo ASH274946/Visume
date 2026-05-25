@@ -2,6 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const Sidebar = ({ role = 'candidate', activePage = '' }) => {
+  const profileData = JSON.parse(localStorage.getItem('visume_profile_data')) || {};
+  const userName = profileData.fullName || (role === 'recruiter' ? 'Sarah Jenkins' : 'Ashwin Kumar');
+  const profileImage = profileData.profileImage || (role === 'recruiter'
+    ? "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80"
+    : "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=256&h=256&q=80");
+  const companyName = profileData.companyName || 'NovaStream AI';
+
   if (role === 'recruiter') {
     return (
       <aside className="w-[240px] flex-shrink-0 bg-surface-container border border-outline-variant flex flex-col h-[calc(100vh-32px)] my-4 ml-4 rounded-2xl shadow-xl shadow-black/40 z-50">
@@ -58,7 +65,7 @@ const Sidebar = ({ role = 'candidate', activePage = '' }) => {
               <img alt="Company Logo" className="w-full h-full object-cover" src="https://logo.clearbit.com/stripe.com" />
             </div>
             <div className="overflow-hidden">
-              <p className="font-body-sm text-text-primary font-bold truncate">NovaStream AI</p>
+              <p className="font-body-sm text-text-primary font-bold truncate">{companyName}</p>
               <p className="font-label-md text-text-muted text-[11px]">Enterprise Plan</p>
             </div>
           </Link>
@@ -125,11 +132,11 @@ const Sidebar = ({ role = 'candidate', activePage = '' }) => {
       <div className="p-4 border-t border-outline-variant">
         <Link to="/settings" state={{ role: 'candidate', tab: 'profile' }} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
           <div className="relative shrink-0">
-            <img alt="User Profile" className="w-10 h-10 rounded-full object-cover" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&h=256&q=80" />
+            <img alt="User Profile" className="w-10 h-10 rounded-full object-cover" src={profileImage} />
             <div className="absolute -bottom-1 -right-1 bg-green-500 w-3 h-3 rounded-full border-2 border-surface-container"></div>
           </div>
           <div className="flex flex-col overflow-hidden">
-            <span className="font-body-sm text-text-primary font-bold truncate">Ashwin Kumar</span>
+            <span className="font-body-sm text-text-primary font-bold truncate">{userName}</span>
             <div className="flex items-center gap-1">
               <span className="bg-tertiary-container/20 text-tertiary text-[10px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">KYC Verified</span>
             </div>

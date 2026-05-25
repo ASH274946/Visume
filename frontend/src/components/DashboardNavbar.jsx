@@ -40,9 +40,10 @@ const DashboardNavbar = ({ role = 'candidate' }) => {
     return () => document.removeEventListener('mousedown', onClick);
   }, [open]);
 
-  const profileImage = role === 'recruiter'
+  const profileData = JSON.parse(localStorage.getItem('visume_profile_data')) || {};
+  const profileImage = profileData.profileImage || (role === 'recruiter'
     ? "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80"
-    : "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=256&h=256&q=80";
+    : "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=256&h=256&q=80");
 
   const [showNotifications, setShowNotifications] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
