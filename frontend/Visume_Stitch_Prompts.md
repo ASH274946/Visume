@@ -4,7 +4,7 @@
 
 ---
 
-## 🎨 Master Design Tokens
+##  Master Design Tokens
 
 > **Paste this at the end of EVERY prompt below — no exceptions.**
 

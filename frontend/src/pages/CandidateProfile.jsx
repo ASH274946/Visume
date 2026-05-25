@@ -281,13 +281,13 @@ const CandidateProfile = () => {
               <p className="text-body-md text-text-muted mb-6">Select a time slot for your interview with Jordan Sterling.</p>
               <div className="space-y-3 mb-6">
                 <button className="w-full p-3 border border-outline-variant rounded-lg text-left text-body-md text-text-primary hover:bg-surface-container-highest transition-colors">
-                  📅 Tomorrow, 2:00 PM - 3:00 PM
+                   Tomorrow, 2:00 PM - 3:00 PM
                 </button>
                 <button className="w-full p-3 border border-outline-variant rounded-lg text-left text-body-md text-text-primary hover:bg-surface-container-highest transition-colors">
-                  📅 Next Monday, 10:00 AM - 11:00 AM
+                   Next Monday, 10:00 AM - 11:00 AM
                 </button>
                 <button className="w-full p-3 border border-outline-variant rounded-lg text-left text-body-md text-text-primary hover:bg-surface-container-highest transition-colors">
-                  📅 Next Wednesday, 3:00 PM - 4:00 PM
+                   Next Wednesday, 3:00 PM - 4:00 PM
                 </button>
               </div>
               <div className="flex gap-3">

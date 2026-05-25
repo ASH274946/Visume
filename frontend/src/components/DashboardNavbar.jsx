@@ -27,9 +27,9 @@ const DashboardNavbar = ({ role = 'candidate' }) => {
   const dropdownRef = useRef(null);
 
   const notifications = [
-    { id: 1, icon: '✉️', title: 'Interview Invitation', body: 'Stellar AI Solutions invited you for an interview.', time: '2h ago' },
+    { id: 1, icon: '️', title: 'Interview Invitation', body: 'Stellar AI Solutions invited you for an interview.', time: '2h ago' },
     { id: 2, icon: '⭐', title: 'New Recommended Role', body: 'A new job matching your profile is available.', time: '1d ago' },
-    { id: 3, icon: '🔔', title: 'Profile Viewed', body: 'Company Nexus Creative viewed your profile.', time: '3d ago' }
+    { id: 3, icon: '', title: 'Profile Viewed', body: 'Company Nexus Creative viewed your profile.', time: '3d ago' }
   ];
 
   useEffect(() => {
