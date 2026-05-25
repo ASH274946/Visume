@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import CustomVideoPlayer from '../components/CustomVideoPlayer';
 
 
 const Header = ({ onNotifications, onRecordVideo }) => {
@@ -54,7 +55,7 @@ const StatsRow = () => (
   </section>
 );
 
-const VideoResumesSection = ({ resumes }) => {
+const VideoResumesSection = ({ resumes, onPlayVideo }) => {
   if (!resumes || resumes.length === 0) {
     return (
       <section className="bg-card-bg border border-outline-variant rounded-xl p-lg mb-xl flex flex-col items-center justify-center text-center py-12">
@@ -76,9 +77,13 @@ const VideoResumesSection = ({ resumes }) => {
       </div>
       <div className="flex gap-lg overflow-x-auto custom-scrollbar pb-4 -mx-2 px-2 snap-x">
         {resumes.map(resume => (
-          <div key={resume.id} className="min-w-[300px] md:min-w-[400px] flex-shrink-0 bg-card-bg border border-outline-variant rounded-xl p-md snap-start hover:border-primary-container transition-all group">
-            <div className="w-full aspect-video rounded-lg overflow-hidden relative cursor-pointer border border-outline-variant mb-4">
-              <img alt={resume.title} className="w-full h-full object-cover" src={resume.thumbnailUrl} />
+          <div key={resume.id} onClick={() => onPlayVideo(resume)} className="w-[300px] md:w-[400px] flex-none bg-card-bg border border-outline-variant rounded-xl p-md snap-start hover:border-primary-container transition-all group cursor-pointer">
+            <div className="w-full aspect-video rounded-lg overflow-hidden relative border border-outline-variant mb-4">
+              {resume.videoUrl ? (
+                <video className="w-full h-full object-cover pointer-events-none" src={resume.videoUrl} preload="metadata" muted playsInline />
+              ) : (
+                <img alt={resume.title} className="w-full h-full object-cover pointer-events-none" src={resume.thumbnailUrl} />
+              )}
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/20 transition-all">
                 <div className="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                   <span className="material-symbols-outlined text-white text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
@@ -202,6 +207,13 @@ const CandidateDashboard = () => {
   const navigate = useNavigate();
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [appliedJob, setAppliedJob] = useState(null);
+  
+  // Video Modal State
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [activeVideoTitle, setActiveVideoTitle] = useState('');
+  const [activeVideoDuration, setActiveVideoDuration] = useState('');
+  const [activeVideoUrl, setActiveVideoUrl] = useState('');
+
   const [userApplications, setUserApplications] = useState(() => JSON.parse(localStorage.getItem('visume_applications') || '[]'));
   const [videoResumes, setVideoResumes] = useState(() => JSON.parse(localStorage.getItem('visume_video_resumes') || '[]'));
 
@@ -214,6 +226,13 @@ const CandidateDashboard = () => {
 
   const handleRecordVideo = () => {
     navigate('/recorder');
+  };
+
+  const handlePlayVideo = (resume) => {
+    setActiveVideoTitle(resume.title);
+    setActiveVideoDuration(resume.duration);
+    setActiveVideoUrl(resume.videoUrl || "https://www.w3schools.com/html/mov_bbb.mp4");
+    setShowVideoModal(true);
   };
 
   const handleNotifications = () => {
@@ -288,19 +307,36 @@ const CandidateDashboard = () => {
     );
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setShowVideoModal(false);
+        setShowApplyModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
     <>
       <Header onNotifications={handleNotifications} onRecordVideo={handleRecordVideo} />
       <StatsRow />
-      <VideoResumesSection resumes={videoResumes} />
+      <VideoResumesSection resumes={videoResumes} onPlayVideo={handlePlayVideo} />
       <AppliedJobsSection applications={userApplications} />
       <RecommendedJobs onApplyJob={handleApplyJob} />
       <Footer />
 
       {/* Apply Confirmation Modal */}
       {showApplyModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-surface-container border border-outline-variant rounded-2xl p-6 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+          onClick={() => setShowApplyModal(false)}
+        >
+          <div 
+            className="bg-surface-container border border-outline-variant rounded-2xl p-6 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex justify-between items-start mb-4">
               <h3 className="text-headline-md font-display text-text-primary">Application Submitted!</h3>
               <button onClick={() => setShowApplyModal(false)} className="text-text-muted hover:text-white transition-colors">
@@ -329,6 +365,32 @@ const CandidateDashboard = () => {
               </button>
               <button onClick={() => { setShowApplyModal(false); navigate('/applications'); }} className="flex-1 py-2 bg-primary-container text-white font-bold rounded-lg hover:brightness-110 transition-all">
                 View Applications
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Video Modal */}
+      {showVideoModal && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+          onClick={() => setShowVideoModal(false)}
+        >
+          <div 
+            className="bg-surface-container border border-outline-variant rounded-2xl overflow-hidden w-full max-w-3xl shadow-2xl animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative aspect-video bg-black">
+              <CustomVideoPlayer src={activeVideoUrl} className="w-full aspect-video" />
+            </div>
+            <div className="p-6 flex justify-between items-center bg-surface-container border-t border-outline-variant/30">
+              <div>
+                <h3 className="text-headline-md font-display text-text-primary">{activeVideoTitle}</h3>
+                <p className="text-body-md text-text-muted mt-1">Duration: {activeVideoDuration}</p>
+              </div>
+              <button onClick={() => setShowVideoModal(false)} className="text-text-muted hover:text-white transition-colors bg-surface-container-high hover:bg-surface-container-highest w-10 h-10 flex items-center justify-center rounded-full border border-outline-variant">
+                <span className="material-symbols-outlined">close</span>
               </button>
             </div>
           </div>

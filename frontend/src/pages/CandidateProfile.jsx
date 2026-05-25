@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import DashboardNavbar from '../components/DashboardNavbar';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import CustomVideoPlayer from '../components/CustomVideoPlayer';
 
 const HeroSection = ({ profileData, onScheduleInterview, onViewResume }) => {
   const fullName = profileData?.fullName || "Jordan Sterling";
@@ -227,6 +228,7 @@ const CandidateProfile = () => {
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [activeVideoTitle, setActiveVideoTitle] = useState('');
   const [activeVideoDuration, setActiveVideoDuration] = useState('');
+  const [activeVideoUrl, setActiveVideoUrl] = useState('');
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   
@@ -253,6 +255,7 @@ const CandidateProfile = () => {
   const handlePlayVideo = (resume) => {
     setActiveVideoTitle(resume.title);
     setActiveVideoDuration(resume.duration);
+    setActiveVideoUrl(resume.videoUrl || "https://www.w3schools.com/html/mov_bbb.mp4");
     setShowVideoModal(true);
   };
 
@@ -260,6 +263,18 @@ const CandidateProfile = () => {
     setSelectedProject(projectName);
     setShowProjectModal(true);
   };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setShowVideoModal(false);
+        setShowInterviewModal(false);
+        setShowProjectModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   if (isLoggedIn) {
     return (
@@ -284,8 +299,14 @@ const CandidateProfile = () => {
 
         {/* Interview Modal */}
         {showInterviewModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-            <div className="bg-surface-container border border-outline-variant rounded-2xl p-6 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200">
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+            onClick={() => setShowInterviewModal(false)}
+          >
+            <div 
+              className="bg-surface-container border border-outline-variant rounded-2xl p-6 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-headline-md font-display text-text-primary">Schedule Interview</h3>
                 <button onClick={() => setShowInterviewModal(false)} className="text-text-muted hover:text-white transition-colors">
@@ -318,23 +339,24 @@ const CandidateProfile = () => {
 
         {/* Video Modal */}
         {showVideoModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-            <div className="bg-surface-container border border-outline-variant rounded-2xl overflow-hidden w-full max-w-3xl shadow-2xl animate-in zoom-in-95 duration-200">
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+            onClick={() => setShowVideoModal(false)}
+          >
+            <div 
+              className="bg-surface-container border border-outline-variant rounded-2xl overflow-hidden w-full max-w-3xl shadow-2xl animate-in zoom-in-95 duration-200"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="relative aspect-video bg-black">
-                <video 
-                  className="w-full h-full" 
-                  controls 
-                  autoPlay
-                  src="https://www.w3schools.com/html/mov_bbb.mp4"
-                />
+                <CustomVideoPlayer src={activeVideoUrl} className="w-full aspect-video" />
               </div>
-              <div className="p-6 flex justify-between items-center">
+              <div className="p-6 flex justify-between items-center bg-surface-container border-t border-outline-variant/30">
                 <div>
                   <h3 className="text-headline-md font-display text-text-primary">{activeVideoTitle}</h3>
                   <p className="text-body-md text-text-muted mt-1">Duration: {activeVideoDuration}</p>
                 </div>
-                <button onClick={() => setShowVideoModal(false)} className="text-text-muted hover:text-white transition-colors">
-                  <span className="material-symbols-outlined text-2xl">close</span>
+                <button onClick={() => setShowVideoModal(false)} className="text-text-muted hover:text-white transition-colors bg-surface-container-high hover:bg-surface-container-highest w-10 h-10 flex items-center justify-center rounded-full border border-outline-variant">
+                  <span className="material-symbols-outlined">close</span>
                 </button>
               </div>
             </div>
@@ -343,8 +365,14 @@ const CandidateProfile = () => {
 
         {/* Project Modal */}
         {showProjectModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-            <div className="bg-surface-container border border-outline-variant rounded-2xl p-6 w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-200">
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+            onClick={() => setShowProjectModal(false)}
+          >
+            <div 
+              className="bg-surface-container border border-outline-variant rounded-2xl p-6 w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-200"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-headline-md font-display text-text-primary">{selectedProject}</h3>
                 <button onClick={() => setShowProjectModal(false)} className="text-text-muted hover:text-white transition-colors">

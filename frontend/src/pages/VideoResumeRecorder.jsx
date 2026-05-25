@@ -5,12 +5,14 @@ import Toggle from '../components/Toggle';
 const VideoResumeRecorder = () => {
   const navigate = useNavigate();
   const [showPrompt, setShowPrompt] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(false);
   
   const [videoResumes, setVideoResumes] = useState(() => {
     return JSON.parse(localStorage.getItem('visume_video_resumes') || '[]');
   });
   const [activeResumeId, setActiveResumeId] = useState(null);
   const [activeTitle, setActiveTitle] = useState('');
+  const [teleprompterText, setTeleprompterText] = useState('');
 
   // Recording & Playback states
   const [recordingStatus, setRecordingStatus] = useState('idle'); // 'idle' | 'recording' | 'recorded'
@@ -30,12 +32,11 @@ const VideoResumeRecorder = () => {
   const chunksRef = useRef([]);
 
   useEffect(() => {
-    if (videoResumes.length > 0 && !activeResumeId) {
-      handleSelectResume(videoResumes[0].id);
-    } else if (videoResumes.length === 0 && !activeResumeId) {
+    if (!activeResumeId) {
       handleCreateNew();
     }
-  }, [videoResumes, activeResumeId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -43,6 +44,16 @@ const VideoResumeRecorder = () => {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
     };
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setShowInstructions(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const resetPlaybackState = () => {
@@ -58,6 +69,7 @@ const VideoResumeRecorder = () => {
     if (resume) {
       setActiveResumeId(id);
       setActiveTitle(resume.title);
+      setTeleprompterText(resume.teleprompterText || '');
       
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
@@ -72,6 +84,7 @@ const VideoResumeRecorder = () => {
   const handleCreateNew = () => {
     setActiveResumeId('new');
     setActiveTitle('My Video Resume');
+    setTeleprompterText('');
     
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
@@ -246,13 +259,15 @@ const VideoResumeRecorder = () => {
         date: currentDate,
         duration: finalDuration,
         views: 0,
-        thumbnailUrl: thumbnailUrl
+        thumbnailUrl: thumbnailUrl,
+        videoUrl: recordedVideoUrl,
+        teleprompterText: teleprompterText
       };
       updatedResumes.push(newResume);
       setActiveResumeId(newResume.id);
     } else {
       updatedResumes = updatedResumes.map(r => 
-        r.id === activeResumeId ? { ...r, title: activeTitle, date: currentDate, duration: finalDuration } : r
+        r.id === activeResumeId ? { ...r, title: activeTitle, date: currentDate, duration: finalDuration, videoUrl: recordedVideoUrl || r.videoUrl, teleprompterText: teleprompterText } : r
       );
     }
     
@@ -270,7 +285,7 @@ const VideoResumeRecorder = () => {
       setVideoResumes(updated);
       localStorage.setItem('visume_video_resumes', JSON.stringify(updated));
       if (activeResumeId === id) {
-        setActiveResumeId(null);
+        handleCreateNew();
       }
     }
   };
@@ -284,7 +299,10 @@ const VideoResumeRecorder = () => {
             <h1 className="font-headline-lg text-headline-lg text-text-primary">
               {activeResumeId === 'new' ? 'Record New Visume' : 'Edit Visume'}
             </h1>
-            <div className="flex items-center gap-2 text-text-muted">
+            <div 
+              className="flex items-center gap-2 text-text-muted hover:text-white cursor-pointer transition-colors"
+              onClick={() => setShowInstructions(true)}
+            >
               <span className="material-symbols-outlined text-body-sm">help</span>
               <span className="font-label-md text-label-md uppercase tracking-wider">Instructions</span>
             </div>
@@ -302,6 +320,23 @@ const VideoResumeRecorder = () => {
               />
             </div>
           </div>
+
+          {showPrompt && (
+            <div className="mb-4 bg-surface-container border border-outline-variant p-4 rounded-xl flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
+              <div className="flex-1">
+                <label className="block text-body-sm text-text-muted mb-1 font-bold flex items-center justify-between">
+                  Teleprompter Script
+                  <span className="text-[11px] font-normal opacity-70">Will be overlaid during recording</span>
+                </label>
+                <textarea 
+                  value={teleprompterText}
+                  onChange={(e) => setTeleprompterText(e.target.value)}
+                  placeholder="Type or paste your elevator pitch here..."
+                  className="w-full bg-surface-bright border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary transition-colors font-body-md min-h-[120px] resize-y"
+                />
+              </div>
+            </div>
+          )}
           
           <div className="relative w-full camera-area rounded-xl overflow-hidden bg-surface-dim border border-border-input flex flex-col items-center justify-center group aspect-video bg-black">
             
@@ -389,9 +424,9 @@ const VideoResumeRecorder = () => {
                 </div>
                 
                 {showPrompt && (
-                  <div className="max-w-md mx-auto bg-black/60 backdrop-blur-md p-md rounded-xl border border-white/5 text-center mb-4">
-                    <p className="font-body-md text-white/90 leading-relaxed italic">
-                      "Hi, I'm a Senior Product Designer with 6 years of experience in AI-driven platforms. I'm passionate about building human-centric tools that solve complex data problems..."
+                  <div className="max-w-md mx-auto bg-black/60 backdrop-blur-md p-md rounded-xl border border-white/5 text-center mb-4 overflow-y-auto max-h-[60%] custom-scrollbar">
+                    <p className="font-body-md text-white/90 leading-relaxed italic whitespace-pre-wrap">
+                      {teleprompterText.trim() ? teleprompterText : "Start typing in the script box above to see your teleprompter text here!"}
                     </p>
                   </div>
                 )}
@@ -434,12 +469,23 @@ const VideoResumeRecorder = () => {
                 />
               </label>
             </div>
-            <div className="flex items-center gap-3">
-              <Toggle
-                checked={showPrompt}
-                onChange={togglePrompt}
-              />
-              <span className="font-label-md text-label-md text-text-muted">Teleprompter</span>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                <Toggle
+                  checked={showPrompt}
+                  onChange={togglePrompt}
+                />
+                <span className="font-label-md text-label-md text-text-muted">Teleprompter</span>
+              </div>
+              <div className="w-px h-6 bg-border-input mx-1"></div>
+              <button 
+                onClick={handleSave}
+                disabled={recordingStatus !== 'recorded'}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-headline-sm transition-all ${recordingStatus === 'recorded' ? 'bg-primary text-white hover:brightness-110 shadow-lg shadow-primary/20 active:scale-95' : 'bg-surface-container text-text-muted opacity-50 cursor-not-allowed border border-outline-variant'}`}
+              >
+                <span className="material-symbols-outlined text-[18px]">publish</span>
+                Publish
+              </button>
             </div>
           </div>
         </section>
@@ -475,7 +521,11 @@ const VideoResumeRecorder = () => {
                     className={`flex gap-3 p-3 rounded-xl border transition-all cursor-pointer ${activeResumeId === resume.id ? 'bg-primary-container/10 border-primary-container' : 'bg-surface-container border-border-input hover:border-outline-variant hover:bg-surface-container-high'}`}
                   >
                     <div className="w-20 h-16 rounded-lg overflow-hidden shrink-0 relative border border-outline-variant/30">
-                      <img src={resume.thumbnailUrl} alt={resume.title} className="w-full h-full object-cover" />
+                      {resume.videoUrl ? (
+                        <video src={resume.videoUrl} className="w-full h-full object-cover pointer-events-none" preload="metadata" muted playsInline />
+                      ) : (
+                        <img src={resume.thumbnailUrl} alt={resume.title} className="w-full h-full object-cover pointer-events-none" />
+                      )}
                       <div className="absolute bottom-1 right-1 bg-black/70 px-1 rounded text-[9px] font-bold">{resume.duration}</div>
                     </div>
                     <div className="flex-1 flex flex-col justify-center overflow-hidden">
@@ -513,6 +563,58 @@ const VideoResumeRecorder = () => {
           </div>
         </aside>
       </div>
+
+      {/* Instructions Modal */}
+      {showInstructions && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+          onClick={() => setShowInstructions(false)}
+        >
+          <div 
+            className="bg-surface-container border border-outline-variant rounded-2xl p-6 w-full max-w-2xl shadow-2xl animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-start mb-6">
+              <h3 className="text-headline-md font-display text-text-primary flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary">lightbulb</span>
+                Video Resume Instructions & Best Practices
+              </h3>
+              <button onClick={() => setShowInstructions(false)} className="text-text-muted hover:text-white transition-colors bg-surface-container-high hover:bg-surface-container-highest w-10 h-10 flex items-center justify-center rounded-full border border-outline-variant">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            
+            <div className="space-y-6 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
+              <div className="space-y-2">
+                <h4 className="font-headline-sm text-text-primary">1. Lighting and Framing</h4>
+                <p className="text-body-md text-text-muted">Ensure your face is well-lit, ideally with natural light facing you. Position yourself in the center of the frame, keeping your camera at eye level.</p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-headline-sm text-text-primary">2. Clear Audio</h4>
+                <p className="text-body-md text-text-muted">Record in a quiet environment. Use a dedicated microphone or headset if possible to ensure the recruiter can hear you clearly without background noise.</p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-headline-sm text-text-primary">3. Use the Teleprompter</h4>
+                <p className="text-body-md text-text-muted">Don't try to memorize everything! Toggle the teleprompter to overlay your script directly on the screen. This helps you maintain perfect eye contact with the camera.</p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-headline-sm text-text-primary">4. Uploading Pre-recorded Videos</h4>
+                <p className="text-body-md text-text-muted">If you prefer to edit your video in another software, you can upload standard video formats (.mp4, .webm). Make sure the file isn't excessively large.</p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-headline-sm text-text-primary">5. Dress and Background</h4>
+                <p className="text-body-md text-text-muted">Dress appropriately for the role you're applying for. Ensure your background is neat and not distracting to the viewer.</p>
+              </div>
+            </div>
+            
+            <div className="mt-8 pt-4 border-t border-outline-variant flex justify-end">
+              <button onClick={() => setShowInstructions(false)} className="bg-primary text-white font-bold py-2 px-6 rounded-lg hover:brightness-110 transition-all">
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
