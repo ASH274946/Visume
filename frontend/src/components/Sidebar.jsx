@@ -8,6 +8,7 @@ const Sidebar = ({ role = 'candidate', activePage = '' }) => {
     ? "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80"
     : "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=256&h=256&q=80");
   const companyName = profileData.companyName || 'NovaStream AI';
+  const companyLogo = profileData.companyLogo || "https://logo.clearbit.com/stripe.com";
 
   if (role === 'recruiter') {
     return (
@@ -62,7 +63,7 @@ const Sidebar = ({ role = 'candidate', activePage = '' }) => {
         <div className="p-4 border-t border-outline-variant">
           <Link to="/settings" state={{ role: 'recruiter', tab: 'profile' }} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
             <div className="w-10 h-10 rounded-lg bg-surface-bright overflow-hidden shrink-0">
-              <img alt="Company Logo" className="w-full h-full object-cover" src="https://logo.clearbit.com/stripe.com" />
+              <img alt="Company Logo" className="w-full h-full object-cover" src={companyLogo} referrerPolicy="no-referrer" />
             </div>
             <div className="overflow-hidden">
               <p className="font-body-sm text-text-primary font-bold truncate">{companyName}</p>
@@ -132,7 +133,7 @@ const Sidebar = ({ role = 'candidate', activePage = '' }) => {
       <div className="p-4 border-t border-outline-variant">
         <Link to="/settings" state={{ role: 'candidate', tab: 'profile' }} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
           <div className="relative shrink-0">
-            <img alt="User Profile" className="w-10 h-10 rounded-full object-cover" src={profileImage} />
+            <img alt="User Profile" className="w-10 h-10 rounded-full object-cover" src={profileImage} referrerPolicy="no-referrer" />
             <div className="absolute -bottom-1 -right-1 bg-green-500 w-3 h-3 rounded-full border-2 border-surface-container"></div>
           </div>
           <div className="flex flex-col overflow-hidden">

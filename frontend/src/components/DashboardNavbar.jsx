@@ -133,7 +133,7 @@ const DashboardNavbar = ({ role = 'candidate' }) => {
             state={{ role: role, tab: 'profile' }}
             className="w-10 h-10 rounded-full bg-surface-bright flex items-center justify-center border border-outline-variant overflow-hidden cursor-pointer hover:border-primary transition-all shrink-0"
           >
-            <img alt="Profile" className="w-full h-full object-cover" src={profileImage} />
+            <img alt="Profile" className="w-full h-full object-cover" src={profileImage} referrerPolicy="no-referrer" />
           </Link>
         </div>
       </nav>

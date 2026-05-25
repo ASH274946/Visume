@@ -120,6 +120,7 @@ const SettingsPage = () => {
 
       // Company
       companyName: 'NovaStream AI',
+      companyLogo: 'https://logo.clearbit.com/stripe.com',
       cin: 'U72900KA2021PTC123456',
       registeredAddress: '123 Tech Park, Outer Ring Road, Bengaluru',
       companySize: '50-200',
@@ -230,9 +231,9 @@ const SettingsPage = () => {
   };
 
   return (
-    <>
+    <div className="flex flex-col h-[calc(100vh-136px)] overflow-hidden">
       {/* Top Header */}
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-md mb-lg border-b border-outline-variant pb-md">
+      <header className="shrink-0 flex flex-col md:flex-row justify-between items-start md:items-center gap-md mb-lg border-b border-outline-variant pb-md">
         <div className="space-y-1">
           <h1 className="font-display text-headline-lg text-text-primary">System Settings</h1>
           <p className="font-body-md text-text-muted">Configure and customize your Visume account preferences.</p>
@@ -241,9 +242,9 @@ const SettingsPage = () => {
       </header>
 
       {/* Content Container */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-lg">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-lg min-h-0 overflow-hidden">
         {/* Sub Navigation Tabs */}
-        <div className="lg:col-span-1 flex flex-col gap-2">
+        <div className="lg:col-span-1 flex flex-col gap-2 overflow-y-auto custom-scrollbar pr-2 pb-4">
           <button
             onClick={() => setActiveTab('profile')}
             className={`flex items-center gap-3 px-4 py-3 rounded-lg font-label-md font-bold text-left transition-all ${activeTab === 'profile' ? 'bg-primary-container/10 border border-primary-container text-primary-container' : 'border border-transparent text-text-muted hover:bg-surface-container hover:text-text-primary'}`}
@@ -286,7 +287,7 @@ const SettingsPage = () => {
         </div>
 
         {/* Form Settings Panels */}
-        <div className="lg:col-span-3">
+        <div className="lg:col-span-3 overflow-y-auto custom-scrollbar pr-2 pb-10">
           <form onSubmit={handleSubmit} className="bg-card-bg border border-border-input rounded-xl p-md md:p-lg flex flex-col gap-lg shadow-2xl relative">
             {/* Profile Settings Tab */}
             {activeTab === 'profile' && (
@@ -303,6 +304,7 @@ const SettingsPage = () => {
                         alt="Avatar"
                         className="w-full h-full object-cover"
                         src={formData.profileImage}
+                        referrerPolicy="no-referrer"
                       />
                       <div 
                         onClick={() => {
@@ -592,6 +594,42 @@ const SettingsPage = () => {
                   Company Profile
                 </h2>
 
+                <div className="flex flex-col md:flex-row gap-md items-center mb-sm">
+                  <div className="relative group shrink-0">
+                    <div className="w-24 h-24 rounded-2xl overflow-hidden border-2 border-outline-variant relative bg-surface-bright flex items-center justify-center p-2">
+                      <img
+                        alt="Company Logo"
+                        className="max-w-full max-h-full object-contain"
+                        src={formData.companyLogo || "https://logo.clearbit.com/stripe.com"}
+                        referrerPolicy="no-referrer"
+                      />
+                      <div 
+                        onClick={() => {
+                          const newUrl = window.prompt("Enter new Company Logo URL (Leave blank to cancel):", formData.companyLogo);
+                          if (newUrl) setFormData(prev => ({ ...prev, companyLogo: newUrl }));
+                        }}
+                        className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-2xl"
+                      >
+                        <span className="material-symbols-outlined text-white text-sm">photo_camera</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex-1 space-y-2 text-center md:text-left">
+                    <p className="font-headline-sm text-text-primary font-bold">{formData.companyName}</p>
+                    <p className="font-body-sm text-text-muted">Enterprise Plan</p>
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        const newUrl = window.prompt("Enter new Company Logo URL (Leave blank to cancel):", formData.companyLogo);
+                        if (newUrl) setFormData(prev => ({ ...prev, companyLogo: newUrl }));
+                      }}
+                      className="border border-outline-variant hover:border-primary px-4 py-1.5 rounded-lg text-label-md font-bold transition-all text-text-primary bg-surface-container-low hover:bg-surface-container-high"
+                    >
+                      Update Company Logo
+                    </button>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
                   <div className="flex flex-col gap-2">
                     <label className="text-label-md text-text-primary font-bold">Company Name</label>
@@ -657,7 +695,7 @@ const SettingsPage = () => {
                 <div className="flex flex-col gap-2 mt-2">
                   <label className="text-label-md text-text-primary font-bold">Default AI Screening Questions</label>
                   <div className="flex flex-col gap-3">
-                    {formData.defaultQuestions.map((q, idx) => (
+                    {formData.defaultQuestions?.map((q, idx) => (
                       <div key={idx} className="flex gap-2 items-center bg-surface-container border border-border-input px-4 py-3 rounded-lg text-text-primary">
                         <span className="w-5 h-5 rounded-full bg-primary-container text-white flex items-center justify-center font-bold text-xs shrink-0">{idx + 1}</span>
                         <span className="text-body-sm flex-1">{q}</span>
@@ -827,7 +865,7 @@ const SettingsPage = () => {
           </form>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
