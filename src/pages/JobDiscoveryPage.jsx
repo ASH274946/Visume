@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import Toggle from '../components/Toggle';
 
 const FilterSidebar = () => (
   <aside className="w-sidebar-width bg-surface-container border border-outline-variant rounded-2xl shadow-xl sidebar-scroll overflow-y-auto hidden lg:flex flex-col p-6 gap-8 shrink-0">
@@ -7,12 +8,12 @@ const FilterSidebar = () => (
       <h2 className="font-display text-headline-sm font-bold text-text-primary">Filter Jobs</h2>
       <span className="material-symbols-outlined text-text-muted cursor-pointer hover:text-primary">tune</span>
     </div>
-    
+
     <div className="relative">
       <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">search</span>
-      <input className="w-full bg-surface-container-low border border-border-input rounded-lg pl-10 pr-4 py-3 text-body-sm focus:outline-none focus:border-primary-container transition-all" placeholder="Search roles, skills..." type="text"/>
+      <input className="w-full bg-surface-container-low border border-border-input rounded-lg pl-10 pr-4 py-3 text-body-sm focus:outline-none focus:border-primary-container transition-all" placeholder="Search roles, skills..." type="text" />
     </div>
-    
+
     <div className="space-y-4">
       <h3 className="font-label-md text-label-md text-text-muted uppercase tracking-wider">Work Mode</h3>
       <div className="flex flex-wrap gap-2">
@@ -21,47 +22,59 @@ const FilterSidebar = () => (
         <button className="px-4 py-2 rounded-full border border-outline text-text-muted hover:border-text-primary hover:text-text-primary text-body-sm transition-all">Onsite</button>
       </div>
     </div>
-    
+
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="font-label-md text-label-md text-text-muted uppercase tracking-wider">Salary (Annual)</h3>
         <span className="text-body-sm text-primary-container font-bold">₹4L — ₹18L</span>
       </div>
-      <input className="w-full h-1 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary-container" max="50" min="4" type="range" defaultValue="18"/>
+      <input className="w-full h-1 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary-container" max="50" min="4" type="range" defaultValue="18" />
     </div>
-    
+
     <div className="space-y-4">
       <h3 className="font-label-md text-label-md text-text-muted uppercase tracking-wider">Experience</h3>
       <div className="flex flex-col gap-3">
         <label className="flex items-center gap-3 cursor-pointer group">
-          <input className="w-5 h-5 rounded border-outline-variant bg-surface-container-low text-primary-container focus:ring-primary-container" type="checkbox"/>
+          <div className="relative flex items-center justify-center">
+            <input className="peer sr-only" type="checkbox" />
+            <div className="w-5 h-5 rounded border-2 border-outline-variant bg-transparent peer-checked:bg-primary peer-checked:border-primary transition-colors flex items-center justify-center">
+              <span className="material-symbols-outlined text-white text-[16px] opacity-0 peer-checked:opacity-100">check</span>
+            </div>
+          </div>
           <span className="text-body-sm text-on-surface-variant group-hover:text-text-primary">Entry Level (0-2y)</span>
         </label>
         <label className="flex items-center gap-3 cursor-pointer group">
-          <input defaultChecked className="w-5 h-5 rounded border-outline-variant bg-surface-container-low text-primary-container focus:ring-primary-container" type="checkbox"/>
+          <div className="relative flex items-center justify-center">
+            <input defaultChecked className="peer sr-only" type="checkbox" />
+            <div className="w-5 h-5 rounded border-2 border-outline-variant bg-transparent peer-checked:bg-primary peer-checked:border-primary transition-colors flex items-center justify-center">
+              <span className="material-symbols-outlined text-white text-[16px] opacity-0 peer-checked:opacity-100">check</span>
+            </div>
+          </div>
           <span className="text-body-sm text-on-surface-variant group-hover:text-text-primary">Intermediate (2-5y)</span>
         </label>
         <label className="flex items-center gap-3 cursor-pointer group">
-          <input className="w-5 h-5 rounded border-outline-variant bg-surface-container-low text-primary-container focus:ring-primary-container" type="checkbox"/>
+          <div className="relative flex items-center justify-center">
+            <input className="peer sr-only" type="checkbox" />
+            <div className="w-5 h-5 rounded border-2 border-outline-variant bg-transparent peer-checked:bg-primary peer-checked:border-primary transition-colors flex items-center justify-center">
+              <span className="material-symbols-outlined text-white text-[16px] opacity-0 peer-checked:opacity-100">check</span>
+            </div>
+          </div>
           <span className="text-body-sm text-on-surface-variant group-hover:text-text-primary">Senior (5y+)</span>
         </label>
       </div>
     </div>
-    
+
     <div className="p-4 rounded-xl bg-secondary-container/5 border border-secondary-container/20 space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-tertiary" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
           <span className="text-body-sm font-bold text-tertiary">AI Smart Match</span>
         </div>
-        <div className="relative inline-flex items-center cursor-pointer">
-          <input defaultChecked className="sr-only peer" type="checkbox"/>
-          <div className="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-tertiary-container"></div>
-        </div>
+        <Toggle checked={true} onChange={() => { }} activeColor="tertiary" />
       </div>
       <p className="text-label-md text-text-muted leading-tight">Only show roles with 80%+ match to your Visume profile.</p>
     </div>
-    
+
     <button className="w-full bg-primary-container text-white py-3 rounded-lg font-bold hover:brightness-110 active:scale-95 transition-all mt-auto">
       Apply Filters
     </button>
@@ -133,7 +146,7 @@ const JobGrid = () => {
               <span className="material-symbols-outlined" style={idx === 1 ? { fontVariationSettings: "'FILL' 1", color: '#6c5ce7' } : {}}>bookmark</span>
             </button>
           </div>
-          
+
           <div className="flex flex-wrap gap-3">
             <div className="flex items-center gap-1 px-2 py-1 rounded bg-secondary-container/10 text-tertiary text-label-md font-bold">
               <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
@@ -142,17 +155,17 @@ const JobGrid = () => {
             <span className="px-2 py-1 rounded bg-surface-container-highest text-text-muted text-label-md">{job.type}</span>
             <span className="px-2 py-1 rounded bg-surface-container-highest text-primary-container text-label-md font-bold">{job.salary}</span>
           </div>
-          
+
           <div className="flex flex-wrap gap-2">
             {job.tags.map((tag, tIdx) => (
               <span key={tIdx} className="px-3 py-1 rounded-full bg-surface-container-low border border-outline-variant text-label-md text-text-muted">{tag}</span>
             ))}
           </div>
-          
+
           <div className="flex gap-4 mt-auto">
             <button type="button" className="flex-1 py-2.5 rounded-lg border border-primary-container text-primary-container font-bold hover:bg-primary-container/10 transition-all">View Details</button>
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={() => {
                 setApplyingIdx(idx);
                 setTimeout(() => {
@@ -229,7 +242,7 @@ const JobDiscoveryPage = () => {
               </button>
             </div>
           </div>
-          
+
           <div className="flex flex-wrap gap-2">
             <span className="flex items-center gap-2 px-3 py-1 bg-surface-container border border-outline-variant rounded-full text-label-md text-on-surface-variant">
               Remote
@@ -241,7 +254,7 @@ const JobDiscoveryPage = () => {
             </span>
             <button className="text-label-md text-primary-container font-bold hover:underline">Clear all</button>
           </div>
-          
+
           <JobGrid />
           <Footer />
         </div>

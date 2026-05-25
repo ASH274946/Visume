@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import Toggle from '../components/Toggle';
 
 
 const VideoResumeRecorder = () => {
@@ -86,10 +87,10 @@ const VideoResumeRecorder = () => {
               </button>
             </div>
             <div className="flex items-center gap-3">
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" className="sr-only peer" checked={showPrompt} onChange={togglePrompt} />
-                <div className="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
-              </label>
+              <Toggle
+                checked={showPrompt}
+                onChange={togglePrompt}
+              />
               <span className="font-label-md text-label-md text-text-muted">Teleprompter</span>
             </div>
           </div>

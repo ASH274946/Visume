@@ -1,5 +1,182 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import DashboardNavbar from '../components/DashboardNavbar';
+import Sidebar from '../components/Sidebar';
+import Toggle from '../components/Toggle';
+
+const CustomSelect = ({ value, onChange, name, options }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selectedOption = options.find(opt => opt.value === value) || options[0];
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all flex items-center justify-between"
+      >
+        <span className="truncate">{selectedOption?.label}</span>
+        <span className={`material-symbols-outlined text-text-muted transition-transform shrink-0 ${isOpen ? 'rotate-180' : ''}`}>expand_more</span>
+      </button>
+
+      {isOpen && (
+        <div className="absolute z-50 top-full left-0 right-0 mt-2 bg-surface-container-highest border border-outline-variant rounded-lg shadow-xl overflow-hidden py-1">
+          {options.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => {
+                onChange({ target: { name, type: 'select', value: opt.value } });
+                setIsOpen(false);
+              }}
+              className={`w-full text-left px-4 py-2.5 hover:bg-primary-container/20 transition-colors text-body-sm ${value === opt.value ? 'bg-primary-container/10 text-primary-container font-bold' : 'text-text-primary'}`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const CustomDatePicker = ({ value, onChange, name }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [currentDate, setCurrentDate] = useState(value ? new Date(value) : new Date());
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+  const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
+
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  const emptyDays = Array.from({ length: firstDayOfMonth }, (_, i) => i);
+
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const dayNames = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+
+  const handlePrevMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+  const handleNextMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+
+  const handleDateClick = (day) => {
+    const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+    const yyyy = newDate.getFullYear();
+    const mm = String(newDate.getMonth() + 1).padStart(2, '0');
+    const dd = String(newDate.getDate()).padStart(2, '0');
+    onChange({ target: { name, type: 'text', value: `${yyyy}-${mm}-${dd}` } });
+    setIsOpen(false);
+  };
+
+  const handleClear = () => {
+    onChange({ target: { name, type: 'text', value: '' } });
+    setIsOpen(false);
+  };
+
+  const handleToday = () => {
+    const today = new Date();
+    setCurrentDate(today);
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    onChange({ target: { name, type: 'text', value: `${yyyy}-${mm}-${dd}` } });
+    setIsOpen(false);
+  };
+
+  const isSelected = (day) => {
+    if (!value) return false;
+    const [y, m, d] = value.split('-');
+    return parseInt(d) === day && parseInt(m) - 1 === currentDate.getMonth() && parseInt(y) === currentDate.getFullYear();
+  };
+  
+  const formattedValue = value ? value.split('-').reverse().join('-') : 'Select Date';
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all flex items-center justify-between"
+      >
+        <span>{formattedValue}</span>
+        <span className="material-symbols-outlined text-text-muted shrink-0 text-[20px]">calendar_today</span>
+      </button>
+
+      {isOpen && (
+        <div className="absolute z-50 top-full left-0 mt-2 p-5 bg-surface-container-highest border border-outline-variant rounded-2xl shadow-xl w-[300px]">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-4">
+            <button type="button" onClick={handlePrevMonth} className="w-8 h-8 rounded-full bg-surface-container border border-outline-variant/30 hover:bg-surface-bright flex items-center justify-center transition-colors shrink-0">
+              <span className="material-symbols-outlined text-sm text-text-primary shrink-0">chevron_left</span>
+            </button>
+            <span className="font-headline-sm font-bold text-text-primary">
+              {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+            </span>
+            <button type="button" onClick={handleNextMonth} className="w-8 h-8 rounded-full bg-surface-container border border-outline-variant/30 hover:bg-surface-bright flex items-center justify-center transition-colors shrink-0">
+              <span className="material-symbols-outlined text-sm text-text-primary shrink-0">chevron_right</span>
+            </button>
+          </div>
+
+          {/* Days Header */}
+          <div className="grid grid-cols-7 mb-2">
+            {dayNames.map(day => (
+              <div key={day} className="text-center text-label-md text-text-muted font-bold py-1">
+                {day}
+              </div>
+            ))}
+          </div>
+
+          {/* Days Grid */}
+          <div className="grid grid-cols-7 gap-y-2">
+            {emptyDays.map(i => <div key={`empty-${i}`} />)}
+            {days.map(day => (
+              <button
+                key={day}
+                type="button"
+                onClick={() => handleDateClick(day)}
+                className={`w-8 h-8 mx-auto rounded-full flex items-center justify-center text-body-sm transition-all
+                  ${isSelected(day) ? 'bg-primary text-white font-bold' : 'text-text-primary hover:bg-surface-bright hover:font-bold'}
+                `}
+              >
+                {day}
+              </button>
+            ))}
+          </div>
+
+          <div className="border-t border-border-input mt-4 pt-4 flex items-center justify-between">
+            <button type="button" onClick={handleClear} className="px-5 py-1.5 rounded-full bg-primary/10 text-primary font-bold text-label-md hover:bg-primary/20 transition-colors">
+              Clear
+            </button>
+            <button type="button" onClick={handleToday} className="px-5 py-1.5 rounded-full bg-primary/10 text-primary font-bold text-label-md hover:bg-primary/20 transition-colors">
+              Today
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const SettingsPage = () => {
   const location = useLocation();
@@ -35,38 +212,53 @@ const SettingsPage = () => {
 
 
   // Form states
-  const [formData, setFormData] = useState({
-    // Profile
-    fullName: initialRole === 'recruiter' ? 'Sarah Jenkins' : 'Ashwin Kumar',
-    email: initialRole === 'recruiter' ? 'sarah.jenkins@novastream.ai' : 'ashwin.kumar@gmail.com',
-    headline: initialRole === 'recruiter' ? 'Talent Acquisition Director' : 'Senior React Developer & UI Specialist',
-    location: initialRole === 'recruiter' ? 'Bengaluru, India' : 'Chennai, India',
-    bio: initialRole === 'recruiter' ? 'Building the future of streaming technology at NovaStream AI.' : 'Passionate frontend engineer with 5+ years of experience building immersive and performant user experiences.',
-    
-    // Video / AI
-    webcam: 'webcam-0',
-    microphone: 'mic-1',
-    resolution: '1080p',
-    promptTemplate: 'Hi, I\'m [Name], a [Title]. Today I wanted to share details about my recent project where we achieved a 40% speed up in page load times by leveraging dynamic import routines...',
-    aiSmartMatch: true,
+  const [formData, setFormData] = useState(() => {
+    const savedData = localStorage.getItem('visume_profile_data');
+    if (savedData) {
+      try {
+        return JSON.parse(savedData);
+      } catch (e) {
+        console.error("Failed to parse saved profile data", e);
+      }
+    }
+    return {
+      // Profile
+      fullName: initialRole === 'recruiter' ? 'Sarah Jenkins' : 'Ashwin Kumar',
+      email: initialRole === 'recruiter' ? 'sarah.jenkins@novastream.ai' : 'ashwin.kumar@gmail.com',
+      headline: initialRole === 'recruiter' ? 'Talent Acquisition Director' : 'Senior React Developer & UI Specialist',
+      location: initialRole === 'recruiter' ? 'Bengaluru, India' : 'Chennai, India',
+      bio: initialRole === 'recruiter' ? 'Building the future of streaming technology at NovaStream AI.' : 'Passionate frontend engineer with 5+ years of experience building immersive and performant user experiences.',
+      dob: initialRole === 'recruiter' ? '1988-03-12' : '1995-08-15',
+      phone: '+91 9876543210',
+      linkedin: 'linkedin.com/in/ashwinkumar',
+      portfolio: 'ashwinkumar.dev',
+      resumeName: '',
+      
+      // Video / AI
+      webcam: 'webcam-0',
+      microphone: 'mic-1',
+      resolution: '1080p',
+      promptTemplate: 'Hi, I\'m [Name], a [Title]. Today I wanted to share details about my recent project where we achieved a 40% speed up in page load times by leveraging dynamic import routines...',
+      aiSmartMatch: true,
 
-    // Company
-    companyName: 'NovaStream AI',
-    companySize: '50-200',
-    website: 'https://novastream.ai',
-    defaultQuestions: [
-      'Tell us about a time you solved a complex scalability bug.',
-      'Why are you excited to join NovaStream AI?',
-      'Walk us through your design system process.'
-    ],
+      // Company
+      companyName: 'NovaStream AI',
+      companySize: '50-200',
+      website: 'https://novastream.ai',
+      defaultQuestions: [
+        'Tell us about a time you solved a complex scalability bug.',
+        'Why are you excited to join NovaStream AI?',
+        'Walk us through your design system process.'
+      ],
 
-    // Security & notifications
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
-    twoFactor: false,
-    emailNotifications: true,
-    interviewReminders: true
+      // Security & notifications
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+      twoFactor: false,
+      emailNotifications: true,
+      interviewReminders: true
+    };
   });
 
   useEffect(() => {
@@ -76,7 +268,11 @@ const SettingsPage = () => {
 
   // Handle inputs
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, type, checked, files } = e.target;
+    if (type === 'file') {
+      setFormData(prev => ({ ...prev, [name]: files[0]?.name || '' }));
+      return;
+    }
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
@@ -102,6 +298,7 @@ const SettingsPage = () => {
     setSaveSuccess(false);
 
     setTimeout(() => {
+      localStorage.setItem('visume_profile_data', JSON.stringify(formData));
       setSaving(false);
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
@@ -135,7 +332,7 @@ const SettingsPage = () => {
             className={`flex items-center gap-3 px-4 py-3 rounded-lg font-label-md font-bold text-left transition-all ${activeTab === 'video' ? 'bg-primary-container/10 border border-primary-container text-primary-container' : 'border border-transparent text-text-muted hover:bg-surface-container hover:text-text-primary'}`}
           >
             <span className="material-symbols-outlined">videocam</span>
-            Video & AI Config
+            Configure Visume
           </button>
           {role === 'recruiter' && (
             <button
@@ -151,7 +348,7 @@ const SettingsPage = () => {
             className={`flex items-center gap-3 px-4 py-3 rounded-lg font-label-md font-bold text-left transition-all ${activeTab === 'security' ? 'bg-primary-container/10 border border-primary-container text-primary-container' : 'border border-transparent text-text-muted hover:bg-surface-container hover:text-text-primary'}`}
           >
             <span className="material-symbols-outlined">shield</span>
-            Security & Accs
+            Security and Accessibility
           </button>
           
           <div className="h-px bg-outline-variant my-2"></div>
@@ -195,7 +392,7 @@ const SettingsPage = () => {
                     <p className="font-headline-sm text-text-primary font-bold">{formData.fullName}</p>
                     <p className="font-body-sm text-text-muted">{role === 'recruiter' ? 'Verified Corporate Recruiter' : 'KYC Status: Verified'}</p>
                     <button type="button" className="border border-outline-variant hover:border-primary px-4 py-1.5 rounded-lg text-label-md font-bold transition-all text-text-primary bg-surface-container-low hover:bg-surface-container-high">
-                      Upload New Avatar
+                      Update Profile Picture
                     </button>
                   </div>
                 </div>
@@ -241,17 +438,80 @@ const SettingsPage = () => {
                       className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all"
                     />
                   </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-label-md text-text-primary font-bold">Date of Birth</label>
+                    <CustomDatePicker
+                      name="dob"
+                      value={formData.dob}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-label-md text-text-primary font-bold">Phone Number</label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-label-md text-text-primary font-bold">LinkedIn URL</label>
+                    <input
+                      type="url"
+                      name="linkedin"
+                      value={formData.linkedin}
+                      onChange={handleInputChange}
+                      className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-label-md text-text-primary font-bold">Portfolio URL</label>
+                    <input
+                      type="url"
+                      name="portfolio"
+                      value={formData.portfolio}
+                      onChange={handleInputChange}
+                      className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all"
+                    />
+                  </div>
                 </div>
 
-                <div className="flex flex-col gap-2">
-                  <label className="text-label-md text-text-primary font-bold">Short Bio</label>
-                  <textarea
-                    rows="4"
-                    name="bio"
-                    value={formData.bio}
-                    onChange={handleInputChange}
-                    className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all custom-scrollbar"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-md items-start">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-label-md text-text-primary font-bold">Short Bio</label>
+                    <textarea
+                      rows="6"
+                      name="bio"
+                      value={formData.bio}
+                      onChange={handleInputChange}
+                      className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all custom-scrollbar"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2 h-full">
+                    <label className="text-label-md text-text-primary font-bold">Resume</label>
+                    <div className="relative flex flex-col justify-center w-full h-full min-h-[9.5rem]">
+                      <label htmlFor="resume-upload" className="flex flex-col items-center justify-center w-full h-full border-2 border-border-input border-dashed rounded-lg cursor-pointer bg-surface-container hover:bg-surface-bright/5 hover:border-primary transition-all">
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <span className="material-symbols-outlined text-text-muted mb-2 text-3xl">upload_file</span>
+                          <p className="mb-1 text-label-md text-text-muted"><span className="font-bold text-text-primary">Click to upload</span> or drag and drop</p>
+                          <p className="text-[11px] text-text-muted uppercase tracking-wider">PDF files only (Max 5MB)</p>
+                        </div>
+                        <input id="resume-upload" name="resumeName" type="file" accept=".pdf" className="hidden" onChange={handleInputChange} />
+                      </label>
+                    </div>
+                    {formData.resumeName && (
+                      <div className="flex items-center gap-2 mt-2 px-4 py-3 bg-surface-container border border-border-input rounded-lg text-body-sm text-text-primary">
+                        <span className="material-symbols-outlined text-primary">picture_as_pdf</span>
+                        <span className="flex-1 font-bold">{formData.resumeName}</span>
+                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, resumeName: '' }))} className="text-text-muted hover:text-danger flex items-center justify-center">
+                          <span className="material-symbols-outlined text-sm">close</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
@@ -261,50 +521,50 @@ const SettingsPage = () => {
               <div className="flex flex-col gap-md animate-in fade-in duration-300">
                 <h2 className="font-display text-headline-sm text-text-primary flex items-center gap-2 border-b border-border-input pb-2">
                   <span className="material-symbols-outlined text-primary">videocam</span>
-                  Video & AI Config
+                  Configure Visume
                 </h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
                   <div className="flex flex-col gap-2">
                     <label className="text-label-md text-text-primary font-bold">Default Webcam Source</label>
-                    <select
+                    <CustomSelect
                       name="webcam"
                       value={formData.webcam}
                       onChange={handleInputChange}
-                      className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all appearance-none"
-                    >
-                      <option value="webcam-0">Integrated HD Webcam (1280x720)</option>
-                      <option value="webcam-1">External USB Camera (1920x1080)</option>
-                      <option value="webcam-2">Virtual OBS Cam Plugin</option>
-                    </select>
+                      options={[
+                        { value: 'webcam-0', label: 'Integrated HD Webcam (1280x720)' },
+                        { value: 'webcam-1', label: 'External USB Camera (1920x1080)' },
+                        { value: 'webcam-2', label: 'Virtual OBS Cam Plugin' }
+                      ]}
+                    />
                   </div>
 
                   <div className="flex flex-col gap-2">
                     <label className="text-label-md text-text-primary font-bold">Default Audio Source</label>
-                    <select
+                    <CustomSelect
                       name="microphone"
                       value={formData.microphone}
                       onChange={handleInputChange}
-                      className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all appearance-none"
-                    >
-                      <option value="mic-0">Default Internal Audio Input</option>
-                      <option value="mic-1">External USB Podcasting Microphone</option>
-                      <option value="mic-2">Bluetooth Wireless Earbuds Mic</option>
-                    </select>
+                      options={[
+                        { value: 'mic-0', label: 'Default Internal Audio Input' },
+                        { value: 'mic-1', label: 'External USB Podcasting Microphone' },
+                        { value: 'mic-2', label: 'Bluetooth Wireless Earbuds Mic' }
+                      ]}
+                    />
                   </div>
 
                   <div className="flex flex-col gap-2">
                     <label className="text-label-md text-text-primary font-bold">Recording Quality Mode</label>
-                    <select
+                    <CustomSelect
                       name="resolution"
                       value={formData.resolution}
                       onChange={handleInputChange}
-                      className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all appearance-none"
-                    >
-                      <option value="720p">720p HD (Balanced Performance)</option>
-                      <option value="1080p">1080p Full HD (Recommended)</option>
-                      <option value="4k">4K Ultra HD (High Bandwidth)</option>
-                    </select>
+                      options={[
+                        { value: '720p', label: '720p HD (Balanced Performance)' },
+                        { value: '1080p', label: '1080p Full HD (Recommended)' },
+                        { value: '4k', label: '4K Ultra HD (High Bandwidth)' }
+                      ]}
+                    />
                   </div>
 
                   <div className="flex flex-col gap-2 justify-center pt-2">
@@ -316,16 +576,11 @@ const SettingsPage = () => {
                         </p>
                         <p className="text-[11px] text-text-muted mt-0.5 leading-snug">Limit job listings to 80%+ fit.</p>
                       </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          name="aiSmartMatch"
-                          checked={formData.aiSmartMatch}
-                          onChange={handleInputChange}
-                          className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
-                      </label>
+                      <Toggle
+                        name="aiSmartMatch"
+                        checked={formData.aiSmartMatch}
+                        onChange={handleInputChange}
+                      />
                     </div>
                   </div>
                 </div>
@@ -377,18 +632,18 @@ const SettingsPage = () => {
 
                   <div className="flex flex-col gap-2">
                     <label className="text-label-md text-text-primary font-bold">Company Size</label>
-                    <select
+                    <CustomSelect
                       name="companySize"
                       value={formData.companySize}
                       onChange={handleInputChange}
-                      className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all appearance-none"
-                    >
-                      <option value="1-10">1–10 employees</option>
-                      <option value="11-50">11–50 employees</option>
-                      <option value="50-200">50–200 employees</option>
-                      <option value="200-1000">200–1000 employees</option>
-                      <option value="1000+">1000+ employees</option>
-                    </select>
+                      options={[
+                        { value: '1-10', label: '1–10 employees' },
+                        { value: '11-50', label: '11–50 employees' },
+                        { value: '50-200', label: '50–200 employees' },
+                        { value: '200-1000', label: '200–1000 employees' },
+                        { value: '1000+', label: '1000+ employees' }
+                      ]}
+                    />
                   </div>
                 </div>
 
@@ -415,7 +670,7 @@ const SettingsPage = () => {
               <div className="flex flex-col gap-md animate-in fade-in duration-300">
                 <h2 className="font-display text-headline-sm text-text-primary flex items-center gap-2 border-b border-border-input pb-2">
                   <span className="material-symbols-outlined text-primary">shield</span>
-                  Security & System Preferences
+                  Security and Accessibility
                 </h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
@@ -445,6 +700,18 @@ const SettingsPage = () => {
                         className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-2.5 text-text-primary focus:outline-none focus:border-primary-container transition-all"
                       />
                     </div>
+                    
+                    <div className="flex flex-col gap-2">
+                      <label className="text-label-md text-text-muted">Confirm Password</label>
+                      <input
+                        type="password"
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleInputChange}
+                        placeholder="Re-enter password"
+                        className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-2.5 text-text-primary focus:outline-none focus:border-primary-container transition-all"
+                      />
+                    </div>
                   </div>
 
                   <div className="flex flex-col gap-md border-l border-border-input/50 pl-0 md:pl-md">
@@ -455,16 +722,11 @@ const SettingsPage = () => {
                         <p className="text-label-md font-bold text-text-primary">Two-Factor Authentication</p>
                         <p className="text-[11px] text-text-muted mt-0.5 leading-snug">Secure account login.</p>
                       </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          name="twoFactor"
-                          checked={formData.twoFactor}
-                          onChange={handleInputChange}
-                          className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
-                      </label>
+                      <Toggle
+                        name="twoFactor"
+                        checked={formData.twoFactor}
+                        onChange={handleInputChange}
+                      />
                     </div>
 
                     <div className="flex items-center justify-between bg-surface-container border border-border-input p-3 rounded-xl">
@@ -472,16 +734,11 @@ const SettingsPage = () => {
                         <p className="text-label-md font-bold text-text-primary">Email Notifications</p>
                         <p className="text-[11px] text-text-muted mt-0.5 leading-snug">Receive daily match notifications.</p>
                       </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          name="emailNotifications"
-                          checked={formData.emailNotifications}
-                          onChange={handleInputChange}
-                          className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
-                      </label>
+                      <Toggle
+                        name="emailNotifications"
+                        checked={formData.emailNotifications}
+                        onChange={handleInputChange}
+                      />
                     </div>
 
                     <div className="flex items-center justify-between bg-surface-container border border-border-input p-3 rounded-xl">
@@ -503,15 +760,24 @@ const SettingsPage = () => {
                   </div>
                 </div>
 
-                <div className="border-t border-border-input/50 pt-md mt-sm flex flex-col gap-2">
-                  <h3 className="font-label-md text-label-md text-danger uppercase tracking-wider">Danger Zone</h3>
+                <div className="border-t border-border-input/50 pt-md mt-sm flex flex-col gap-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-danger/5 border border-danger/20 p-4 rounded-xl gap-md">
+                    <div>
+                      <p className="text-body-sm font-bold text-text-primary">Deactivate Account</p>
+                      <p className="text-[11px] text-text-muted mt-0.5">Temporarily hide your profile and job history. You can reactivate anytime.</p>
+                    </div>
+                    <button type="button" className="bg-danger/20 text-danger border border-danger hover:bg-danger hover:text-white px-5 py-2 rounded-lg font-label-md text-label-md font-bold transition-all shrink-0">
+                      Deactivate Account
+                    </button>
+                  </div>
+                  
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-danger/5 border border-danger/20 p-4 rounded-xl gap-md">
                     <div>
                       <p className="text-body-sm font-bold text-text-primary">Delete Account & Metadata</p>
                       <p className="text-[11px] text-text-muted mt-0.5">Permanently remove profile records, videos, transcript data, and job history.</p>
                     </div>
                     <button type="button" className="bg-danger/20 text-danger border border-danger hover:bg-danger hover:text-white px-5 py-2 rounded-lg font-label-md text-label-md font-bold transition-all shrink-0">
-                      Deactivate Account
+                      Delete Account
                     </button>
                   </div>
                 </div>

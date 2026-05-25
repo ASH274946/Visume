@@ -118,11 +118,11 @@ const ApplicationsTracker = () => {
       </div>
 
       {/* Applications List */}
-      <div className="flex flex-col gap-4 max-w-[960px]">
+      <div className="flex flex-col gap-4 w-full">
         {filteredApplications.map(app => (
           <div 
             key={app.id} 
-            className={`bg-card-bg border border-border-base rounded-xl p-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-lg ${app.status === 'interview' ? 'border-l-[4px] border-l-secondary' : ''} ${app.status === 'rejected' ? 'opacity-70 hover:opacity-100' : ''}`}
+            className={`bg-card-bg border border-border-base rounded-xl p-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-lg ${app.status === 'rejected' ? 'opacity-70 hover:opacity-100' : ''}`}
           >
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center border border-border-input flex-shrink-0">

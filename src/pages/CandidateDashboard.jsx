@@ -75,12 +75,12 @@ const VideoResumeCard = () => (
         <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">visibility</span> 142 Views</span>
       </div>
       <div className="flex gap-4">
-        <button className="flex-1 border border-primary-container text-primary-container py-3 rounded-lg font-bold hover:bg-primary-container/10 transition-colors">
+        <Link to="/recorder" className="flex-1 text-center border border-primary-container text-primary-container py-3 rounded-lg font-bold hover:bg-primary-container/10 transition-colors block">
           Replace Video
-        </button>
-        <button className="flex-1 text-text-muted py-3 rounded-lg font-bold hover:bg-surface-bright/5 transition-colors">
+        </Link>
+        <Link to="/recorder" className="flex-1 text-center text-text-muted py-3 rounded-lg font-bold hover:bg-surface-bright/5 transition-colors block">
           Re-record
-        </button>
+        </Link>
       </div>
     </div>
   </section>

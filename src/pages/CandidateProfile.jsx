@@ -5,7 +5,16 @@ import DashboardNavbar from '../components/DashboardNavbar';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
-const HeroSection = () => (
+const HeroSection = ({ profileData }) => {
+  const fullName = profileData?.fullName || "Jordan Sterling";
+  const headline = profileData?.headline || "Senior Product Designer & Motion Specialist";
+  const location = profileData?.location || "San Francisco, CA";
+  
+  const formattedDob = profileData?.dob 
+    ? new Date(profileData.dob).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+    : "August 15, 1995";
+
+  return (
   <section className="card-bg border border-border-input rounded-xl p-lg relative overflow-hidden hero-gradient">
     <div className="flex flex-col md:flex-row items-center md:items-end gap-lg relative z-10">
       <div className="w-24 h-24 rounded-full border-4 border-primary ring-4 ring-primary/20 overflow-hidden shadow-2xl shrink-0">
@@ -13,15 +22,16 @@ const HeroSection = () => (
       </div>
       <div className="flex-grow text-center md:text-left space-y-2">
         <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-          <h1 className="font-headline-lg text-headline-lg font-bold text-text-primary">Jordan Sterling</h1>
+          <h1 className="font-headline-lg text-headline-lg font-bold text-text-primary">{fullName}</h1>
           <span className="inline-flex items-center gap-1 bg-[#00CEC9]/10 text-[#00CEC9] border border-[#00CEC9]/30 px-3 py-1 rounded-full text-label-md font-label-md uppercase tracking-wider">
             <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
             KYC Verified
           </span>
         </div>
-        <p className="font-body-lg text-body-lg text-text-muted">Senior Product Designer &amp; Motion Specialist</p>
+        <p className="font-body-lg text-body-lg text-text-muted">{headline}</p>
         <div className="flex items-center justify-center md:justify-start gap-4 text-text-muted font-body-sm text-body-sm">
-          <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">location_on</span> San Francisco, CA</span>
+          <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">location_on</span> {location}</span>
+          <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">cake</span> {formattedDob}</span>
           <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">schedule</span> Available Immediately</span>
         </div>
       </div>
@@ -30,13 +40,15 @@ const HeroSection = () => (
           <span className="material-symbols-outlined">calendar_today</span>
           Schedule Interview
         </button>
-        <button className="bg-surface-container border border-outline-variant text-text-primary font-bold py-3 px-8 rounded-lg hover:bg-surface-bright/20 transition-all font-body-md text-body-md">
-          Download CV
+        <button className="bg-surface-container border border-outline-variant text-text-primary font-bold py-3 px-8 rounded-lg hover:border-primary transition-all font-body-md text-body-md flex items-center justify-center gap-2 group">
+          <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">picture_as_pdf</span>
+          View Resume
         </button>
       </div>
     </div>
   </section>
-);
+  );
+};
 
 const VideoResume = () => (
   <section className="space-y-md">
@@ -184,11 +196,21 @@ const Portfolio = () => (
 const CandidateProfile = () => {
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
   const role = localStorage.getItem('visume_role') || 'candidate';
+  
+  let profileData = null;
+  const savedData = localStorage.getItem('visume_profile_data');
+  if (savedData) {
+    try {
+      profileData = JSON.parse(savedData);
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
   if (isLoggedIn) {
     return (
-      <>
-        <HeroSection />
+      <div className="space-y-lg">
+        <HeroSection profileData={profileData} />
         <VideoResume />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
           <div className="lg:col-span-7 space-y-lg">
@@ -201,7 +223,7 @@ const CandidateProfile = () => {
             <Portfolio />
           </div>
         </div>
-      </>
+      </div>
     );
   }
 
@@ -209,7 +231,7 @@ const CandidateProfile = () => {
     <div className="min-h-screen bg-background text-text-primary font-body-md pt-24">
       <Navbar />
       <main className="max-w-container-max mx-auto px-gutter py-lg space-y-lg">
-        <HeroSection />
+        <HeroSection profileData={profileData} />
         <VideoResume />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
           <div className="lg:col-span-7 space-y-lg">

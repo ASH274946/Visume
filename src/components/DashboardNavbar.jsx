@@ -5,18 +5,21 @@ const DashboardNavbar = ({ role = 'candidate' }) => {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  const candidateLinks = [
-    { label: 'Browse Jobs', path: '/discover' },
-    { label: 'Applications', path: '/applications' }
-  ];
+  const getPageName = (path) => {
+    switch (path) {
+      case '/dashboard': return 'Dashboard';
+      case '/discover': return 'Browse Jobs';
+      case '/applications': return 'Applications';
+      case '/recruiter': return 'Dashboard';
+      case '/find-candidates': return 'Find Candidates';
+      case '/pipeline': return 'Pipeline';
+      case '/post-job': return 'Job Postings';
+      case '/settings': return 'Settings';
+      default: return 'Dashboard';
+    }
+  };
 
-  const recruiterLinks = [
-    { label: 'Find Candidates', path: '/find-candidates' },
-    { label: 'Pipeline', path: '/pipeline' },
-    { label: 'Job Postings', path: '/post-job' }
-  ];
-
-  const links = role === 'recruiter' ? recruiterLinks : candidateLinks;
+  const pageName = getPageName(currentPath);
 
   const profileImage = role === 'recruiter'
     ? "https://lh3.googleusercontent.com/aida-public/AB6AXuDNf2pjUzrkRvM99OTMYedpfBrRYOSG-5UPAj6qQ6cIPo2L33Fm5Jq39erhvobw6e_WZT_lykFSQ_AZVn20xTjCiJOUgUz5-eDAXvMTz9-xcbod8siIyiAm_AtZiBlg25B43ctasBZcoGJsUozrMmZutznU9iMgqWR9jw8NMW1uWfJyO6rM5zdMwtLU0a8eOnB7LpjjN1BL5ywIOivbPgQwBZux3jlfQz65oNm6diIcOqCCJUIRPp7UnvVAU87HkNnfUmd3jnK9NB0"
@@ -26,27 +29,9 @@ const DashboardNavbar = ({ role = 'candidate' }) => {
     <header className="absolute top-0 left-0 right-0 z-40 px-lg pt-4 pb-2 backdrop-blur-xl bg-background/25 pointer-events-none">
       <nav className="h-16 bg-surface-container/60 border border-outline-variant/65 rounded-xl flex items-center justify-between px-6 pointer-events-auto shadow-lg">
         <div className="flex items-center gap-8">
-          <Link to="/" className="font-display text-headline-sm font-bold text-primary-container">
-            Visume
-          </Link>
-          <div className="hidden md:flex gap-6 items-center">
-            {links.map((link) => {
-              const isActive = currentPath === link.path;
-              return (
-                <Link
-                  key={link.label}
-                  className={`font-body-md text-body-md transition-colors ${
-                    isActive
-                      ? 'text-primary-container font-bold border-b-2 border-primary-container pb-0.5'
-                      : 'text-text-muted font-medium hover:text-text-primary'
-                  }`}
-                  to={link.path}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-          </div>
+          <h1 className="font-display text-headline-sm font-bold text-text-primary">
+            {pageName}
+          </h1>
         </div>
         <div className="flex items-center gap-4">
           {role === 'candidate' ? (
@@ -64,6 +49,10 @@ const DashboardNavbar = ({ role = 'candidate' }) => {
               Post a Job
             </Link>
           )}
+          <button className="relative w-10 h-10 rounded-full bg-surface-container flex items-center justify-center border border-outline-variant hover:border-primary transition-all text-text-muted hover:text-text-primary shrink-0">
+            <span className="material-symbols-outlined text-[20px]">notifications</span>
+            <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-danger rounded-full border border-surface-container"></span>
+          </button>
           <Link
             to="/settings"
             state={{ role: role }}
@@ -73,7 +62,6 @@ const DashboardNavbar = ({ role = 'candidate' }) => {
           </Link>
         </div>
       </nav>
-      <div className="absolute top-full left-0 w-full h-12 bg-gradient-to-b from-background/20 to-transparent pointer-events-none"></div>
     </header>
   );
 };
