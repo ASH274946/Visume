@@ -10,6 +10,25 @@
   }
 }
 
+/* Global custom scrollbar for WebKit and Firefox */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: #0A0A0F;
+}
+*::-webkit-scrollbar-thumb {
+  background: #2A2A3E;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+* { /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #2A2A3E #0A0A0F;
+}
+
 @layer utilities {
   .glass-nav {
       background: rgba(19, 19, 26, 0.7);
