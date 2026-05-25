@@ -1,26 +1,64 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 
-const Header = () => (
-  <header className="flex justify-between items-center mb-xl">
-    <div className="flex items-center gap-4">
-      <h1 className="font-display text-headline-lg text-text-primary">Welcome back, Ashwin</h1>
-      <span className="flex items-center gap-1 bg-tertiary-container/15 text-tertiary px-3 py-1 rounded-full text-[12px] font-bold border border-tertiary/20">
-        <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-        KYC Verified
-      </span>
-    </div>
-    <div className="flex gap-4">
-      <button className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center border border-outline-variant hover:border-primary-container transition-all">
-        <span className="material-symbols-outlined">notifications</span>
-      </button>
-      <button className="bg-primary-container text-white px-lg py-3 rounded-lg font-bold hover:shadow-[0_0_15px_rgba(108,92,231,0.4)] transition-all">
-        Record New Visume
-      </button>
-    </div>
-  </header>
-);
+const Header = ({ onNotifications, onRecordVideo }) => {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const notifications = [
+    { id: 1, icon: '✉️', title: 'Interview Invitation', body: 'Stellar AI Solutions invited you for an interview.', time: '2h ago' },
+    { id: 2, icon: '⭐', title: 'New Role', body: 'A new job matching your profile is available.', time: '1d ago' }
+  ];
+
+  useEffect(() => {
+    const onClick = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    if (open) document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, [open]);
+
+  return (
+    <header className="flex justify-between items-center mb-xl">
+      <div className="flex items-center gap-4">
+        <h1 className="font-display text-headline-lg text-text-primary">Welcome back, Ashwin</h1>
+        <span className="flex items-center gap-1 bg-tertiary-container/15 text-tertiary px-3 py-1 rounded-full text-[12px] font-bold border border-tertiary/20">
+          <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+          KYC Verified
+        </span>
+      </div>
+      <div className="flex gap-4">
+        <div className="relative" ref={ref}>
+          <button onClick={() => setOpen(o => !o)} className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center border border-outline-variant hover:border-primary-container transition-all relative">
+            <span className="material-symbols-outlined">notifications</span>
+            <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-danger rounded-full border border-surface-container"></span>
+          </button>
+          {open && (
+            <div className="absolute right-0 mt-2 w-80 bg-surface-container border border-outline-variant rounded-lg shadow-xl z-50 p-3">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="font-display text-sm font-bold">Notifications</h4>
+                <button onClick={() => setOpen(false)} className="text-text-muted hover:text-white"><span className="material-symbols-outlined">close</span></button>
+              </div>
+              <ul className="space-y-3">
+                {notifications.map(n => (
+                  <li key={n.id} className="flex items-start gap-3 p-2 rounded-md hover:bg-surface-container-high">
+                    <div className="w-9 h-9 rounded-full bg-primary-container/10 flex items-center justify-center text-primary-container font-bold">{n.icon}</div>
+                    <div>
+                      <p className="text-body-sm text-text-primary font-medium">{n.title}</p>
+                      <p className="text-[13px] text-text-muted">{n.body}</p>
+                      <p className="text-[11px] text-text-muted mt-1">{n.time}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+        <button onClick={onRecordVideo} className="bg-primary-container text-white px-lg py-3 rounded-lg font-bold hover:shadow-[0_0_15px_rgba(108,92,231,0.4)] active:scale-95 transition-all">
+          Record New Visume
+        </button>
+      </div>
+    </header>
+  );
+};
 
 const StatsRow = () => (
   <section className="grid grid-cols-1 md:grid-cols-4 gap-md mb-xl">
@@ -86,7 +124,7 @@ const VideoResumeCard = () => (
   </section>
 );
 
-const RecommendedJobs = () => (
+const RecommendedJobs = ({ onApplyJob }) => (
   <section>
     <div className="flex justify-between items-end mb-lg">
       <h2 className="font-display text-headline-md text-text-primary">Recommended for You</h2>
@@ -125,7 +163,7 @@ const RecommendedJobs = () => (
           <span className="bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">Product Strategy</span>
           <span className="bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">Design Systems</span>
         </div>
-        <button className="w-full bg-primary-container text-white py-3 rounded-lg font-bold hover:bg-on-primary-fixed-variant transition-colors">
+        <button onClick={() => onApplyJob('Lead UI Designer', 'Stellar AI Solutions')} className="w-full bg-primary-container text-white py-3 rounded-lg font-bold hover:bg-on-primary-fixed-variant active:scale-95 transition-all">
           Apply Now
         </button>
       </div>
@@ -162,7 +200,7 @@ const RecommendedJobs = () => (
           <span className="bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">Data Analysis</span>
           <span className="bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">User Testing</span>
         </div>
-        <button className="w-full bg-primary-container text-white py-3 rounded-lg font-bold hover:bg-on-primary-fixed-variant transition-colors">
+        <button onClick={() => onApplyJob('Product Manager', 'Nexus Creative')} className="w-full bg-primary-container text-white py-3 rounded-lg font-bold hover:bg-on-primary-fixed-variant active:scale-95 transition-all">
           Apply Now
         </button>
       </div>
@@ -183,13 +221,138 @@ const Footer = () => (
 );
 
 const CandidateDashboard = () => {
+  const navigate = useNavigate();
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  const [appliedJob, setAppliedJob] = useState(null);
+  const [userApplications, setUserApplications] = useState(() => JSON.parse(localStorage.getItem('visume_applications') || '[]'));
+
+  useEffect(() => {
+    const apps = JSON.parse(localStorage.getItem('visume_applications') || '[]');
+    setUserApplications(apps);
+  }, []);
+
+  const handleRecordVideo = () => {
+    navigate('/recorder');
+  };
+
+  const handleNotifications = () => {
+    alert('You have 2 new notifications:\n\n1. Interview invitation from Stellar AI Solutions\n2. New job matching your profile available');
+  };
+
+  const handleApplyJob = (jobTitle, company) => {
+    // Save to localStorage
+    const existingApplications = JSON.parse(localStorage.getItem('visume_applications') || '[]');
+    
+    // Check if already applied
+    const alreadyApplied = existingApplications.some(
+      app => app.title === jobTitle && app.company === company
+    );
+    
+    if (!alreadyApplied) {
+      const newApplication = {
+        id: Date.now(),
+        title: jobTitle,
+        company: company,
+        logo: company.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase(),
+        location: company === 'Stellar AI Solutions' ? 'Remote' : 'Hybrid',
+        date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+        status: 'applied',
+        statusText: 'Applied',
+        colorClass: 'status-applied'
+      };
+      
+      existingApplications.push(newApplication);
+      localStorage.setItem('visume_applications', JSON.stringify(existingApplications));
+      // update local UI state
+      setUserApplications(existingApplications);
+    }
+    
+    setAppliedJob({ jobTitle, company });
+    setShowApplyModal(true);
+  };
+
+  const AppliedJobsSection = ({ applications }) => {
+    if (!applications || applications.length === 0) return null;
+    return (
+      <section className="mb-xl">
+        <div className="flex justify-between items-end mb-lg">
+          <h2 className="font-display text-headline-md text-text-primary">Your Applications</h2>
+          <Link className="text-primary-container font-label-md text-label-md hover:underline" to="/applications">View All</Link>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+          {applications.slice(0,4).map((app) => (
+            <div key={app.id} className="bg-card-bg border border-border-base rounded-xl p-lg hover:border-primary-container transition-all">
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex gap-4 items-center">
+                  <div className="w-12 h-12 rounded-full bg-surface-bright/20 flex items-center justify-center border border-outline-variant overflow-hidden">
+                    <span className="font-display font-bold">{app.logo}</span>
+                  </div>
+                  <div>
+                    <h3 className="font-display text-headline-sm text-text-primary">{app.title}</h3>
+                    <p className="text-text-muted text-label-md">{app.company}</p>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end text-text-muted">
+                  <span className="text-[13px]">{app.date}</span>
+                  <span className="text-[12px] mt-1 px-2 py-1 rounded-full bg-surface-container-high text-text-muted">{app.statusText}</span>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Link to="/applications" className="w-full text-center border border-border-input text-text-muted py-2.5 rounded-lg font-bold hover:bg-surface-container-highest transition-colors">View Application</Link>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  };
+
   return (
     <>
-      <Header />
+      <Header onNotifications={handleNotifications} onRecordVideo={handleRecordVideo} />
       <StatsRow />
       <VideoResumeCard />
-      <RecommendedJobs />
+      <AppliedJobsSection applications={userApplications} />
+      <RecommendedJobs onApplyJob={handleApplyJob} />
       <Footer />
+
+      {/* Apply Confirmation Modal */}
+      {showApplyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-surface-container border border-outline-variant rounded-2xl p-6 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-headline-md font-display text-text-primary">Application Submitted!</h3>
+              <button onClick={() => setShowApplyModal(false)} className="text-text-muted hover:text-white transition-colors">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="mb-6 space-y-3">
+              <div className="bg-surface-container-high p-4 rounded-lg">
+                <p className="text-body-sm text-text-muted mb-1">Position</p>
+                <p className="text-headline-sm font-display text-text-primary">{appliedJob?.jobTitle}</p>
+              </div>
+              <div className="bg-surface-container-high p-4 rounded-lg">
+                <p className="text-body-sm text-text-muted mb-1">Company</p>
+                <p className="text-headline-sm font-display text-text-primary">{appliedJob?.company}</p>
+              </div>
+              <div className="bg-secondary-container/20 p-4 rounded-lg border border-secondary/20">
+                <p className="text-body-md text-secondary flex items-center gap-2">
+                  <span className="material-symbols-outlined">check_circle</span>
+                  Your application has been sent successfully!
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setShowApplyModal(false)} className="flex-1 py-2 border border-border-input text-text-muted font-bold rounded-lg hover:bg-surface-container-highest transition-colors">
+                Close
+              </button>
+              <button onClick={() => { setShowApplyModal(false); navigate('/applications'); }} className="flex-1 py-2 bg-primary-container text-white font-bold rounded-lg hover:brightness-110 transition-all">
+                View Applications
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

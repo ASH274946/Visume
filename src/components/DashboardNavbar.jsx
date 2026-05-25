@@ -8,18 +8,37 @@ const DashboardNavbar = ({ role = 'candidate' }) => {
   const getPageName = (path) => {
     switch (path) {
       case '/dashboard': return 'Dashboard';
+      case '/profile': return 'My Profile';
       case '/discover': return 'Browse Jobs';
       case '/applications': return 'Applications';
+      case '/recorder': return 'Video Resume';
       case '/recruiter': return 'Dashboard';
       case '/find-candidates': return 'Find Candidates';
       case '/pipeline': return 'Pipeline';
-      case '/post-job': return 'Job Postings';
+      case '/post-job': return 'Post Job';
       case '/settings': return 'Settings';
       default: return 'Dashboard';
     }
   };
 
   const pageName = getPageName(currentPath);
+
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const notifications = [
+    { id: 1, icon: '✉️', title: 'Interview Invitation', body: 'Stellar AI Solutions invited you for an interview.', time: '2h ago' },
+    { id: 2, icon: '⭐', title: 'New Recommended Role', body: 'A new job matching your profile is available.', time: '1d ago' },
+    { id: 3, icon: '🔔', title: 'Profile Viewed', body: 'Company Nexus Creative viewed your profile.', time: '3d ago' }
+  ];
+
+  useEffect(() => {
+    const onClick = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setOpen(false);
+    };
+    if (open) document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, [open]);
 
   const profileImage = role === 'recruiter'
     ? "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80"

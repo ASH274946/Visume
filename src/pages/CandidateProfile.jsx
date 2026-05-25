@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import DashboardNavbar from '../components/DashboardNavbar';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
-const HeroSection = ({ profileData }) => {
+const HeroSection = ({ profileData, onScheduleInterview, onViewResume }) => {
   const fullName = profileData?.fullName || "Jordan Sterling";
   const headline = profileData?.headline || "Senior Product Designer & Motion Specialist";
   const location = profileData?.location || "San Francisco, CA";
@@ -36,11 +36,11 @@ const HeroSection = ({ profileData }) => {
         </div>
       </div>
       <div className="flex flex-col gap-3 w-full md:w-auto shrink-0">
-        <button className="bg-primary text-white font-bold py-3 px-8 rounded-lg hover:scale-[0.98] transition-all flex items-center justify-center gap-2 font-body-md text-body-md shadow-lg shadow-primary/20">
+        <button onClick={onScheduleInterview} className="bg-primary text-white font-bold py-3 px-8 rounded-lg hover:scale-[0.98] active:scale-95 transition-all flex items-center justify-center gap-2 font-body-md text-body-md shadow-lg shadow-primary/20">
           <span className="material-symbols-outlined">calendar_today</span>
           Schedule Interview
         </button>
-        <button className="bg-surface-container border border-outline-variant text-text-primary font-bold py-3 px-8 rounded-lg hover:border-primary transition-all font-body-md text-body-md flex items-center justify-center gap-2 group">
+        <button onClick={onViewResume} className="bg-surface-container border border-outline-variant text-text-primary font-bold py-3 px-8 rounded-lg hover:border-primary transition-all font-body-md text-body-md flex items-center justify-center gap-2 group">
           <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">picture_as_pdf</span>
           View Resume
         </button>
@@ -50,7 +50,7 @@ const HeroSection = ({ profileData }) => {
   );
 };
 
-const VideoResume = () => (
+const VideoResume = ({ onPlayVideo }) => (
   <section className="space-y-md">
     <div className="flex items-center justify-between">
       <h2 className="font-headline-md text-headline-md font-bold text-text-primary flex items-center gap-2">
@@ -62,7 +62,7 @@ const VideoResume = () => (
         <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">timer</span> 01:45</span>
       </div>
     </div>
-    <div className="aspect-video w-full rounded-xl bg-surface-dim border border-border-input relative overflow-hidden group cursor-pointer">
+    <div onClick={onPlayVideo} className="aspect-video w-full rounded-xl bg-surface-dim border border-border-input relative overflow-hidden group cursor-pointer">
       <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all flex items-center justify-center z-10">
         <div className="w-20 h-20 rounded-full bg-primary/90 flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-transform">
           <span className="material-symbols-outlined text-white text-5xl" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
@@ -161,11 +161,11 @@ const StatsCard = () => (
   </div>
 );
 
-const Portfolio = () => (
+const Portfolio = ({ onViewProject }) => (
   <div className="space-y-md">
     <h3 className="font-headline-sm text-headline-sm font-bold text-text-primary">Featured Portfolio</h3>
     <div className="space-y-md">
-      <div className="card-bg border border-border-input rounded-xl overflow-hidden group cursor-pointer hover:border-primary transition-all">
+      <div onClick={() => onViewProject('Stellar Finance UI')} className="card-bg border border-border-input rounded-xl overflow-hidden group cursor-pointer hover:border-primary transition-all">
         <div className="h-40 overflow-hidden">
           <img alt="Project 1" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=256&h=256&q=80"/>
         </div>
@@ -177,7 +177,7 @@ const Portfolio = () => (
           </div>
         </div>
       </div>
-      <div className="card-bg border border-border-input rounded-xl overflow-hidden group cursor-pointer hover:border-primary transition-all">
+      <div onClick={() => onViewProject('Motion Identity Pack')} className="card-bg border border-border-input rounded-xl overflow-hidden group cursor-pointer hover:border-primary transition-all">
         <div className="h-40 overflow-hidden">
           <img alt="Project 2" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&h=256&q=80"/>
         </div>
@@ -196,6 +196,10 @@ const Portfolio = () => (
 const CandidateProfile = () => {
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
   const role = localStorage.getItem('visume_role') || 'candidate';
+  const [showInterviewModal, setShowInterviewModal] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [showProjectModal, setShowProjectModal] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
   
   let profileData = null;
   const savedData = localStorage.getItem('visume_profile_data');
@@ -207,11 +211,32 @@ const CandidateProfile = () => {
     }
   }
 
+  const handleScheduleInterview = () => {
+    setShowInterviewModal(true);
+  };
+
+  const handleViewResume = () => {
+    alert('Resume download would be initiated here. In a real app, this would download the PDF.');
+  };
+
+  const handlePlayVideo = () => {
+    setShowVideoModal(true);
+  };
+
+  const handleViewProject = (projectName) => {
+    setSelectedProject(projectName);
+    setShowProjectModal(true);
+  };
+
   if (isLoggedIn) {
     return (
       <div className="space-y-lg">
-        <HeroSection profileData={profileData} />
-        <VideoResume />
+        <HeroSection 
+          profileData={profileData} 
+          onScheduleInterview={handleScheduleInterview}
+          onViewResume={handleViewResume}
+        />
+        <VideoResume onPlayVideo={handlePlayVideo} />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
           <div className="lg:col-span-7 space-y-lg">
             <Skills />
@@ -220,9 +245,99 @@ const CandidateProfile = () => {
           </div>
           <div className="lg:col-span-5 space-y-lg">
             <StatsCard />
-            <Portfolio />
+            <Portfolio onViewProject={handleViewProject} />
           </div>
         </div>
+
+        {/* Interview Modal */}
+        {showInterviewModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <div className="bg-surface-container border border-outline-variant rounded-2xl p-6 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200">
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-headline-md font-display text-text-primary">Schedule Interview</h3>
+                <button onClick={() => setShowInterviewModal(false)} className="text-text-muted hover:text-white transition-colors">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+              <p className="text-body-md text-text-muted mb-6">Select a time slot for your interview with Jordan Sterling.</p>
+              <div className="space-y-3 mb-6">
+                <button className="w-full p-3 border border-outline-variant rounded-lg text-left text-body-md text-text-primary hover:bg-surface-container-highest transition-colors">
+                  📅 Tomorrow, 2:00 PM - 3:00 PM
+                </button>
+                <button className="w-full p-3 border border-outline-variant rounded-lg text-left text-body-md text-text-primary hover:bg-surface-container-highest transition-colors">
+                  📅 Next Monday, 10:00 AM - 11:00 AM
+                </button>
+                <button className="w-full p-3 border border-outline-variant rounded-lg text-left text-body-md text-text-primary hover:bg-surface-container-highest transition-colors">
+                  📅 Next Wednesday, 3:00 PM - 4:00 PM
+                </button>
+              </div>
+              <div className="flex gap-3">
+                <button onClick={() => setShowInterviewModal(false)} className="flex-1 py-2 border border-border-input text-text-muted font-bold rounded-lg hover:bg-surface-container-highest transition-colors">
+                  Cancel
+                </button>
+                <button onClick={() => { setShowInterviewModal(false); alert('Interview scheduled successfully!'); }} className="flex-1 py-2 bg-primary text-white font-bold rounded-lg hover:brightness-110 transition-all">
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Video Modal */}
+        {showVideoModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <div className="bg-surface-container border border-outline-variant rounded-2xl overflow-hidden w-full max-w-3xl shadow-2xl animate-in zoom-in-95 duration-200">
+              <div className="relative aspect-video bg-black">
+                <video 
+                  className="w-full h-full" 
+                  controls 
+                  autoPlay
+                  src="https://www.w3schools.com/html/mov_bbb.mp4"
+                />
+              </div>
+              <div className="p-6 flex justify-between items-center">
+                <div>
+                  <h3 className="text-headline-md font-display text-text-primary">"Designing the Future of SaaS Interfaces"</h3>
+                  <p className="text-body-md text-text-muted mt-1">Duration: 01:45</p>
+                </div>
+                <button onClick={() => setShowVideoModal(false)} className="text-text-muted hover:text-white transition-colors">
+                  <span className="material-symbols-outlined text-2xl">close</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Project Modal */}
+        {showProjectModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <div className="bg-surface-container border border-outline-variant rounded-2xl p-6 w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-200">
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-headline-md font-display text-text-primary">{selectedProject}</h3>
+                <button onClick={() => setShowProjectModal(false)} className="text-text-muted hover:text-white transition-colors">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+              <div className="mb-6 rounded-lg overflow-hidden border border-outline-variant">
+                <img alt={selectedProject} className="w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTGX0qfW3OBHO-GncgYEDe4VsgT5F9r_zfw3DJPN2gTumHa10C41bh77ET3KJqu4vzdu1goYVk05FB73cva0gGTJZkuL-5mShFSRzoficAmqPUfjFiWI1Whj--x5O4-DU1TlFRfL5AOgo4YHONlT3Msx30AO9F4pqjtoQXwNPn9PYML4JJbQ9EbIiiOY13LW47bF_E-xxVVv7AvZHNgnJDE5GmKFJtPJNPoryNTjQ0Ld2zRMU8FKBE4hl0nc3_zrOyndQBdCNzDek" />
+              </div>
+              <p className="text-body-md text-text-muted mb-6">
+                {selectedProject === 'Stellar Finance UI' 
+                  ? 'Full redesign of an enterprise financial dashboard with advanced data visualization and real-time analytics.'
+                  : 'A collection of custom motion components for SaaS apps, designed for seamless integration and smooth animations.'
+                }
+              </p>
+              <div className="flex gap-3">
+                <button onClick={() => setShowProjectModal(false)} className="flex-1 py-2 border border-border-input text-text-muted font-bold rounded-lg hover:bg-surface-container-highest transition-colors">
+                  Close
+                </button>
+                <button onClick={() => { setShowProjectModal(false); alert('Opening project in external link...'); }} className="flex-1 py-2 bg-primary text-white font-bold rounded-lg hover:brightness-110 transition-all flex items-center justify-center gap-2">
+                  View Full Project <span className="material-symbols-outlined text-sm">arrow_outward</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -231,8 +346,12 @@ const CandidateProfile = () => {
     <div className="min-h-screen bg-background text-text-primary font-body-md pt-24">
       <Navbar />
       <main className="max-w-container-max mx-auto px-gutter py-lg space-y-lg">
-        <HeroSection profileData={profileData} />
-        <VideoResume />
+        <HeroSection 
+          profileData={profileData}
+          onScheduleInterview={handleScheduleInterview}
+          onViewResume={handleViewResume}
+        />
+        <VideoResume onPlayVideo={handlePlayVideo} />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
           <div className="lg:col-span-7 space-y-lg">
             <Skills />
@@ -241,7 +360,7 @@ const CandidateProfile = () => {
           </div>
           <div className="lg:col-span-5 space-y-lg">
             <StatsCard />
-            <Portfolio />
+            <Portfolio onViewProject={handleViewProject} />
           </div>
         </div>
       </main>
