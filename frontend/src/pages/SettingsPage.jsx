@@ -5,7 +5,7 @@ import DashboardNavbar from '../components/DashboardNavbar';
 import Sidebar from '../components/Sidebar';
 import Toggle from '../components/Toggle';
 import { auth } from '../firebase';
-import { deleteUser } from 'firebase/auth';
+import { deleteUser, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 
 import CustomSelect from '../components/CustomSelect';
 
@@ -173,18 +173,60 @@ const SettingsPage = () => {
     }));
   };
 
-  // Mock saving process
-  const handleSubmit = (e) => {
+  // Form submission and Firebase sync
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     setSaveSuccess(false);
 
-    setTimeout(() => {
-      localStorage.setItem('visume_profile_data', JSON.stringify(formData));
-      setSaving(false);
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
-    }, 1000);
+    // If the user wants to update their password
+    if (formData.newPassword) {
+      if (formData.newPassword !== formData.confirmPassword) {
+        alert("New passwords do not match!");
+        setSaving(false);
+        return;
+      }
+      if (!formData.currentPassword) {
+        alert("Please enter your current password to verify it's you.");
+        setSaving(false);
+        return;
+      }
+      
+      try {
+        const user = auth.currentUser;
+        if (user && user.email) {
+          // Re-authenticate first to ensure security
+          const credential = EmailAuthProvider.credential(user.email, formData.currentPassword);
+          await reauthenticateWithCredential(user, credential);
+          
+          // Then update the password in Firebase
+          await updatePassword(user, formData.newPassword);
+          
+          // Clear the password fields so they don't persist in local storage unnecessarily
+          setFormData(prev => ({
+            ...prev,
+            currentPassword: '',
+            newPassword: '',
+            confirmPassword: ''
+          }));
+        } else {
+          alert("You are not fully authenticated. Please log out and log back in.");
+          setSaving(false);
+          return;
+        }
+      } catch (error) {
+        console.error("Error updating password:", error);
+        alert("Failed to update password: " + error.message);
+        setSaving(false);
+        return;
+      }
+    }
+
+    // Save all other profile data to local storage
+    localStorage.setItem('visume_profile_data', JSON.stringify(formData));
+    setSaving(false);
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 3000);
   };
 
   return (

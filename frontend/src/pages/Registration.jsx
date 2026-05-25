@@ -90,18 +90,35 @@ const Step1 = ({ onNext, role, setRole, formData, updateFormData }) => {
 
   const handleManualSignUp = async (e) => {
     e.preventDefault();
-    if (!isGoogleLinked) {
-      alert("Please link your Google Account before continuing!");
-      return;
-    }
     if (password !== confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
     
-    // If they already linked Google, the Firebase account is created and authenticated.
-    // We can just proceed to KYC safely!
-    onNext();
+    try {
+      if (isGoogleLinked) {
+        // They already created the account via Google. Let's add the password so they can log in manually too!
+        const { updatePassword } = await import('firebase/auth');
+        if (auth.currentUser) {
+          try {
+            await updatePassword(auth.currentUser, password);
+          } catch (pwdErr) {
+            console.error("Error setting password for Google account", pwdErr);
+          }
+        }
+      } else {
+        // They didn't link Google. Let's create an email/password account!
+        await createUserWithEmailAndPassword(auth, formData.email, password);
+      }
+      onNext();
+    } catch (error) {
+      console.error("Error creating account", error);
+      if (error.code === 'auth/email-already-in-use') {
+        alert("This email is already registered. Please log in instead.");
+      } else {
+        alert("Error creating account: " + error.message);
+      }
+    }
   };
 
   const handleGoogleSignUp = async () => {
