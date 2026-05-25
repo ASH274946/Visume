@@ -9,6 +9,7 @@ const HeroSection = ({ profileData, onScheduleInterview, onViewResume }) => {
   const fullName = profileData?.fullName || "Jordan Sterling";
   const headline = profileData?.headline || "Senior Product Designer & Motion Specialist";
   const location = profileData?.location || "San Francisco, CA";
+  const address = profileData?.address || "123 Tech Park, OMR, Chennai";
   
   const formattedDob = profileData?.dob 
     ? new Date(profileData.dob).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
@@ -29,10 +30,15 @@ const HeroSection = ({ profileData, onScheduleInterview, onViewResume }) => {
           </span>
         </div>
         <p className="font-body-lg text-body-lg text-text-muted">{headline}</p>
-        <div className="flex items-center justify-center md:justify-start gap-4 text-text-muted font-body-sm text-body-sm">
-          <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">location_on</span> {location}</span>
-          <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">cake</span> {formattedDob}</span>
-          <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">schedule</span> Available Immediately</span>
+        <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-4 text-text-muted font-body-sm text-body-sm">
+          <div className="flex gap-4">
+            <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">location_on</span> {location}</span>
+            <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">home</span> {address}</span>
+          </div>
+          <div className="flex gap-4">
+            <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">cake</span> {formattedDob}</span>
+            <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">schedule</span> Available Immediately</span>
+          </div>
         </div>
       </div>
       <div className="flex flex-col gap-3 w-full md:w-auto shrink-0">
@@ -90,31 +96,35 @@ const Skills = () => (
   </div>
 );
 
-const Experience = () => (
-  <div className="card-bg border border-border-input rounded-xl p-lg space-y-lg">
-    <h3 className="font-headline-sm text-headline-sm font-bold text-text-primary">Professional Journey</h3>
-    <div className="relative space-y-lg timeline-line pl-8">
-      <div className="relative">
-        <div className="absolute -left-8 mt-1 w-4 h-4 rounded-full bg-primary ring-4 ring-primary/20 z-10"></div>
-        <div className="space-y-1">
-          <span className="text-primary font-label-md text-label-md font-bold">JAN 2022 — PRESENT</span>
-          <h4 className="font-headline-sm text-headline-sm text-text-primary">Lead Experience Designer</h4>
-          <p className="text-text-muted font-body-md text-body-md">Stellar Systems • Full-time</p>
-          <p className="text-text-muted font-body-sm text-body-sm mt-2 leading-relaxed">Pioneered the design of a next-gen analytics dashboard, reducing user bounce rate by 34% through motion-driven navigation and intuitive data visualization.</p>
+const Experience = ({ profileData }) => {
+  const previousExperience = profileData?.previousExperience || "3 years as Frontend Developer";
+
+  return (
+    <div className="card-bg border border-border-input rounded-xl p-lg space-y-lg">
+      <h3 className="font-headline-sm text-headline-sm font-bold text-text-primary">Professional Journey</h3>
+      <div className="relative space-y-lg timeline-line pl-8">
+        <div className="relative">
+          <div className="absolute -left-8 mt-1 w-4 h-4 rounded-full bg-primary ring-4 ring-primary/20 z-10"></div>
+          <div className="space-y-1">
+            <span className="text-primary font-label-md text-label-md font-bold">RECENT</span>
+            <h4 className="font-headline-sm text-headline-sm text-text-primary">Previous Experience Summary</h4>
+            <p className="text-text-muted font-body-md text-body-md">Most recent role highlights</p>
+            <p className="text-text-muted font-body-sm text-body-sm mt-2 leading-relaxed">{previousExperience}</p>
+          </div>
         </div>
-      </div>
-      <div className="relative">
-        <div className="absolute -left-8 mt-1 w-4 h-4 rounded-full bg-outline-variant z-10"></div>
-        <div className="space-y-1">
-          <span className="text-text-muted font-label-md text-label-md font-bold">2019 — 2021</span>
-          <h4 className="font-headline-sm text-headline-sm text-text-primary">UI/UX Designer</h4>
-          <p className="text-text-muted font-body-md text-body-md">Vivid Digital Agency • Contract</p>
-          <p className="text-text-muted font-body-sm text-body-sm mt-2 leading-relaxed">Collaborated with Fortune 500 clients to build interactive prototypes and design systems for global consumer applications.</p>
+        <div className="relative">
+          <div className="absolute -left-8 mt-1 w-4 h-4 rounded-full bg-outline-variant z-10"></div>
+          <div className="space-y-1">
+            <span className="text-text-muted font-label-md text-label-md font-bold">2019 — 2021</span>
+            <h4 className="font-headline-sm text-headline-sm text-text-primary">UI/UX Designer</h4>
+            <p className="text-text-muted font-body-md text-body-md">Vivid Digital Agency • Contract</p>
+            <p className="text-text-muted font-body-sm text-body-sm mt-2 leading-relaxed">Collaborated with Fortune 500 clients to build interactive prototypes and design systems for global consumer applications.</p>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const Education = () => (
   <div className="card-bg border border-border-input rounded-xl p-lg space-y-md">
@@ -161,9 +171,17 @@ const StatsCard = () => (
   </div>
 );
 
-const Portfolio = ({ onViewProject }) => (
+const Portfolio = ({ onViewProject, profileData }) => {
+  const portfolioUrl = profileData?.portfolio || 'https://ashwinkumar.dev';
+  
+  return (
   <div className="space-y-md">
-    <h3 className="font-headline-sm text-headline-sm font-bold text-text-primary">Featured Portfolio</h3>
+    <div className="flex justify-between items-center">
+      <h3 className="font-headline-sm text-headline-sm font-bold text-text-primary">Featured Portfolio</h3>
+      <a href={portfolioUrl.startsWith('http') ? portfolioUrl : `https://${portfolioUrl}`} target="_blank" rel="noopener noreferrer" className="text-primary text-label-md hover:underline flex items-center gap-1">
+        Personal Site <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+      </a>
+    </div>
     <div className="space-y-md">
       <div onClick={() => onViewProject('Stellar Finance UI')} className="card-bg border border-border-input rounded-xl overflow-hidden group cursor-pointer hover:border-primary transition-all">
         <div className="h-40 overflow-hidden">
@@ -191,7 +209,8 @@ const Portfolio = ({ onViewProject }) => (
       </div>
     </div>
   </div>
-);
+  );
+};
 
 const CandidateProfile = () => {
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -240,12 +259,12 @@ const CandidateProfile = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
           <div className="lg:col-span-7 space-y-lg">
             <Skills />
-            <Experience />
+            <Experience profileData={profileData} />
             <Education />
           </div>
           <div className="lg:col-span-5 space-y-lg">
             <StatsCard />
-            <Portfolio onViewProject={handleViewProject} />
+            <Portfolio onViewProject={handleViewProject} profileData={profileData} />
           </div>
         </div>
 
@@ -355,12 +374,12 @@ const CandidateProfile = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
           <div className="lg:col-span-7 space-y-lg">
             <Skills />
-            <Experience />
+            <Experience profileData={profileData} />
             <Education />
           </div>
           <div className="lg:col-span-5 space-y-lg">
             <StatsCard />
-            <Portfolio onViewProject={handleViewProject} />
+            <Portfolio onViewProject={handleViewProject} profileData={profileData} />
           </div>
         </div>
       </main>

@@ -58,7 +58,11 @@ const SettingsPage = () => {
       email: initialRole === 'recruiter' ? 'sarah.jenkins@novastream.ai' : 'ashwin.kumar@gmail.com',
       headline: initialRole === 'recruiter' ? 'Talent Acquisition Director' : 'Senior React Developer & UI Specialist',
       location: initialRole === 'recruiter' ? 'Bengaluru, India' : 'Chennai, India',
+      address: initialRole === 'recruiter' ? '' : '123 Tech Park, OMR, Chennai',
+      previousExperience: initialRole === 'recruiter' ? '' : '3 years as Frontend Developer',
       bio: initialRole === 'recruiter' ? 'Building the future of streaming technology at NovaStream AI.' : 'Passionate frontend engineer with 5+ years of experience building immersive and performant user experiences.',
+      designation: initialRole === 'recruiter' ? 'Talent Acquisition Director' : '',
+      department: initialRole === 'recruiter' ? 'Human Resources' : '',
       dob: initialRole === 'recruiter' ? '1988-03-12' : '1995-08-15',
       phone: '+91 9876543210',
       linkedin: 'linkedin.com/in/ashwinkumar',
@@ -74,6 +78,8 @@ const SettingsPage = () => {
 
       // Company
       companyName: 'NovaStream AI',
+      cin: 'U72900KA2021PTC123456',
+      registeredAddress: '123 Tech Park, Outer Ring Road, Bengaluru',
       companySize: '50-200',
       website: 'https://novastream.ai',
       defaultQuestions: [
@@ -260,7 +266,7 @@ const SettingsPage = () => {
                     />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-label-md text-text-primary font-bold">Location</label>
+                    <label className="text-label-md text-text-primary font-bold">Location / City</label>
                     <input
                       type="text"
                       name="location"
@@ -269,6 +275,57 @@ const SettingsPage = () => {
                       className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all"
                     />
                   </div>
+                  
+                  {role === 'candidate' && (
+                    <>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-label-md text-text-primary font-bold">Full Address</label>
+                        <input
+                          type="text"
+                          name="address"
+                          value={formData.address}
+                          onChange={handleInputChange}
+                          className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-label-md text-text-primary font-bold">Previous Experience (Summary)</label>
+                        <input
+                          type="text"
+                          name="previousExperience"
+                          value={formData.previousExperience}
+                          onChange={handleInputChange}
+                          className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all"
+                        />
+                      </div>
+                    </>
+                  )}
+                  
+                  {role === 'recruiter' && (
+                    <>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-label-md text-text-primary font-bold">Designation</label>
+                        <input
+                          type="text"
+                          name="designation"
+                          value={formData.designation}
+                          onChange={handleInputChange}
+                          className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-label-md text-text-primary font-bold">Department</label>
+                        <input
+                          type="text"
+                          name="department"
+                          value={formData.department}
+                          onChange={handleInputChange}
+                          className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all"
+                        />
+                      </div>
+                    </>
+                  )}
+
                   <div className="flex flex-col gap-2">
                     <label className="text-label-md text-text-primary font-bold">Date of Birth</label>
                     <CustomDatePicker
@@ -445,6 +502,28 @@ const SettingsPage = () => {
                       type="text"
                       name="companyName"
                       value={formData.companyName}
+                      onChange={handleInputChange}
+                      className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-label-md text-text-primary font-bold">Company Registration Number (CIN)</label>
+                    <input
+                      type="text"
+                      name="cin"
+                      value={formData.cin}
+                      onChange={handleInputChange}
+                      className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all"
+                    />
+                  </div>
+                  
+                  <div className="flex flex-col gap-2 md:col-span-2">
+                    <label className="text-label-md text-text-primary font-bold">Registered Company Address</label>
+                    <input
+                      type="text"
+                      name="registeredAddress"
+                      value={formData.registeredAddress}
                       onChange={handleInputChange}
                       className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all"
                     />
