@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { auth, googleProvider, signInWithPopup } from '../firebase';
+import { auth, googleProvider, signInWithPopup, db } from '../firebase';
 import { getAdditionalUserInfo, signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 
 const VisumeLoginPage = () => {
   const navigate = useNavigate();
@@ -21,13 +22,45 @@ const VisumeLoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      
+      let fetchedData = null;
+      let foundRole = role; // default to what is selected
+      try {
+        let docRef = doc(db, "candidates", userCredential.user.uid);
+        let docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          fetchedData = docSnap.data();
+          foundRole = 'candidate';
+        } else {
+          docRef = doc(db, "recruiters", userCredential.user.uid);
+          docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            fetchedData = docSnap.data();
+            foundRole = 'recruiter';
+          }
+        }
+        
+        if (fetchedData) {
+          localStorage.setItem('visume_profile_data', JSON.stringify(fetchedData));
+        }
+      } catch (err) {
+        console.error("Error fetching Firestore data", err);
+      }
+      
+      if (!fetchedData || fetchedData.kycStatus !== 'verified' || !fetchedData.profileComplete) {
+        await auth.signOut();
+        alert("Your account setup is incomplete. Please finish the registration steps.");
+        navigate('/register');
+        return;
+      }
+
       // Set a flag in localStorage that the user is logged in
       localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('visume_role', role);
+      localStorage.setItem('visume_role', foundRole);
       
       // Get the redirect path from state, default based on role
-      const from = location.state?.redirectTo || (role === 'recruiter' ? '/recruiter' : '/dashboard');
+      const from = location.state?.redirectTo || (foundRole === 'recruiter' ? '/recruiter' : '/dashboard');
       navigate(from, { replace: true });
     } catch (error) {
       console.error("Error logging in:", error);
@@ -53,15 +86,47 @@ const VisumeLoginPage = () => {
         return;
       }
 
-      if (result.user.photoURL) {
-        let profileData = JSON.parse(localStorage.getItem('visume_profile_data')) || {};
-        profileData.profileImage = result.user.photoURL;
-        localStorage.setItem('visume_profile_data', JSON.stringify(profileData));
+      let fetchedData = null;
+      let foundRole = role; // default to what is selected
+      try {
+        let docRef = doc(db, "candidates", result.user.uid);
+        let docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          fetchedData = docSnap.data();
+          foundRole = 'candidate';
+        } else {
+          docRef = doc(db, "recruiters", result.user.uid);
+          docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            fetchedData = docSnap.data();
+            foundRole = 'recruiter';
+          }
+        }
+
+        if (fetchedData) {
+          if (result.user.photoURL && !fetchedData.profileImage) {
+             fetchedData.profileImage = result.user.photoURL;
+          }
+          localStorage.setItem('visume_profile_data', JSON.stringify(fetchedData));
+        } else if (result.user.photoURL) {
+          let profileData = JSON.parse(localStorage.getItem('visume_profile_data')) || {};
+          profileData.profileImage = result.user.photoURL;
+          localStorage.setItem('visume_profile_data', JSON.stringify(profileData));
+        }
+      } catch (err) {
+        console.error("Error fetching Firestore data", err);
+      }
+      
+      if (!fetchedData || fetchedData.kycStatus !== 'verified' || !fetchedData.profileComplete) {
+        await auth.signOut();
+        alert("Your account setup is incomplete. Please finish the registration steps.");
+        navigate('/register');
+        return;
       }
 
       localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('visume_role', role);
-      const from = location.state?.redirectTo || (role === 'recruiter' ? '/recruiter' : '/dashboard');
+      localStorage.setItem('visume_role', foundRole);
+      const from = location.state?.redirectTo || (foundRole === 'recruiter' ? '/recruiter' : '/dashboard');
       navigate(from, { replace: true });
     } catch (error) {
       console.error("Error signing in with Google", error);

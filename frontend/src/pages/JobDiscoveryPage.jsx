@@ -321,6 +321,9 @@ const JobGrid = ({ jobs, onApplied, selectedJob, setSelectedJob }) => {
   const navigate = useNavigate();
   const [applyingIdx, setApplyingIdx] = useState(null);
   const [appliedJobs, setAppliedJobs] = useState(new Set());
+  const [applicationJob, setApplicationJob] = useState(null);
+  const [selectedResumeId, setSelectedResumeId] = useState(null);
+  const videoResumes = useMemo(() => JSON.parse(localStorage.getItem('visume_video_resumes') || '[]'), [applicationJob]);
 
   if (jobs.length === 0) {
     return (
@@ -377,44 +380,13 @@ const JobGrid = ({ jobs, onApplied, selectedJob, setSelectedJob }) => {
               <button
                 type="button"
                 onClick={() => {
-                  setApplyingIdx(idx);
-                  setTimeout(() => {
-                    setApplyingIdx(null);
-                    setAppliedJobs(prev => new Set(prev).add(idx));
-
-                    // Save to localStorage
-                    const existingApplications = JSON.parse(localStorage.getItem('visume_applications') || '[]');
-                    const alreadyApplied = existingApplications.some(
-                      app => app.title === jobs[idx].title && app.company === jobs[idx].company
-                    );
-
-                    if (!alreadyApplied) {
-                      const newApplication = {
-                        id: Date.now(),
-                        title: jobs[idx].title,
-                        company: jobs[idx].company,
-                        logo: jobs[idx].company.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase(),
-                        location: jobs[idx].location.split(',')[1]?.trim() || jobs[idx].location,
-                        date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
-                        status: 'applied',
-                        statusText: 'Applied',
-                        colorClass: 'status-applied'
-                      };
-
-                      existingApplications.push(newApplication);
-                      localStorage.setItem('visume_applications', JSON.stringify(existingApplications));
-                      if (onApplied) onApplied();
-                    }
-                  }, 800);
+                  setApplicationJob(jobs[idx]);
+                  setSelectedResumeId(null);
                 }}
-                disabled={applyingIdx === idx || appliedJobs.has(idx)}
+                disabled={appliedJobs.has(idx)}
                 className={`flex-1 py-3 bg-primary-container text-white rounded-lg font-bold active:scale-95 transition-all ${appliedJobs.has(idx) ? 'opacity-50 pointer-events-none' : ''}`}
               >
-                {applyingIdx === idx ? (
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto"></div>
-                ) : appliedJobs.has(idx) ? (
-                  'Applied'
-                ) : 'Apply Now'}
+                {appliedJobs.has(idx) ? 'Applied' : 'Apply Now'}
               </button>
             </div>
           </div>
@@ -483,48 +455,118 @@ const JobGrid = ({ jobs, onApplied, selectedJob, setSelectedJob }) => {
                     return;
                   }
 
-                  // run apply animation then save
-                  setApplyingIdx(idx);
-                  setTimeout(() => {
-                    setApplyingIdx(null);
-                    setAppliedJobs(prev => new Set(prev).add(idx));
-
-                    // Save to localStorage
-                    const existingApplications = JSON.parse(localStorage.getItem('visume_applications') || '[]');
-                    const alreadyApplied = existingApplications.some(
-                      app => app.title === jobs[idx].title && app.company === jobs[idx].company
-                    );
-
-                    if (!alreadyApplied) {
-                      const newApplication = {
-                        id: Date.now(),
-                        title: jobs[idx].title,
-                        company: jobs[idx].company,
-                        logo: jobs[idx].company.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase(),
-                        location: jobs[idx].location.split(',')[1]?.trim() || jobs[idx].location,
-                        date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
-                        status: 'applied',
-                        statusText: 'Applied',
-                        colorClass: 'status-applied'
-                      };
-
-                      existingApplications.push(newApplication);
-                      localStorage.setItem('visume_applications', JSON.stringify(existingApplications));
-                      if (onApplied) onApplied();
-                    }
-
-                    // close modal after applying
-                    setSelectedJob(null);
-                  }, 800);
+                  setSelectedJob(null);
+                  setApplicationJob(selectedJob);
+                  setSelectedResumeId(null);
                 }}
                 className="flex-1 py-3 bg-primary-container text-white font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary-container/20"
               >
                 {(() => {
                   const idx = jobs.findIndex(j => j.title === selectedJob.title && j.company === selectedJob.company);
-                  if (applyingIdx === idx) return (<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto"></div>);
                   if (appliedJobs.has(idx)) return 'Go to Applications';
                   return 'Apply Now';
                 })()}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {applicationJob && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200" onClick={() => setApplicationJob(null)}>
+          <div className="bg-surface-container border border-outline-variant rounded-2xl p-6 w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h3 className="text-headline-sm font-display text-text-primary mb-1">Apply to {applicationJob.company}</h3>
+                <p className="text-body-md text-text-muted">{applicationJob.title}</p>
+              </div>
+              <button onClick={() => setApplicationJob(null)} className="text-text-muted hover:text-white transition-colors">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto mb-6 custom-scrollbar pr-2">
+              <h4 className="font-label-lg text-label-lg text-text-primary mb-3">Select a Video Resume</h4>
+              {videoResumes.length === 0 ? (
+                <div className="text-center py-8 px-4 border border-dashed border-outline-variant rounded-xl bg-surface-container-low">
+                  <span className="material-symbols-outlined text-4xl text-text-muted mb-2 opacity-50">videocam_off</span>
+                  <p className="text-body-md text-text-muted mb-4">You don't have any video resumes yet.</p>
+                  <button onClick={() => navigate('/recorder')} className="bg-primary-container text-white px-4 py-2 rounded-lg font-bold hover:brightness-110 transition-all text-sm">Record Visume</button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {videoResumes.map(resume => (
+                    <div 
+                      key={resume.id}
+                      onClick={() => setSelectedResumeId(resume.id)}
+                      className={`flex gap-4 p-3 rounded-xl border transition-all cursor-pointer ${selectedResumeId === resume.id ? 'bg-primary-container/10 border-primary-container' : 'bg-surface-container-high border-border-input hover:border-outline-variant'}`}
+                    >
+                      <div className="w-24 h-16 rounded-lg overflow-hidden shrink-0 border border-outline-variant/30 relative">
+                        {resume.videoUrl ? (
+                          <video src={resume.videoUrl} className="w-full h-full object-cover pointer-events-none" preload="metadata" muted playsInline />
+                        ) : (
+                          <img src={resume.thumbnailUrl} alt={resume.title} className="w-full h-full object-cover pointer-events-none" />
+                        )}
+                        <div className="absolute bottom-1 right-1 bg-black/70 px-1 rounded text-[9px] font-bold text-white">{resume.duration}</div>
+                      </div>
+                      <div className="flex flex-col justify-center overflow-hidden">
+                        <h4 className="font-label-lg text-label-lg text-text-primary truncate">{resume.title}</h4>
+                        <p className="text-text-muted text-[11px] mt-1">{resume.date}</p>
+                      </div>
+                      {selectedResumeId === resume.id && (
+                        <div className="ml-auto flex items-center pr-2">
+                          <span className="material-symbols-outlined text-primary-container" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-4 pt-4 border-t border-outline-variant/30 mt-auto">
+              <button
+                onClick={() => setApplicationJob(null)}
+                className="flex-1 py-3 border border-border-input text-text-muted font-bold rounded-lg hover:bg-surface-container-highest transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={!selectedResumeId || applyingIdx !== null}
+                onClick={() => {
+                  const idx = jobs.findIndex(j => j.title === applicationJob.title && j.company === applicationJob.company);
+                  if (idx === -1) return;
+                  
+                  setApplyingIdx(idx);
+                  setTimeout(() => {
+                    setApplyingIdx(null);
+                    setAppliedJobs(prev => new Set(prev).add(idx));
+
+                    const existingApplications = JSON.parse(localStorage.getItem('visume_applications') || '[]');
+                    const newApplication = {
+                      id: Date.now(),
+                      title: jobs[idx].title,
+                      company: jobs[idx].company,
+                      logo: jobs[idx].company.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase(),
+                      location: jobs[idx].location.split(',')[1]?.trim() || jobs[idx].location,
+                      date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+                      status: 'applied',
+                      statusText: 'Applied',
+                      colorClass: 'status-applied',
+                      resumeId: selectedResumeId
+                    };
+                    existingApplications.push(newApplication);
+                    localStorage.setItem('visume_applications', JSON.stringify(existingApplications));
+                    
+                    if (onApplied) onApplied();
+                    setApplicationJob(null);
+                  }, 800);
+                }}
+                className={`flex-1 py-3 bg-primary-container text-white font-bold rounded-lg transition-all ${!selectedResumeId ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-110 active:scale-95 shadow-lg shadow-primary-container/20'}`}
+              >
+                {applyingIdx !== null ? (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto"></div>
+                ) : 'Submit Application'}
               </button>
             </div>
           </div>

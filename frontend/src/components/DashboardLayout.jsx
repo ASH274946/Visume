@@ -39,7 +39,7 @@ const DashboardLayout = () => {
       <Sidebar role={role} activePage={activePage} />
       <div className="flex-grow flex flex-col h-screen overflow-hidden relative">
         <DashboardNavbar role={role} />
-        <main key={location.pathname} className="flex-1 overflow-y-auto custom-scrollbar p-lg pt-[104px] page-transition">
+        <main key={location.pathname} className="flex-1 overflow-y-auto custom-scrollbar p-lg pt-[112px] page-transition">
           <Outlet />
         </main>
       </div>

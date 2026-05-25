@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import CustomSelect from '../components/CustomSelect';
-const HeaderSection = () => (
+const HeaderSection = () => {
+  const profileData = JSON.parse(localStorage.getItem('visume_profile_data')) || {};
+  const userName = profileData.fullName ? profileData.fullName.split(' ')[0] : 'Sarah';
+
+  return (
   <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-md mb-lg">
     <div className="space-y-1">
-      <h1 className="font-headline-lg text-headline-lg text-text-primary">Good morning, Sarah</h1>
+      <h1 className="font-headline-lg text-headline-lg text-text-primary">Good morning, {userName}</h1>
       <p className="font-body-md text-text-muted">Here's what's happening with your hiring pipeline today.</p>
     </div>
     <Link to="/post-job" className="bg-primary text-[#FFFFFF] px-gutter py-3 rounded-lg font-label-md font-bold hover:brightness-110 active:scale-95 transition-all flex items-center gap-2 shadow-lg shadow-primary/20">
@@ -12,7 +16,8 @@ const HeaderSection = () => (
       Post New Job
     </Link>
   </header>
-);
+  );
+};
 
 const StatsRow = () => (
   <div className="grid grid-cols-2 lg:grid-cols-4 gap-gutter mb-xl">

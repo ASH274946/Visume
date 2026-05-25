@@ -4,8 +4,9 @@ import Navbar from '../components/Navbar';
 import DashboardNavbar from '../components/DashboardNavbar';
 import Sidebar from '../components/Sidebar';
 import Toggle from '../components/Toggle';
-import { auth } from '../firebase';
-import { deleteUser, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
+import { auth, db } from '../firebase';
+import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 
 import CustomSelect from '../components/CustomSelect';
 
@@ -83,15 +84,7 @@ const SettingsPage = () => {
 
   // Form states
   const [formData, setFormData] = useState(() => {
-    const savedData = localStorage.getItem('visume_profile_data');
-    if (savedData) {
-      try {
-        return JSON.parse(savedData);
-      } catch (e) {
-        console.error("Failed to parse saved profile data", e);
-      }
-    }
-    return {
+    const defaultData = {
       // Profile
       fullName: initialRole === 'recruiter' ? 'Sarah Jenkins' : 'Ashwin Kumar',
       profileImage: initialRole === 'recruiter' 
@@ -102,6 +95,7 @@ const SettingsPage = () => {
       location: initialRole === 'recruiter' ? 'Bengaluru, India' : 'Chennai, India',
       address: initialRole === 'recruiter' ? '' : '123 Tech Park, OMR, Chennai',
       previousExperience: initialRole === 'recruiter' ? '' : '3 years as Frontend Developer',
+      education: initialRole === 'recruiter' ? '' : 'BFA in Interactive Design, Academy of Art University, SF (Class of 2018)',
       bio: initialRole === 'recruiter' ? 'Building the future of streaming technology at NovaStream AI.' : 'Passionate frontend engineer with 5+ years of experience building immersive and performant user experiences.',
       designation: initialRole === 'recruiter' ? 'Talent Acquisition Director' : '',
       department: initialRole === 'recruiter' ? 'Human Resources' : '',
@@ -139,6 +133,18 @@ const SettingsPage = () => {
       emailNotifications: true,
       interviewReminders: true
     };
+
+    const savedData = localStorage.getItem('visume_profile_data');
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        // Ensure missing fields are populated with defaults, and empty string overrides don't break uncontrolled inputs completely.
+        return { ...defaultData, ...parsed };
+      } catch (e) {
+        console.error("Failed to parse saved profile data", e);
+      }
+    }
+    return defaultData;
   });
 
   useEffect(() => {
@@ -225,22 +231,23 @@ const SettingsPage = () => {
 
     // Save all other profile data to local storage
     localStorage.setItem('visume_profile_data', JSON.stringify(formData));
+    
+    try {
+      if (auth.currentUser) {
+        const collectionName = role === 'recruiter' ? 'recruiters' : 'candidates';
+        await setDoc(doc(db, collectionName, auth.currentUser.uid), formData, { merge: true });
+      }
+    } catch (err) {
+      console.error("Error updating Firestore data", err);
+    }
+
     setSaving(false);
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-136px)] overflow-hidden">
-      {/* Top Header */}
-      <header className="shrink-0 flex flex-col md:flex-row justify-between items-start md:items-center gap-md mb-lg border-b border-outline-variant pb-md">
-        <div className="space-y-1">
-          <h1 className="font-display text-headline-lg text-text-primary">System Settings</h1>
-          <p className="font-body-md text-text-muted">Configure and customize your Visume account preferences.</p>
-        </div>
-
-      </header>
-
+    <div className="flex flex-col h-[calc(100vh-144px)] overflow-hidden">
       {/* Content Container */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-lg min-h-0 overflow-hidden">
         {/* Sub Navigation Tabs */}
@@ -252,13 +259,15 @@ const SettingsPage = () => {
             <span className="material-symbols-outlined">person</span>
             My Profile
           </button>
-          <button
-            onClick={() => setActiveTab('video')}
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg font-label-md font-bold text-left transition-all ${activeTab === 'video' ? 'bg-primary-container/10 border border-primary-container text-primary-container' : 'border border-transparent text-text-muted hover:bg-surface-container hover:text-text-primary'}`}
-          >
-            <span className="material-symbols-outlined">videocam</span>
-            Configure Visume
-          </button>
+          {role === 'candidate' && (
+            <button
+              onClick={() => setActiveTab('video')}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg font-label-md font-bold text-left transition-all ${activeTab === 'video' ? 'bg-primary-container/10 border border-primary-container text-primary-container' : 'border border-transparent text-text-muted hover:bg-surface-container hover:text-text-primary'}`}
+            >
+              <span className="material-symbols-outlined">videocam</span>
+              Configure Visume
+            </button>
+          )}
           {role === 'recruiter' && (
             <button
               onClick={() => setActiveTab('company')}
@@ -397,6 +406,16 @@ const SettingsPage = () => {
                           className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all"
                         />
                       </div>
+                      <div className="flex flex-col gap-2 md:col-span-2">
+                        <label className="text-label-md text-text-primary font-bold">Education Details</label>
+                        <textarea
+                          name="education"
+                          value={formData.education}
+                          onChange={handleInputChange}
+                          className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all min-h-[100px] resize-y"
+                          placeholder="Degree, University, Graduation Year"
+                        />
+                      </div>
                     </>
                   )}
                   
@@ -425,8 +444,10 @@ const SettingsPage = () => {
                     </>
                   )}
 
-                  <div className="flex flex-col gap-2">
-                    <label className="text-label-md text-text-primary font-bold">Date of Birth</label>
+                  {role === 'candidate' && (
+                    <>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-label-md text-text-primary font-bold">Date of Birth</label>
                     <CustomDatePicker
                       name="dob"
                       value={formData.dob}
@@ -463,8 +484,11 @@ const SettingsPage = () => {
                       className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all"
                     />
                   </div>
+                    </>
+                  )}
                 </div>
 
+                {role === 'candidate' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-md items-start">
                   <div className="flex flex-col gap-2">
                     <label className="text-label-md text-text-primary font-bold">Short Bio</label>
@@ -500,11 +524,12 @@ const SettingsPage = () => {
                     )}
                   </div>
                 </div>
+                )}
               </div>
             )}
 
             {/* Video & AI Configuration Tab */}
-            {activeTab === 'video' && (
+            {activeTab === 'video' && role === 'candidate' && (
               <div className="flex flex-col gap-md animate-in fade-in duration-300">
                 <h2 className="font-display text-headline-sm text-text-primary flex items-center gap-2 border-b border-border-input pb-2">
                   <span className="material-symbols-outlined text-primary">videocam</span>

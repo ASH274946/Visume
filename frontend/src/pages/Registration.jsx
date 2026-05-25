@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { auth, googleProvider, signInWithPopup } from '../firebase';
+import { auth, googleProvider, signInWithPopup, db } from '../firebase';
 import { getAdditionalUserInfo, createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import CustomSelect from '../components/CustomSelect';
 
 const countryCodes = [
@@ -95,6 +96,11 @@ const Step1 = ({ onNext, role, setRole, formData, updateFormData }) => {
       return;
     }
     
+    if (!isGoogleLinked) {
+      alert("You must link a Google Account before continuing.");
+      return;
+    }
+    
     try {
       if (isGoogleLinked) {
         // They already created the account via Google. Let's add the password so they can log in manually too!
@@ -137,11 +143,29 @@ const Step1 = ({ onNext, role, setRole, formData, updateFormData }) => {
       }
 
       if (!additionalInfo.isNewUser) {
-        // User already has an account! Log them in and bypass the rest of the signup
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('visume_role', role);
-        alert("Welcome back! You already have an account, so we've logged you in.");
-        navigate(role === 'recruiter' ? '/recruiter' : '/dashboard', { replace: true });
+        let docRef = doc(db, 'candidates', result.user.uid);
+        let docSnap = await getDoc(docRef);
+        let foundRole = 'candidate';
+        
+        if (!docSnap.exists()) {
+          docRef = doc(db, 'recruiters', result.user.uid);
+          docSnap = await getDoc(docRef);
+          foundRole = 'recruiter';
+        }
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.kycStatus === 'verified' && data.profileComplete) {
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('visume_role', foundRole);
+            alert("Welcome back! You already have an account, so we've logged you in.");
+            navigate(foundRole === 'recruiter' ? '/recruiter' : '/dashboard', { replace: true });
+            return;
+          }
+        }
+        
+        alert("Your account setup is incomplete. Please finish the remaining steps.");
+        setIsGoogleLinked(true);
         return;
       }
 
@@ -209,9 +233,10 @@ const Step1 = ({ onNext, role, setRole, formData, updateFormData }) => {
           <label className="font-label-md text-text-muted">Phone Number</label>
           <div className="flex gap-2">
             <select 
+              name="countryCode"
               className="bg-border-base border border-border-input rounded-lg px-sm py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary w-1/3 min-w-[120px]"
-              value={countryCode}
-              onChange={(e) => setCountryCode(e.target.value)}
+              value={formData.countryCode || '+1'}
+              onChange={handleInputChange}
             >
               <option value="+1">🇺🇸 US (+1)</option>
               <option value="+91">🇮🇳 IN (+91)</option>
@@ -223,7 +248,7 @@ const Step1 = ({ onNext, role, setRole, formData, updateFormData }) => {
                 </option>
               ))}
             </select>
-            <input name="phone" value={formData.phone || ''} onChange={(e) => updateFormData({ phone: countryCode + ' ' + e.target.value })} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary flex-1" placeholder="(555) 000-0000" type="tel" required/>
+            <input name="phone" value={formData.phone || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary flex-1" placeholder="(555) 000-0000" type="tel" required/>
           </div>
         </div>
         
@@ -447,6 +472,10 @@ const Step3 = ({ onBack, role, formData, updateFormData }) => {
     // Save to local storage mimicking a DB save
     const completeData = {
       ...formData,
+      role: role,
+      kycStatus: 'verified',
+      profileComplete: true,
+      createdAt: new Date().toISOString(),
       skills: skills,
       // Default some structure if empty so settings page doesn't crash
       bio: '',
@@ -463,6 +492,20 @@ const Step3 = ({ onBack, role, formData, updateFormData }) => {
       ],
       companySize: '50-200'
     };
+    
+    // Firestore throws errors if ANY value is strictly undefined. Remove them safely:
+    Object.keys(completeData).forEach(key => completeData[key] === undefined && delete completeData[key]);
+    
+    try {
+      if (auth.currentUser) {
+        const collectionName = role === 'recruiter' ? 'recruiters' : 'candidates';
+        await setDoc(doc(db, collectionName, auth.currentUser.uid), completeData);
+      }
+    } catch (error) {
+      console.error("Error saving profile to Firestore", error);
+      alert("There was an error saving your profile to the database. Please make sure the Firestore database is created and try again.");
+      return;
+    }
     
     localStorage.setItem('visume_profile_data', JSON.stringify(completeData));
     

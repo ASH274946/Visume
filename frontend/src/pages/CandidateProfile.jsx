@@ -9,16 +9,10 @@ import CustomVideoPlayer from '../components/CustomVideoPlayer';
 const HeroSection = ({ profileData, onScheduleInterview, onViewResume }) => {
   const fullName = profileData?.fullName || "Jordan Sterling";
   const headline = profileData?.headline || "Senior Product Designer & Motion Specialist";
-  const location = profileData?.location || "San Francisco, CA";
-  const address = profileData?.address || "123 Tech Park, OMR, Chennai";
-  
-  const formattedDob = profileData?.dob 
-    ? new Date(profileData.dob).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-    : "August 15, 1995";
 
   return (
   <section className="card-bg border border-border-input rounded-xl p-lg relative overflow-hidden hero-gradient">
-    <div className="flex flex-col md:flex-row items-center md:items-end gap-lg relative z-10">
+    <div className="flex flex-col md:flex-row items-center md:items-center gap-lg relative z-10">
       <div className="w-24 h-24 rounded-full border-4 border-primary ring-4 ring-primary/20 overflow-hidden shadow-2xl shrink-0">
         <img alt="Candidate" className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=256&h=256&q=80"/>
       </div>
@@ -31,16 +25,6 @@ const HeroSection = ({ profileData, onScheduleInterview, onViewResume }) => {
           </span>
         </div>
         <p className="font-body-lg text-body-lg text-text-muted">{headline}</p>
-        <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-4 text-text-muted font-body-sm text-body-sm">
-          <div className="flex gap-4">
-            <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">location_on</span> {location}</span>
-            <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">home</span> {address}</span>
-          </div>
-          <div className="flex gap-4">
-            <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">cake</span> {formattedDob}</span>
-            <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">schedule</span> Available Immediately</span>
-          </div>
-        </div>
       </div>
       <div className="flex flex-col gap-3 w-full md:w-auto shrink-0">
         <button onClick={onScheduleInterview} className="bg-primary text-white font-bold py-3 px-8 rounded-lg hover:scale-[0.98] active:scale-95 transition-all flex items-center justify-center gap-2 font-body-md text-body-md shadow-lg shadow-primary/20">
@@ -76,7 +60,11 @@ const VideoResumesGrid = ({ onPlayVideo, resumes }) => {
                 <span className="material-symbols-outlined text-white text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
               </div>
             </div>
-            <img alt={resume.title} className="w-full h-full object-cover" src={resume.thumbnailUrl}/>
+            {resume.videoUrl ? (
+              <video className="w-full h-full object-cover pointer-events-none" src={resume.videoUrl} preload="metadata" muted playsInline />
+            ) : (
+              <img alt={resume.title} className="w-full h-full object-cover" src={resume.thumbnailUrl}/>
+            )}
             <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent z-10 flex justify-between items-end">
               <p className="font-headline-sm text-headline-sm text-white truncate pr-2">{resume.title}</p>
               <div className="flex gap-3 text-white/80 font-label-sm text-label-sm shrink-0">
@@ -135,7 +123,9 @@ const Experience = ({ profileData }) => {
   );
 };
 
-const Education = () => (
+const Education = ({ profileData }) => {
+  const education = profileData?.education || "BFA in Interactive Design, Academy of Art University, SF (Class of 2018)";
+  return (
   <div className="card-bg border border-border-input rounded-xl p-lg space-y-md">
     <h3 className="font-headline-sm text-headline-sm font-bold text-text-primary">Education</h3>
     <div className="flex items-start gap-4">
@@ -143,13 +133,12 @@ const Education = () => (
         <span className="material-symbols-outlined text-primary">school</span>
       </div>
       <div>
-        <h4 className="font-headline-sm text-headline-sm text-text-primary">BFA in Interactive Design</h4>
-        <p className="text-text-muted font-body-md text-body-md">Academy of Art University, SF</p>
-        <p className="text-text-muted font-label-md text-label-md">Class of 2018</p>
+        <p className="text-text-muted font-body-md text-body-md whitespace-pre-wrap">{education}</p>
       </div>
     </div>
   </div>
-);
+  );
+};
 
 const StatsCard = () => (
   <div className="card-bg border border-border-input rounded-xl p-lg">
@@ -289,7 +278,7 @@ const CandidateProfile = () => {
           <div className="lg:col-span-7 space-y-lg">
             <Skills />
             <Experience profileData={profileData} />
-            <Education />
+            <Education profileData={profileData} />
           </div>
           <div className="lg:col-span-5 space-y-lg">
             <StatsCard />

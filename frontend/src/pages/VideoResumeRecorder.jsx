@@ -434,14 +434,14 @@ const VideoResumeRecorder = () => {
             )}
           </div>
           
-          <div className="glass-panel p-md rounded-xl flex items-center justify-between mt-2" style={{ background: 'rgba(19, 19, 26, 0.7)', backdropFilter: 'blur(12px)', border: '1px solid #2A2A3E' }}>
-            <div className="flex items-center gap-4">
+          <div className="glass-panel p-3 lg:p-md rounded-xl flex flex-wrap xl:flex-nowrap items-center justify-between gap-3 mt-2" style={{ background: 'rgba(19, 19, 26, 0.7)', backdropFilter: 'blur(12px)', border: '1px solid #2A2A3E' }}>
+            <div className="flex flex-wrap lg:flex-nowrap items-center gap-2 lg:gap-4">
               {recordingStatus !== 'recorded' && (
                 <button 
                   onClick={toggleRecording}
-                  className={`flex items-center gap-3 px-6 py-3 rounded-lg font-headline-sm transition-all hover:brightness-110 active:scale-95 shadow-lg ${recordingStatus === 'recording' ? 'bg-danger text-white' : 'bg-primary-container text-on-primary-container shadow-primary-container/20'}`}
+                  className={`flex items-center gap-2 lg:gap-3 px-4 py-2 lg:px-6 lg:py-3 rounded-lg text-sm lg:font-headline-sm transition-all hover:brightness-110 active:scale-95 shadow-lg flex-shrink-0 ${recordingStatus === 'recording' ? 'bg-danger text-white' : 'bg-primary-container text-on-primary-container shadow-primary-container/20'}`}
                 >
-                  <span className="material-symbols-outlined" style={recordingStatus === 'recording' ? { fontVariationSettings: "'FILL' 1" } : {}}>
+                  <span className="material-symbols-outlined text-[18px] lg:text-[24px]" style={recordingStatus === 'recording' ? { fontVariationSettings: "'FILL' 1" } : {}}>
                     {recordingStatus === 'recording' ? 'stop' : 'mic'}
                   </span>
                   {recordingStatus === 'recording' ? 'Stop Recording' : 'Start Recording'}
@@ -451,14 +451,14 @@ const VideoResumeRecorder = () => {
               <button 
                 onClick={handleReRecord}
                 disabled={recordingStatus !== 'recorded'}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg font-body-md transition-colors ${recordingStatus === 'recorded' ? 'text-text-primary bg-surface-container hover:bg-surface-bright border border-outline-variant' : 'text-text-muted opacity-50 cursor-not-allowed'}`}
+                className={`flex items-center gap-1.5 lg:gap-2 px-2 py-1.5 lg:px-3 lg:py-2 rounded-lg text-[12px] lg:font-body-md transition-colors flex-shrink-0 ${recordingStatus === 'recorded' ? 'text-text-primary bg-surface-container hover:bg-surface-bright border border-outline-variant' : 'text-text-muted opacity-50 cursor-not-allowed'}`}
               >
-                <span className="material-symbols-outlined">replay</span>
+                <span className="material-symbols-outlined text-[16px] lg:text-[20px]">replay</span>
                 Re-record
               </button>
               
-              <label className={`flex items-center gap-2 font-body-md px-3 py-2 transition-colors cursor-pointer ml-2 ${recordingStatus === 'recording' ? 'text-text-muted opacity-50 cursor-not-allowed' : 'text-text-muted hover:text-text-primary'}`}>
-                <span className="material-symbols-outlined">upload</span>
+              <label className={`flex items-center gap-1.5 lg:gap-2 text-[12px] lg:font-body-md px-2 py-1.5 lg:px-3 lg:py-2 transition-colors cursor-pointer lg:ml-1 flex-shrink-0 ${recordingStatus === 'recording' ? 'text-text-muted opacity-50 cursor-not-allowed' : 'text-text-muted hover:text-text-primary'}`}>
+                <span className="material-symbols-outlined text-[16px] lg:text-[20px]">upload</span>
                 Upload
                 <input 
                   type="file" 
@@ -469,21 +469,23 @@ const VideoResumeRecorder = () => {
                 />
               </label>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3">
-                <Toggle
-                  checked={showPrompt}
-                  onChange={togglePrompt}
-                />
-                <span className="font-label-md text-label-md text-text-muted">Teleprompter</span>
+            <div className="flex flex-wrap lg:flex-nowrap items-center gap-3 lg:gap-4 ml-auto">
+              <div className="flex items-center gap-2 lg:gap-3">
+                <div className="scale-90 lg:scale-100 origin-right">
+                  <Toggle
+                    checked={showPrompt}
+                    onChange={togglePrompt}
+                  />
+                </div>
+                <span className="text-[12px] lg:font-label-md lg:text-label-md text-text-muted whitespace-nowrap">Teleprompter</span>
               </div>
-              <div className="w-px h-6 bg-border-input mx-1"></div>
+              <div className="hidden lg:block w-px h-6 bg-border-input mx-1"></div>
               <button 
                 onClick={handleSave}
                 disabled={recordingStatus !== 'recorded'}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-headline-sm transition-all ${recordingStatus === 'recorded' ? 'bg-primary text-white hover:brightness-110 shadow-lg shadow-primary/20 active:scale-95' : 'bg-surface-container text-text-muted opacity-50 cursor-not-allowed border border-outline-variant'}`}
+                className={`flex items-center gap-1.5 lg:gap-2 px-3 py-1.5 lg:px-4 lg:py-2 rounded-lg text-sm lg:font-headline-sm transition-all flex-shrink-0 ${recordingStatus === 'recorded' ? 'bg-primary text-white hover:brightness-110 shadow-lg shadow-primary/20 active:scale-95' : 'bg-surface-container text-text-muted opacity-50 cursor-not-allowed border border-outline-variant'}`}
               >
-                <span className="material-symbols-outlined text-[18px]">publish</span>
+                <span className="material-symbols-outlined text-[16px] lg:text-[18px]">publish</span>
                 Publish
               </button>
             </div>
