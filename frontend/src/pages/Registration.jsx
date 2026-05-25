@@ -130,6 +130,7 @@ const Step1 = ({ onNext, role, setRole, formData, updateFormData }) => {
       alert("Google Account successfully linked! You may now click Continue.");
     } catch (error) {
       console.error("Error signing up with Google", error);
+      alert("Error linking Google account: " + error.message);
     }
   };
 
