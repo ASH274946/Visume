@@ -56,31 +56,39 @@ const HeroSection = ({ profileData, onScheduleInterview, onViewResume }) => {
   );
 };
 
-const VideoResume = ({ onPlayVideo }) => (
-  <section className="space-y-md">
-    <div className="flex items-center justify-between">
-      <h2 className="font-headline-md text-headline-md font-bold text-text-primary flex items-center gap-2">
-        <span className="material-symbols-outlined text-primary">videocam</span>
-        Video Resume
-      </h2>
-      <div className="flex gap-4 text-text-muted font-label-md text-label-md">
-        <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">visibility</span> 1.2k Views</span>
-        <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">timer</span> 01:45</span>
+const VideoResumesGrid = ({ onPlayVideo, resumes }) => {
+  if (!resumes || resumes.length === 0) return null;
+
+  return (
+    <section className="space-y-md">
+      <div className="flex items-center justify-between">
+        <h2 className="font-headline-md text-headline-md font-bold text-text-primary flex items-center gap-2">
+          <span className="material-symbols-outlined text-primary">videocam</span>
+          Video Resumes
+        </h2>
       </div>
-    </div>
-    <div onClick={onPlayVideo} className="aspect-video w-full rounded-xl bg-surface-dim border border-border-input relative overflow-hidden group cursor-pointer">
-      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all flex items-center justify-center z-10">
-        <div className="w-20 h-20 rounded-full bg-primary/90 flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-transform">
-          <span className="material-symbols-outlined text-white text-5xl" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
+        {resumes.map(resume => (
+          <div key={resume.id} onClick={() => onPlayVideo(resume)} className="aspect-video w-full rounded-xl bg-surface-dim border border-border-input relative overflow-hidden group cursor-pointer">
+            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all flex items-center justify-center z-10">
+              <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-transform">
+                <span className="material-symbols-outlined text-white text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
+              </div>
+            </div>
+            <img alt={resume.title} className="w-full h-full object-cover" src={resume.thumbnailUrl}/>
+            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent z-10 flex justify-between items-end">
+              <p className="font-headline-sm text-headline-sm text-white truncate pr-2">{resume.title}</p>
+              <div className="flex gap-3 text-white/80 font-label-sm text-label-sm shrink-0">
+                <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">visibility</span> {resume.views}</span>
+                <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">timer</span> {resume.duration}</span>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
-      <img alt="Video Resume Cover" className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=256&h=256&q=80"/>
-      <div className="absolute bottom-0 left-0 right-0 p-lg bg-gradient-to-t from-black/80 to-transparent z-10">
-        <p className="font-headline-sm text-headline-sm text-white">"Designing the Future of SaaS Interfaces"</p>
-      </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 const Skills = () => (
   <div className="card-bg border border-border-input rounded-xl p-lg space-y-md">
@@ -217,8 +225,12 @@ const CandidateProfile = () => {
   const role = localStorage.getItem('visume_role') || 'candidate';
   const [showInterviewModal, setShowInterviewModal] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
+  const [activeVideoTitle, setActiveVideoTitle] = useState('');
+  const [activeVideoDuration, setActiveVideoDuration] = useState('');
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
+  
+  const [videoResumes, setVideoResumes] = useState(() => JSON.parse(localStorage.getItem('visume_video_resumes') || '[]'));
   
   let profileData = null;
   const savedData = localStorage.getItem('visume_profile_data');
@@ -238,7 +250,9 @@ const CandidateProfile = () => {
     alert('Resume download would be initiated here. In a real app, this would download the PDF.');
   };
 
-  const handlePlayVideo = () => {
+  const handlePlayVideo = (resume) => {
+    setActiveVideoTitle(resume.title);
+    setActiveVideoDuration(resume.duration);
     setShowVideoModal(true);
   };
 
@@ -255,7 +269,7 @@ const CandidateProfile = () => {
           onScheduleInterview={handleScheduleInterview}
           onViewResume={handleViewResume}
         />
-        <VideoResume onPlayVideo={handlePlayVideo} />
+        <VideoResumesGrid onPlayVideo={handlePlayVideo} resumes={videoResumes} />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
           <div className="lg:col-span-7 space-y-lg">
             <Skills />
@@ -316,8 +330,8 @@ const CandidateProfile = () => {
               </div>
               <div className="p-6 flex justify-between items-center">
                 <div>
-                  <h3 className="text-headline-md font-display text-text-primary">"Designing the Future of SaaS Interfaces"</h3>
-                  <p className="text-body-md text-text-muted mt-1">Duration: 01:45</p>
+                  <h3 className="text-headline-md font-display text-text-primary">{activeVideoTitle}</h3>
+                  <p className="text-body-md text-text-muted mt-1">Duration: {activeVideoDuration}</p>
                 </div>
                 <button onClick={() => setShowVideoModal(false)} className="text-text-muted hover:text-white transition-colors">
                   <span className="material-symbols-outlined text-2xl">close</span>
@@ -370,7 +384,7 @@ const CandidateProfile = () => {
           onScheduleInterview={handleScheduleInterview}
           onViewResume={handleViewResume}
         />
-        <VideoResume onPlayVideo={handlePlayVideo} />
+        <VideoResumesGrid onPlayVideo={handlePlayVideo} resumes={videoResumes} />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
           <div className="lg:col-span-7 space-y-lg">
             <Skills />
