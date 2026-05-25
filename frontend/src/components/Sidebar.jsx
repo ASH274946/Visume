@@ -53,15 +53,15 @@ const Sidebar = ({ role = 'candidate', activePage = '' }) => {
           </Link>
         </div>
         <div className="p-4 border-t border-outline-variant">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-surface-bright overflow-hidden">
+          <Link to="/settings" state={{ role: 'recruiter', tab: 'profile' }} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+            <div className="w-10 h-10 rounded-lg bg-surface-bright overflow-hidden shrink-0">
               <img alt="Company Logo" className="w-full h-full object-cover" src="https://logo.clearbit.com/stripe.com" />
             </div>
             <div className="overflow-hidden">
               <p className="font-body-sm text-text-primary font-bold truncate">NovaStream AI</p>
               <p className="font-label-md text-text-muted text-[11px]">Enterprise Plan</p>
             </div>
-          </div>
+          </Link>
         </div>
       </aside>
     );
@@ -123,18 +123,18 @@ const Sidebar = ({ role = 'candidate', activePage = '' }) => {
         </Link>
       </div>
       <div className="p-4 border-t border-outline-variant">
-        <div className="flex items-center gap-3">
-          <div className="relative">
+        <Link to="/settings" state={{ role: 'candidate', tab: 'profile' }} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+          <div className="relative shrink-0">
             <img alt="User Profile" className="w-10 h-10 rounded-full object-cover" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&h=256&q=80" />
             <div className="absolute -bottom-1 -right-1 bg-green-500 w-3 h-3 rounded-full border-2 border-surface-container"></div>
           </div>
-          <div className="flex flex-col">
-            <span className="font-body-sm text-text-primary font-bold">Ashwin Kumar</span>
+          <div className="flex flex-col overflow-hidden">
+            <span className="font-body-sm text-text-primary font-bold truncate">Ashwin Kumar</span>
             <div className="flex items-center gap-1">
               <span className="bg-tertiary-container/20 text-tertiary text-[10px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">KYC Verified</span>
             </div>
           </div>
-        </div>
+        </Link>
       </div>
     </aside>
   );

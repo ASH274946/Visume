@@ -21,7 +21,14 @@ const SettingsPage = () => {
   // Set role from router state, local storage, or default to candidate
   const initialRole = location.state?.role || localStorage.getItem('visume_role') || 'candidate';
   const [role, setRole] = useState(initialRole);
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState(location.state?.tab || 'profile');
+  
+  useEffect(() => {
+    if (location.state?.tab) {
+      setActiveTab(location.state.tab);
+    }
+  }, [location.state?.tab]);
+  
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => {

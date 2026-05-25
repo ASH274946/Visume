@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { auth, googleProvider, signInWithPopup } from '../firebase';
+import { getAdditionalUserInfo, signInWithEmailAndPassword } from 'firebase/auth';
 
 const VisumeLoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   let role = 'candidate';
   if (location.state?.redirectTo === '/recruiter') {
@@ -14,15 +18,48 @@ const VisumeLoginPage = () => {
     role = localStorage.getItem('visume_role') || 'candidate';
   }
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Set a flag in localStorage that the user is logged in
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('visume_role', role);
-    
-    // Get the redirect path from state, default based on role
-    const from = location.state?.redirectTo || (role === 'recruiter' ? '/recruiter' : '/dashboard');
-    navigate(from, { replace: true });
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      // Set a flag in localStorage that the user is logged in
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('visume_role', role);
+      
+      // Get the redirect path from state, default based on role
+      const from = location.state?.redirectTo || (role === 'recruiter' ? '/recruiter' : '/dashboard');
+      navigate(from, { replace: true });
+    } catch (error) {
+      console.error("Error logging in:", error);
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
+        alert("Account not found or invalid credentials. Please sign up or try again!");
+      } else {
+        alert("Error logging in: " + error.message);
+      }
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const additionalInfo = getAdditionalUserInfo(result);
+
+      if (additionalInfo.isNewUser) {
+        // User doesn't have an account yet, but they tried to log in
+        // Delete the accidentally created account and redirect to signup
+        await result.user.delete();
+        alert("We couldn't find an account for this email. Please sign up first!");
+        navigate('/register');
+        return;
+      }
+
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('visume_role', role);
+      const from = location.state?.redirectTo || (role === 'recruiter' ? '/recruiter' : '/dashboard');
+      navigate(from, { replace: true });
+    } catch (error) {
+      console.error("Error signing in with Google", error);
+    }
   };
 
   return (
@@ -56,6 +93,9 @@ const VisumeLoginPage = () => {
                 className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" 
                 placeholder="you@example.com" 
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
             
@@ -68,6 +108,9 @@ const VisumeLoginPage = () => {
                 className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" 
                 placeholder="••••••••" 
                 type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
               />
             </div>
 
@@ -86,6 +129,7 @@ const VisumeLoginPage = () => {
 
             <button 
               type="button"
+              onClick={handleGoogleSignIn}
               className="w-full bg-surface-container border border-border-input text-text-primary font-label-md py-md rounded-lg hover:bg-surface-dim active:scale-[0.98] transition-all font-bold flex items-center justify-center gap-3"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

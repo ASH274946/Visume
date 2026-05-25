@@ -6,7 +6,7 @@ import VideoResumeRecorder from './pages/VideoResumeRecorder';
 import JobDiscoveryPage from './pages/JobDiscoveryPage';
 import RecruiterDashboard from './pages/RecruiterDashboard';
 import HiringPipeline from './pages/HiringPipeline';
-import CandidateRegistration from './pages/CandidateRegistration';
+import Registration from './pages/Registration';
 import CandidateProfile from './pages/CandidateProfile';
 import VisumeLoginPage from './pages/VisumeLoginPage';
 import PostJob from './pages/PostJob';
@@ -61,7 +61,7 @@ function App() {
         <Routes>
           {/* Public Pages */}
           <Route path="/" element={<PublicRoute><VisumeLandingPage /></PublicRoute>} />
-          <Route path="/register" element={<PublicRoute><CandidateRegistration /></PublicRoute>} />
+          <Route path="/register" element={<PublicRoute><Registration /></PublicRoute>} />
           <Route path="/login" element={<PublicRoute><VisumeLoginPage /></PublicRoute>} />
           <Route path="/how-it-works" element={<HowItWorksPage />} />
           <Route path="/pricing" element={<PricingPage />} />
