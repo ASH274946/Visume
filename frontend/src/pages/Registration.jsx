@@ -115,6 +115,9 @@ const Step1 = ({ onNext, role, setRole, formData, updateFormData }) => {
       if (result.user.displayName) {
          updateFormData({ fullName: result.user.displayName });
       }
+      if (result.user.photoURL) {
+         updateFormData({ profileImage: result.user.photoURL });
+      }
 
       if (!additionalInfo.isNewUser) {
         // User already has an account! Log them in and bypass the rest of the signup

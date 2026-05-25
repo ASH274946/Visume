@@ -53,6 +53,12 @@ const VisumeLoginPage = () => {
         return;
       }
 
+      if (result.user.photoURL) {
+        let profileData = JSON.parse(localStorage.getItem('visume_profile_data')) || {};
+        profileData.profileImage = result.user.photoURL;
+        localStorage.setItem('visume_profile_data', JSON.stringify(profileData));
+      }
+
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('visume_role', role);
       const from = location.state?.redirectTo || (role === 'recruiter' ? '/recruiter' : '/dashboard');

@@ -62,6 +62,9 @@ const SettingsPage = () => {
     return {
       // Profile
       fullName: initialRole === 'recruiter' ? 'Sarah Jenkins' : 'Ashwin Kumar',
+      profileImage: initialRole === 'recruiter' 
+        ? "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80"
+        : "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=256&h=256&q=80",
       email: initialRole === 'recruiter' ? 'sarah.jenkins@novastream.ai' : 'ashwin.kumar@gmail.com',
       headline: initialRole === 'recruiter' ? 'Talent Acquisition Director' : 'Senior React Developer & UI Specialist',
       location: initialRole === 'recruiter' ? 'Bengaluru, India' : 'Chennai, India',
@@ -129,6 +132,9 @@ const SettingsPage = () => {
     setFormData(prev => ({
       ...prev,
       fullName: newRole === 'recruiter' ? 'Sarah Jenkins' : 'Ashwin Kumar',
+      profileImage: newRole === 'recruiter' 
+        ? "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80"
+        : "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=256&h=256&q=80",
       email: newRole === 'recruiter' ? 'sarah.jenkins@novastream.ai' : 'ashwin.kumar@gmail.com',
       headline: newRole === 'recruiter' ? 'Talent Acquisition Director' : 'Senior React Developer & UI Specialist',
       location: newRole === 'recruiter' ? 'Bengaluru, India' : 'Chennai, India',
@@ -222,12 +228,15 @@ const SettingsPage = () => {
                       <img
                         alt="Avatar"
                         className="w-full h-full object-cover"
-                        src={role === 'recruiter' 
-                          ? "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=256&h=256&q=80"
-                          : "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=256&h=256&q=80"
-                        }
+                        src={formData.profileImage}
                       />
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                      <div 
+                        onClick={() => {
+                          const newUrl = window.prompt("Enter new Profile Image URL (Leave blank to cancel):", formData.profileImage);
+                          if (newUrl) setFormData(prev => ({ ...prev, profileImage: newUrl }));
+                        }}
+                        className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                      >
                         <span className="material-symbols-outlined text-white text-sm">photo_camera</span>
                       </div>
                     </div>
@@ -235,7 +244,14 @@ const SettingsPage = () => {
                   <div className="flex-1 space-y-2 text-center md:text-left">
                     <p className="font-headline-sm text-text-primary font-bold">{formData.fullName}</p>
                     <p className="font-body-sm text-text-muted">{role === 'recruiter' ? 'Verified Corporate Recruiter' : 'KYC Status: Verified'}</p>
-                    <button type="button" className="border border-outline-variant hover:border-primary px-4 py-1.5 rounded-lg text-label-md font-bold transition-all text-text-primary bg-surface-container-low hover:bg-surface-container-high">
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        const newUrl = window.prompt("Enter new Profile Image URL (Leave blank to cancel):", formData.profileImage);
+                        if (newUrl) setFormData(prev => ({ ...prev, profileImage: newUrl }));
+                      }}
+                      className="border border-outline-variant hover:border-primary px-4 py-1.5 rounded-lg text-label-md font-bold transition-all text-text-primary bg-surface-container-low hover:bg-surface-container-high"
+                    >
                       Update Profile Picture
                     </button>
                   </div>
