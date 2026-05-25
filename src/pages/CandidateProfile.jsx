@@ -18,7 +18,7 @@ const HeroSection = ({ profileData }) => {
   <section className="card-bg border border-border-input rounded-xl p-lg relative overflow-hidden hero-gradient">
     <div className="flex flex-col md:flex-row items-center md:items-end gap-lg relative z-10">
       <div className="w-24 h-24 rounded-full border-4 border-primary ring-4 ring-primary/20 overflow-hidden shadow-2xl shrink-0">
-        <img alt="Candidate" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkfy9Feu-zDXjrtSO-Djz6s4KPq9x30a3IShW_hgguKUiS5VAxFHn-3YThX51z9mpVeMbiOsRjNmSGpSz8_1nHWQw1_n9gU4NvSsGLEZDerT-JTzuwRr1IBDx2Z_x0BJmZ8XlLRwW1GA8zjp_hsKqhhqf546R9ZOJ-sMFDtfYS_BO4LbZoXSpJKkA5f1DDH69RmnNdrGUmwg3DRJaHowy3wJZGMbjhoI7v2B-hKtjB7dWPNASplmpIlr5qIrv_4M5lLHOLIk8IRPI"/>
+        <img alt="Candidate" className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=256&h=256&q=80"/>
       </div>
       <div className="flex-grow text-center md:text-left space-y-2">
         <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
@@ -68,7 +68,7 @@ const VideoResume = () => (
           <span className="material-symbols-outlined text-white text-5xl" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
         </div>
       </div>
-      <img alt="Video Resume Cover" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlKIqavd7BZl-9QDY-2sJxoe32jflqHra0k9pX2Rs0x5YPNAs6pqgI-5P5d9TCImBjlW01w4StzoikmaOX2A28tgFWyZjZN7L4uR2IRa5RVuRM11mKBW0BY20sorz40qF-kJfjxWRaM0QpTnyNpedRxmY1xDPo416BFd5uw_ER8f6VNCo75WTMSfwS-Oa0sx1PChTNY5ej_xmxcqnVl1HGVi2Ik7odzC4_dp-XFi-6cNtDO2g7Epd3yXMeaBNnIJjAzHbMyFnZ7Y4"/>
+      <img alt="Video Resume Cover" className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=256&h=256&q=80"/>
       <div className="absolute bottom-0 left-0 right-0 p-lg bg-gradient-to-t from-black/80 to-transparent z-10">
         <p className="font-headline-sm text-headline-sm text-white">"Designing the Future of SaaS Interfaces"</p>
       </div>
@@ -167,7 +167,7 @@ const Portfolio = () => (
     <div className="space-y-md">
       <div className="card-bg border border-border-input rounded-xl overflow-hidden group cursor-pointer hover:border-primary transition-all">
         <div className="h-40 overflow-hidden">
-          <img alt="Project 1" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTGX0qfW3OBHO-GncgYEDe4VsgT5F9r_zfw3DJPN2gTumHa10C41bh77ET3KJqu4vzdu1goYVk05FB73cva0gGTJZkuL-5mShFSRzoficAmqPUfjFiWI1Whj--x5O4-DU1TlFRfL5AOgo4YHONlT3Msx30AO9F4pqjtoQXwNPn9PYML4JJbQ9EbIiiOY13LW47bF_E-xxVVv7AvZHNgnJDE5GmKFJtPJNPoryNTjQ0Ld2zRMU8FKBE4hl0nc3_zrOyndQBdCNzDek"/>
+          <img alt="Project 1" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=256&h=256&q=80"/>
         </div>
         <div className="p-md">
           <h4 className="font-headline-sm text-headline-sm text-text-primary">Stellar Finance UI</h4>
@@ -179,7 +179,7 @@ const Portfolio = () => (
       </div>
       <div className="card-bg border border-border-input rounded-xl overflow-hidden group cursor-pointer hover:border-primary transition-all">
         <div className="h-40 overflow-hidden">
-          <img alt="Project 2" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAR0_fgL7pdShqXyJUUq6Ed5T6z2cWyAT2amtNYotqW54wpMB_HZMju8I_bd3egObQyuVAuIdjhWPmgG_uzwBOStlln7IT5hnCbDx4X77uGnhdY1TmVZdx7kBkzGhJqGOhlEg0ktIXjgopaNQX1cGYISrmQUHUWMiYeurRIYAQKfmMp1kV-Akddnb5zAzdy3y_1kzMAqSU3yVlDVa7u9jopoOwUra6q5IYioV72T6oGn_CmDMTH4NNPF_c3rCoME18AxwKXsuvasY4"/>
+          <img alt="Project 2" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&h=256&q=80"/>
         </div>
         <div className="p-md">
           <h4 className="font-headline-sm text-headline-sm text-text-primary">Motion Identity Pack</h4>

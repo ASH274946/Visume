@@ -62,7 +62,7 @@ const VideoResumeRecorder = () => {
             <img 
               className="absolute inset-0 w-full h-full object-cover opacity-20 grayscale group-hover:opacity-30 transition-opacity z-10" 
               alt="Studio Background"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuADcgmg_gOsBnBOrEA-z9hCrjge7rRhCcdQ2wwbPtCubR_od0pzjKBg-JdWg3wKV7NOiBEJc76xLQQSJj3fEzmh1eucqm_m6cE0KTq1XNhmwk76NEzMlboCyBuxgKYY1ei_6nQr57q16zw3LODP7medT7fat1FIId7pCp3fF5ORSzzNQauGj9uyF9QcVCjetJVIG5J9GANfzAytlvLWo5bNrFPEjSREhce3gKCsu-33ZdRNSLYgC0IDE6b92E_mzPRtgIveNg3QbMQ" 
+              src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&h=256&q=80" 
             />
           </div>
           

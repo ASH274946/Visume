@@ -43,7 +43,7 @@ const Hero = () => (
             <img 
               alt="Candidate profile video thumbnail" 
               className="w-full h-full object-cover" 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDQ3tj9nezhfYkb39Tf8eyXO5DRnd7y-VjGi8sEjkzEr-9r_LkswXuT6W__y2BDQgqimDxLsGq8nKTPOMJaH3xJt-5eXhj1dm69clyBXR3huOYBD__BV2dsbF7ALTK6UQW8hfQCpzZKXwtbTm8yLj3SvIhg_6RGX5XRzPwQ4b9VQfeyY4jNVin2Zsj7iGZ9JohbtuiXzM9yteolIG_gp09ourdcPamQnhLnFuBvubNJ4gYfohxayaZuQc_aqwt3y_9lAg7YeDetTc"
+              src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=256&h=256&q=80"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
             {/* AI Badge */}

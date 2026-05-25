@@ -58,7 +58,7 @@ const StatsRow = () => (
 const VideoResumeCard = () => (
   <section className="bg-card-bg border border-outline-variant rounded-xl p-lg mb-xl flex flex-col md:flex-row gap-lg items-center">
     <div className="w-full md:w-1/2 aspect-video rounded-xl overflow-hidden relative group cursor-pointer border border-outline-variant">
-      <img alt="Video Resume Preview" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_GF5MJ5bsHxGVaK7hfiEk4JsPfW918undolrN6k6kvZSaSeW9lED9IULTwqvgxAYRBxQfpwoBK3PGEUowoHLkakXcdbtyuyfq9ysOhcyMWScdoUe1MXt6-V-NrVOcz5ytnycpVDaqQNfnVRTjMvpesUrhRfjIaS0LXQGsl1DtIyRaAuZIlhhKsZVLkHt0ZoufCLH9b5tmDDhMm_h6hILURl6Agw71lEOM1rgLpQZNuKTI9YvySXZHIyGmMKYsvh3vTinIB_3Hnco" />
+      <img alt="Video Resume Preview" className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&h=256&q=80" />
       <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/20 transition-all">
         <div className="w-16 h-16 rounded-full bg-primary-container flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
           <span className="material-symbols-outlined text-white text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
@@ -97,7 +97,7 @@ const RecommendedJobs = () => (
         <div className="flex justify-between items-start mb-4">
           <div className="flex gap-4 items-center">
             <div className="w-12 h-12 rounded-full bg-surface-bright/20 flex items-center justify-center border border-outline-variant overflow-hidden">
-              <img alt="Company Logo" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzKPmbzbR76U4h2XDpCWhDK4r1MxV_fxJrT1PDyDBQN0J0ZiGg_i1Dsz1e0cY08_LSOWF0jCvrddSgI9qhsFr5Po6yCN9w3ViUDimQJ8k7qo0Qs_wIsQoEGBbcGPIwWP67FORaWTgj-Cx2gz6VDAQ6V4bhrzrdYf6pJRGNbtcRRHWmlWIeDNfvwUSrDdupp0WFhaAFIhn4qrC6BBbiP1MlRm4T0rZPLQQoDr30mQNx6jecOdfH-s7OKYcoIMu5gD9wKY3ZzeR4uIE" />
+              <img alt="Company Logo" className="w-full h-full object-cover" src="https://logo.clearbit.com/spotify.com" />
             </div>
             <div>
               <h3 className="font-display text-headline-sm text-text-primary">Lead UI Designer</h3>
@@ -134,7 +134,7 @@ const RecommendedJobs = () => (
         <div className="flex justify-between items-start mb-4">
           <div className="flex gap-4 items-center">
             <div className="w-12 h-12 rounded-full bg-surface-bright/20 flex items-center justify-center border border-outline-variant overflow-hidden">
-              <img alt="Company Logo" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiZC7QvM4WWJjYrKE_YJOGoHxaepeutJan3fxUnBZ4mqW-FtYIAWrSb4HqXrW7go6GePkBPSmxUKjgtIgXDGIFyCNndbQeAQZ77IeFjU2s-u0zE398Xc2qn2ttFVPDrbCWFq7A7UwTlVVNXn2CY_nSwivijM1n7VHc-67DiCqRomEElpwdIqqYGKUnDqFskPBFcCi9Gz31RYt4Z-tz0506I_3FmWxoJmNjiUNZ1cgsPtM61nSgTDYqUthZfa3H6OkmHDPn4gSnC_I" />
+              <img alt="Company Logo" className="w-full h-full object-cover" src="https://logo.clearbit.com/airbnb.com" />
             </div>
             <div>
               <h3 className="font-display text-headline-sm text-text-primary">Product Manager</h3>

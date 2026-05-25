@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import CustomSelect from '../components/CustomSelect';
 
 const TopNav = () => (
   <nav className="glass-header sticky top-0 z-50 h-16 flex items-center px-gutter w-full">
@@ -178,7 +179,7 @@ const Step3 = () => {
       </div>
       <div className="flex justify-center mb-xl">
         <div className="relative w-[96px] h-[96px] group cursor-pointer">
-          <img alt="Profile" className="w-full h-full rounded-full object-cover border-2 border-primary-container" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACm6nwZFh_zSvslD0I58WMRSgFPnWA4pa_o7MukiFAmnm5t6qz5m810BPqR5WwNrrH2vDr1XYm7Y_TKRl2-MYBPp4bGJPMyYBPyzb2rgGd7Fyyo6YQXP0byhgLhSvTjKdHYdVJb3ZJ-kil5KyBe5WHMHP8fcoNwRyyJNzc-lBvQENcsH7kdqJnyvpIJ_-l5QdZm0nxmsiOMB-03_iTD8xlaEat1FC05aX6UO0evyE0trZj5jzbItInC-cvAt7SH45PryPeJSscz8I"/>
+          <img alt="Profile" className="w-full h-full rounded-full object-cover border-2 border-primary-container" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=256&h=256&q=80"/>
           <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
             <span className="material-symbols-outlined text-white">photo_camera</span>
           </div>
@@ -211,12 +212,18 @@ const Step3 = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
           <div className="flex flex-col gap-xs">
             <label className="font-label-md text-text-muted">Location</label>
-            <select className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary appearance-none">
-              <option>San Francisco, CA</option>
-              <option>New York, NY</option>
-              <option>London, UK</option>
-              <option>Remote</option>
-            </select>
+            <CustomSelect
+              name="location"
+              value=""
+              onChange={() => {}}
+              options={[
+                { value: 'San Francisco, CA', label: 'San Francisco, CA' },
+                { value: 'New York, NY', label: 'New York, NY' },
+                { value: 'London, UK', label: 'London, UK' },
+                { value: 'Remote', label: 'Remote' }
+              ]}
+              placeholder="Select location"
+            />
           </div>
           <div className="flex flex-col gap-xs">
             <label className="font-label-md text-text-muted">LinkedIn URL <span className="text-text-muted opacity-60">(Optional)</span></label>

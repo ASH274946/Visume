@@ -5,13 +5,23 @@ const VisumeLoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  let role = 'candidate';
+  if (location.state?.redirectTo === '/recruiter') {
+    role = 'recruiter';
+  } else if (location.state?.redirectTo === '/dashboard' || location.state?.redirectTo === '/recorder') {
+    role = 'candidate';
+  } else {
+    role = localStorage.getItem('visume_role') || 'candidate';
+  }
+
   const handleLogin = (e) => {
     e.preventDefault();
     // Set a flag in localStorage that the user is logged in
     localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('visume_role', role);
     
-    // Get the redirect path from state, default to '/dashboard'
-    const from = location.state?.redirectTo || '/dashboard';
+    // Get the redirect path from state, default based on role
+    const from = location.state?.redirectTo || (role === 'recruiter' ? '/recruiter' : '/dashboard');
     navigate(from, { replace: true });
   };
 
@@ -19,7 +29,12 @@ const VisumeLoginPage = () => {
     <div className="min-h-screen bg-background text-text-primary font-body-md flex flex-col">
       <nav className="glass-header sticky top-0 z-50 h-16 flex items-center px-gutter w-full border-b border-border-base">
         <div className="max-w-container-max mx-auto w-full flex justify-between items-center">
-          <Link className="font-display text-headline-md font-bold text-primary-container" to="/">Visume</Link>
+          <div className="flex items-center gap-2">
+            <Link className="font-display text-headline-md font-bold text-primary-container" to="/">Visume</Link>
+            <span className="bg-primary-container/10 text-primary-container text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wider">
+              {role === 'recruiter' ? 'Recruiter' : 'Candidate'}
+            </span>
+          </div>
           <div className="hidden md:flex gap-sm">
             <span className="text-text-muted font-body-sm">Don't have an account?</span>
             <Link className="text-primary-container font-label-md hover:underline" to="/register">Sign Up</Link>

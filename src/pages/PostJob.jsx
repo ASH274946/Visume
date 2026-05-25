@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import CustomSelect from '../components/CustomSelect';
+import CustomDatePicker from '../components/CustomDatePicker';
 
 
 const PostJob = () => {
+  const [deadline, setDeadline] = useState('');
+
   return (
     <>
       <div className="w-full max-w-[720px] mx-auto">
@@ -20,18 +24,22 @@ const PostJob = () => {
               <input type="text" placeholder="e.g. Senior React Developer" className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all" />
             </div>
 
-            {/* Department */}
             <div className="flex flex-col gap-2">
               <label className="text-label-md text-text-primary font-bold">Department</label>
-              <select className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all appearance-none" defaultValue="">
-                <option value="" disabled>Select a department</option>
-                <option value="engineering">Engineering</option>
-                <option value="design">Design</option>
-                <option value="marketing">Marketing</option>
-                <option value="sales">Sales</option>
-                <option value="hr">HR</option>
-                <option value="finance">Finance</option>
-              </select>
+              <CustomSelect
+                name="department"
+                value=""
+                onChange={() => {}}
+                options={[
+                  { value: 'engineering', label: 'Engineering' },
+                  { value: 'design', label: 'Design' },
+                  { value: 'marketing', label: 'Marketing' },
+                  { value: 'sales', label: 'Sales' },
+                  { value: 'hr', label: 'HR' },
+                  { value: 'finance', label: 'Finance' }
+                ]}
+                placeholder="Select a department"
+              />
             </div>
 
             {/* Work Mode */}
@@ -74,16 +82,20 @@ const PostJob = () => {
               </div>
             </div>
 
-            {/* Experience Required */}
             <div className="flex flex-col gap-2">
               <label className="text-label-md text-text-primary font-bold">Experience Required</label>
-              <select className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all appearance-none" defaultValue="">
-                <option value="" disabled>Select experience level</option>
-                <option value="fresher">Fresher</option>
-                <option value="1-3">1–3 yrs</option>
-                <option value="3-5">3–5 yrs</option>
-                <option value="5+">5+ yrs</option>
-              </select>
+              <CustomSelect
+                name="experience"
+                value=""
+                onChange={() => {}}
+                options={[
+                  { value: 'fresher', label: 'Fresher' },
+                  { value: '1-3', label: '1–3 yrs' },
+                  { value: '3-5', label: '3–5 yrs' },
+                  { value: '5+', label: '5+ yrs' }
+                ]}
+                placeholder="Select experience level"
+              />
             </div>
 
             {/* Required Skills */}
@@ -109,7 +121,7 @@ const PostJob = () => {
             {/* Application Deadline */}
             <div className="flex flex-col gap-2">
               <label className="text-label-md text-text-primary font-bold">Application Deadline</label>
-              <input type="date" className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-muted focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all [color-scheme:dark]" />
+              <CustomDatePicker name="deadline" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
             </div>
 
             <hr className="border-border-base my-sm" />

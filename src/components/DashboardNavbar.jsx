@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 const DashboardNavbar = ({ role = 'candidate' }) => {
@@ -22,12 +22,27 @@ const DashboardNavbar = ({ role = 'candidate' }) => {
   const pageName = getPageName(currentPath);
 
   const profileImage = role === 'recruiter'
-    ? "https://lh3.googleusercontent.com/aida-public/AB6AXuDNf2pjUzrkRvM99OTMYedpfBrRYOSG-5UPAj6qQ6cIPo2L33Fm5Jq39erhvobw6e_WZT_lykFSQ_AZVn20xTjCiJOUgUz5-eDAXvMTz9-xcbod8siIyiAm_AtZiBlg25B43ctasBZcoGJsUozrMmZutznU9iMgqWR9jw8NMW1uWfJyO6rM5zdMwtLU0a8eOnB7LpjjN1BL5ywIOivbPgQwBZux3jlfQz65oNm6diIcOqCCJUIRPp7UnvVAU87HkNnfUmd3jnK9NB0"
-    : "https://lh3.googleusercontent.com/aida-public/AB6AXuCif7mMcFeEQhrivL3z3iYapnS9er2kQ7XYLd4MuR0k9XdNq69mXT5OGqxxd69TMzoGOukTENlAj2Sv83x4bkp_Sv3X7SsVVYxKY7DqVn0lMSDDdn5UtHszx8X9yons-XE3U_VNoMV1yN3AoBQnPxsK20QsLD5z0mjpDq2EzinhRsjgwIgYS8hd_RebazNQGulE_Vbs5L86pkRVPmk1pUNont5dxsmD-5DVsS4EK_WczWR-gcIEqbw6IQdA7DRj3RSgR-GlT_7d1-Q";
+    ? "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80"
+    : "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=256&h=256&q=80";
+
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const notificationRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setShowNotifications(false);
+        setIsExpanded(false); // Reset expansion state when closing
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <header className="absolute top-0 left-0 right-0 z-40 px-lg pt-4 pb-2 backdrop-blur-xl bg-background/25 pointer-events-none">
-      <nav className="h-16 bg-surface-container/60 border border-outline-variant/65 rounded-xl flex items-center justify-between px-6 pointer-events-auto shadow-lg">
+      <nav className="h-16 bg-surface-container/60 border border-outline-variant/65 rounded-xl flex items-center justify-between px-6 pointer-events-auto shadow-lg relative">
         <div className="flex items-center gap-8">
           <h1 className="font-display text-headline-sm font-bold text-text-primary">
             {pageName}
@@ -49,10 +64,50 @@ const DashboardNavbar = ({ role = 'candidate' }) => {
               Post a Job
             </Link>
           )}
-          <button className="relative w-10 h-10 rounded-full bg-surface-container flex items-center justify-center border border-outline-variant hover:border-primary transition-all text-text-muted hover:text-text-primary shrink-0">
-            <span className="material-symbols-outlined text-[20px]">notifications</span>
-            <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-danger rounded-full border border-surface-container"></span>
-          </button>
+          <div className="relative" ref={notificationRef}>
+            <button 
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="relative w-10 h-10 rounded-full bg-surface-container flex items-center justify-center border border-outline-variant hover:border-primary transition-all text-text-muted hover:text-text-primary shrink-0"
+            >
+              <span className="material-symbols-outlined text-[20px]">notifications</span>
+              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-danger rounded-full border border-surface-container"></span>
+            </button>
+            {showNotifications && (
+              <div className="absolute right-0 mt-2 w-72 bg-surface-container-highest border border-outline-variant rounded-xl shadow-2xl overflow-hidden z-50">
+                <div className="p-4 border-b border-outline-variant flex justify-between items-center bg-surface-container">
+                  <h3 className="font-bold text-text-primary font-body-md">Notifications</h3>
+                  <button onClick={() => setShowNotifications(false)} className="text-xs text-primary font-bold hover:underline">Mark all read</button>
+                </div>
+                <div className={`overflow-y-auto custom-scrollbar transition-all duration-300 ${isExpanded ? 'max-h-[60vh]' : 'max-h-64'}`}>
+                  <div className="p-4 border-b border-outline-variant/50 hover:bg-surface-container/50 cursor-pointer transition-colors">
+                    <p className="text-sm text-text-primary mb-1"><span className="font-bold">Sarah Jenkins</span> applied for <span className="font-bold text-primary">Senior Frontend Engineer</span></p>
+                    <p className="text-xs text-text-muted">2 hours ago</p>
+                  </div>
+                  <div className="p-4 border-b border-outline-variant/50 hover:bg-surface-container/50 cursor-pointer transition-colors">
+                    <p className="text-sm text-text-primary mb-1">Your job post <span className="font-bold text-primary">UX Designer</span> is expiring soon</p>
+                    <p className="text-xs text-text-muted">1 day ago</p>
+                  </div>
+                  <div className="p-4 border-b border-outline-variant/50 hover:bg-surface-container/50 cursor-pointer transition-colors">
+                    <p className="text-sm text-text-primary mb-1"><span className="font-bold">Michael Chen</span> submitted a video response</p>
+                    <p className="text-xs text-text-muted">1 day ago</p>
+                  </div>
+                  <div className="p-4 border-b border-outline-variant/50 hover:bg-surface-container/50 cursor-pointer transition-colors">
+                    <p className="text-sm text-text-primary mb-1">New AI matches for <span className="font-bold text-primary">Product Manager</span></p>
+                    <p className="text-xs text-text-muted">2 days ago</p>
+                  </div>
+                  <div className="p-4 hover:bg-surface-container/50 cursor-pointer transition-colors">
+                    <p className="text-sm text-text-primary mb-1">System maintenance scheduled for weekend</p>
+                    <p className="text-xs text-text-muted">3 days ago</p>
+                  </div>
+                </div>
+                <div className="p-3 border-t border-outline-variant text-center bg-surface-container">
+                  <button onClick={() => setIsExpanded(!isExpanded)} className="text-sm text-primary font-bold hover:underline">
+                    {isExpanded ? 'Show Less' : 'View All'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
           <Link
             to="/settings"
             state={{ role: role }}

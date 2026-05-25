@@ -9,7 +9,7 @@ const candidatesData = [
     match: "94%",
     skills: ["Figma", "Prototyping", "User Research"],
     experience: "8 years",
-    imgSrc: "https://lh3.googleusercontent.com/aida-public/AB6AXuAlKIqavd7BZl-9QDY-2sJxoe32jflqHra0k9pX2Rs0x5YPNAs6pqgI-5P5d9TCImBjlW01w4StzoikmaOX2A28tgFWyZjZN7L4uR2IRa5RVuRM11mKBW0BY20sorz40qF-kJfjxWRaM0QpTnyNpedRxmY1xDPo416BFd5uw_ER8f6VNCo75WTMSfwS-Oa0sx1PChTNY5ej_xmxcqnVl1HGVi2Ik7odzC4_dp-XFi-6cNtDO2g7Epd3yXMeaBNnIJjAzHbMyFnZ7Y4"
+    imgSrc: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=256&h=256&q=80"
   },
   {
     id: 2,
@@ -19,7 +19,7 @@ const candidatesData = [
     match: "91%",
     skills: ["Growth", "SaaS", "Strategy"],
     experience: "6 years",
-    imgSrc: "https://lh3.googleusercontent.com/aida-public/AB6AXuCRB-8eb0mm0mj3bIRrxa_i3FqMCwkhopnm_2AELOGoyjCmQHqHJkKYTfCufEaAwJLmQ-xS1vKpJaTLHpwYHZ5FpjK_NkxbJPDtjx6uEYZBHqeUd3pes-VhhclRpuQsnupq5SuTGKZcYML7xhtPBBSsNOpjrFeUnXRDqMP77vUaUeaI0kdNy1XwrWSiB6-CG86-YJuNljRqWyG26OsUviRCwOZHOAnhpkx9ZE_J1K5kX0zufACc2KdloIbfXr_xXQfCRi8DEx7zFmc"
+    imgSrc: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80"
   },
   {
     id: 3,
@@ -29,7 +29,7 @@ const candidatesData = [
     match: "88%",
     skills: ["React", "TypeScript", "Tailwind"],
     experience: "4 years",
-    imgSrc: "https://lh3.googleusercontent.com/aida-public/AB6AXuDr8iCAVAhPScb_vdkwDSM7i-rKehbjU9T_oH_R_LzauB3AK0hSLlYufoBO69nrWY8Blwa8jc7ma2oYYuOm9py4Ov4EAiDv0zUm2-xfXdUiIkH8mKOQdvQJ8LJiDmrcGy7fUCvQb7huHv_xEoRdXKsHXqPvUAtNiLp3wzi06JcnPGt5SJAjB9lR7DwlrnVdhdJnixqda_Qo651DsBjwFSHpriGOu2FM8g0UU-nM06NmNoMIVOaR8YnS_nJF11HG-ewhQSgxnzM-Ey8"
+    imgSrc: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=256&h=256&q=80"
   },
   {
     id: 4,
@@ -39,7 +39,7 @@ const candidatesData = [
     match: "85%",
     skills: ["Node.js", "MongoDB", "AWS"],
     experience: "5 years",
-    imgSrc: "https://lh3.googleusercontent.com/aida-public/AB6AXuCif7mMcFeEQhrivL3z3iYapnS9er2kQ7XYLd4MuR0k9XdNq69mXT5OGqxxd69TMzoGOukTENlAj2Sv83x4bkp_Sv3X7SsVVYxKY7DqVn0lMSDDdn5UtHszx8X9yons-XE3U_VNoMV1yN3AoBQnPxsK20QsLD5z0mjpDq2EzinhRsjgwIgYS8hd_RebazNQGulE_Vbs5L86pkRVPmk1pUNont5dxsmD-5DVsS4EK_WczWR-gcIEqbw6IQdA7DRj3RSgR-GlT_7d1-Q"
+    imgSrc: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&h=256&q=80"
   },
   {
     id: 5,
@@ -49,7 +49,7 @@ const candidatesData = [
     match: "82%",
     skills: ["Agile", "Jira", "Roadmapping"],
     experience: "7 years",
-    imgSrc: "https://lh3.googleusercontent.com/aida-public/AB6AXuAkfy9Feu-zDXjrtSO-Djz6s4KPq9x30a3IShW_hgguKUiS5VAxFHn-3YThX51z9mpVeMbiOsRjNmSGpSz8_1nHWQw1_n9gU4NvSsGLEZDerT-JTzuwRr1IBDx2Z_x0BJmZ8XlLRwW1GA8zjp_hsKqhhqf546R9ZOJ-sMFDtfYS_BO4LbZoXSpJKkA5f1DDH69RmnNdrGUmwg3DRJaHowy3wJZGMbjhoI7v2B-hKtjB7dWPNASplmpIlr5qIrv_4M5lLHOLIk8IRPI"
+    imgSrc: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&h=256&q=80"
   },
   {
     id: 6,
@@ -59,7 +59,7 @@ const candidatesData = [
     match: "79%",
     skills: ["Python", "Machine Learning", "SQL"],
     experience: "3 years",
-    imgSrc: "https://lh3.googleusercontent.com/aida-public/AB6AXuCRB-8eb0mm0mj3bIRrxa_i3FqMCwkhopnm_2AELOGoyjCmQHqHJkKYTfCufEaAwJLmQ-xS1vKpJaTLHpwYHZ5FpjK_NkxbJPDtjx6uEYZBHqeUd3pes-VhhclRpuQsnupq5SuTGKZcYML7xhtPBBSsNOpjrFeUnXRDqMP77vUaUeaI0kdNy1XwrWSiB6-CG86-YJuNljRqWyG26OsUviRCwOZHOAnhpkx9ZE_J1K5kX0zufACc2KdloIbfXr_xXQfCRi8DEx7zFmc"
+    imgSrc: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=256&h=256&q=80"
   }
 ];
 

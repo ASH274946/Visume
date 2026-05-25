@@ -1,19 +1,20 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import CustomSelect from '../components/CustomSelect';
 
 const initialPipelineData = {
   applied: [
     {
       id: 'c1',
       name: "Alexandria Chen", role: "UX/UI Designer", match: "94%", 
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCb7aycUNrC_dcxW5mCfNPMdbLUmmBy5DomHlX7GcBOzNVzU2u4qBlqovfKd25iG9iVJYz3RUbAtVV6iRh7P64NOiPAzHrQUeItgkxA6LopELrYU-9mx_yuvh5FE5UJWBpBfd4np1w6HYiNfsBHPg3FZM0morVkYbxFYdNaa6pU3K-n4n-Swirqjo7CmbgWb3U1bhe-KgYKQ3d1IRdDQPu1C5ImZbGMCVAlWsm_QdCunzq75K0mlcawC8Cy6Ab0kA_0xLdAmzpqL8M",
+      img: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=256&h=256&q=80",
       tags: ["Figma", "React"],
       actions: [{icon: 'visibility', color: 'primary-container'}, {icon: 'calendar_today', color: 'status-interview'}, {icon: 'close', color: 'danger'}]
     },
     {
       id: 'c2',
       name: "Marcus Thorne", role: "Sr. Interaction Lead", match: "88%", 
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCZctDYqtMjFv0u7J6PhTjTJksL2v6gifATEojpKm6WU7HhzAmRLvYFDPSKUqs36w2uTBnsV2kZOQW3UFj4QySBLWqHCW0v9lZb4S-EoUOp1nl97I4Hbwkx4r23Iaz--jimHhqzS9EuQJ4htRv-kxp_K717x1mXyqh-nNNgBPOgUjHh5ysRhKtnRSRWofqz0QwzWB1wsKYdxpWWjOCpB71o3-6_SViwvTA6uQ1t4Zv2DBMTOnZ_FBQ-90ldb4CgBe48C6iBSPdoSgw",
+      img: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=256&h=256&q=80",
       actions: [{icon: 'visibility', color: 'primary-container'}, {icon: 'calendar_today', color: 'status-interview'}, {icon: 'chevron_right', color: 'primary-container'}]
     }
   ],
@@ -21,7 +22,7 @@ const initialPipelineData = {
     {
       id: 'c3',
       name: "Elena Rodriguez", role: "Lead Visual Designer", match: "91%", className: "border-l-4 border-l-status-review",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAlwDQAy5QlGpWNLolDggCYwF9JluVPSf3tAU1v319-dpA1ORD_iEi-1s1__afCtCZK7jnrW0vrbkx9DfnrAhy6HmAWclhfKkxyVyfyXgrwIzFJ8LOFVH5OoNmtHZJO9yqRPZHZTy1WncZLZUmrkCClfvMjOG04YePel9Q5-6esPJusratx2IxZzOWeYuPp61qL86TUV9vfRDRHaU2222-RnVu_etNTBn52SfPnIYcH67y_y0xSTtp4NcUrLwKZ-518lM2oHgErI38",
+      img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&h=256&q=80",
       additionalContent: <span className="text-[10px] text-status-review font-medium uppercase tracking-widest">Watching 2m 14s</span>,
       actions: [{icon: 'visibility', color: 'primary-container'}]
     }
@@ -30,7 +31,7 @@ const initialPipelineData = {
     {
       id: 'c4',
       name: "Jordan Smith", role: "Principal UI Engineer", match: "97%", indicatorColor: "primary-container",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDHxrOwaCtrGnO4Bj7ORGWcUNAn9hnXh2iBj2fwieaWtwLC_dsAB00rMbzAdjVcDe5w_PSiOdK7JofsLfhXKKVp3XLI1ew3pJ1HXugTOvf-kuo40F-MZ3Pdqk-rHkHjEfnUVtxHiUt6vu6Z5Z1WtYgVDVqwExKZVb3dTC5qaJlkZTTNca6M5cR8ekkV9KrtM6eOlR5SFyZmxoWeoeU0NkANT_VHxeBusxkWLYUvb4R7IEe4YbKPvs-6wdJ6dVj-zJlMF7AidWJ3iZU",
+      img: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=256&h=256&q=80",
       additionalContent: (
         <div className="flex gap-1">
           <span className="w-2 h-2 rounded-full bg-primary"></span>
@@ -45,7 +46,7 @@ const initialPipelineData = {
     {
       id: 'c5',
       name: "Sophie Varma", role: "Creative Strategist", match: "92%",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCr8TaMDc7SQideTS3fz1XQl9QnecnFn_axBahlB4ApmIB6KCdvo5fukzape7_aYkMP3gbAEaFHrE0ARpQvMdfJfeoGhu3T2X8ULkb4RiNrRyDNjj-vjH9nc1EowBySl8MKHTuPAu3nVRWVp8koag7d_gYRgTkdzqTynTbFHCNYHW5pG8TZTpqekVr6fUzF29rKJrdAQiu8HRKH8dXrwwZ4n-YZdh_dOGsK080HENtVD5tZG6iEmW8doDP9_FlxM9VjvxZGhDoD_jo",
+      img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=256&h=256&q=80",
       additionalContent: (
         <div className="p-2 bg-status-interview/5 border border-status-interview/20 rounded-lg w-full mr-4">
           <p className="text-[10px] text-status-interview font-bold flex items-center gap-1">
@@ -59,9 +60,64 @@ const initialPipelineData = {
     {
       id: 'c6',
       name: "David Kim", role: "UX Design Lead", indicatorColor: "status-hired", className: "bg-status-hired/5 border-status-hired/20",
-      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBhqMEsCHIL-1Vp14FRKuDCnKRM1CP0_WDpLMQm8gJcj_B-rRSeQ07xQUYU8F9wMJSEKDu07eRlQTKF2PT8sFnfEklp3Wj8S1oZ5Rac-srkI_1GruEhLeFO5JSErp8pcqkt_xjgNiG8_jXjf1weKseBp33HWtI7eTtcM1ZcGvFroq03_bIfLfSs-CRhLUtKRy5Xalq51R7IgB13Yvft9CNvtQJUFDeDKR-S49P6mqZXNQhjOeHN3WX10qFxPzmg9006tjeGCgSEK-4"
+      img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80"
     }
   ]
+};
+
+const pipelinesData = {
+  'senior-product-designer': initialPipelineData,
+  'frontend-engineer': {
+    applied: [
+      {
+        id: 'f1',
+        name: "Jessica Wong", role: "React Developer", match: "95%",
+        img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=256&h=256&q=80",
+        tags: ["React", "TypeScript", "Redux"],
+        actions: [{icon: 'visibility', color: 'primary-container'}]
+      },
+      {
+        id: 'f2',
+        name: "Samuel Jackson", role: "Frontend UI Engineer", match: "89%",
+        img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&h=256&q=80",
+        tags: ["Vue", "React"],
+        actions: [{icon: 'visibility', color: 'primary-container'}, {icon: 'close', color: 'danger'}]
+      },
+      {
+        id: 'f3',
+        name: "Aiden Pearce", role: "Junior Web Developer", match: "78%",
+        img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&h=256&q=80",
+        tags: ["HTML", "CSS"],
+        actions: [{icon: 'visibility', color: 'primary-container'}]
+      }
+    ],
+    review: [
+      {
+        id: 'f4',
+        name: "Clara Oswald", role: "Senior Frontend Engineer", match: "98%", className: "border-l-4 border-l-status-review",
+        img: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=256&h=256&q=80",
+        additionalContent: <span className="text-[10px] text-status-review font-medium uppercase tracking-widest">Watching 1m 02s</span>,
+        actions: [{icon: 'visibility', color: 'primary-container'}]
+      }
+    ],
+    shortlist: [
+      {
+        id: 'f5',
+        name: "David Tennant", role: "Frontend Architect", match: "99%", indicatorColor: "primary-container",
+        img: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=256&h=256&q=80",
+        additionalContent: (
+          <div className="flex gap-1">
+            <span className="w-2 h-2 rounded-full bg-primary"></span>
+            <span className="w-2 h-2 rounded-full bg-primary/40"></span>
+            <span className="w-2 h-2 rounded-full bg-primary/20"></span>
+          </div>
+        ),
+        actions: [{icon: 'calendar_today', color: 'status-interview'}]
+      }
+    ],
+    interview: [],
+    hired: []
+  }
 };
 
 const CandidateCard = ({ candidate, columnId, onDragStart, onDragEnd, isDragged }) => {
@@ -161,9 +217,15 @@ const KanbanColumn = ({ columnId, title, count, colorClass, candidates, onDragSt
 };
 
 const HiringPipeline = () => {
-  const [columns, setColumns] = useState(initialPipelineData);
+  const location = useLocation();
+  const [activePipeline, setActivePipeline] = useState(location.state?.pipeline || 'senior-product-designer');
+  const [columns, setColumns] = useState(pipelinesData[activePipeline] || pipelinesData['senior-product-designer']);
   const [draggedItem, setDraggedItem] = useState(null);
   const [dropTarget, setDropTarget] = useState(null);
+
+  useEffect(() => {
+    setColumns(pipelinesData[activePipeline] || pipelinesData['senior-product-designer']);
+  }, [activePipeline]);
 
   const handleDragStart = (e, candidateId, sourceColumnId) => {
     e.dataTransfer.effectAllowed = 'move';
@@ -223,7 +285,16 @@ const HiringPipeline = () => {
       {/* Page Header */}
       <div className="px-gutter pt-lg pb-md flex justify-between items-center bg-background border-b border-outline-variant/30 shrink-0">
         <div className="flex items-center gap-4">
-          <h2 className="font-display text-headline-md text-text-primary font-bold">Senior Product Designer</h2>
+          <CustomSelect
+            name="pipeline"
+            value={activePipeline}
+            onChange={(e) => setActivePipeline(e.target.value)}
+            options={[
+              { value: 'senior-product-designer', label: 'Senior Product Designer' },
+              { value: 'frontend-engineer', label: 'Frontend Engineer (React)' }
+            ]}
+            className="w-80 font-display text-headline-sm text-text-primary font-bold border-none bg-transparent hover:bg-surface-container"
+          />
           <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-xs font-bold border border-secondary/20">Active</span>
         </div>
       </div>
