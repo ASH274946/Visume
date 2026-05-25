@@ -79,4 +79,4 @@ To run Visume locally, you need two terminal instances—one for the frontend an
 4. **Open your browser:** Navigate to `http://localhost:5173`.
 
 ---
-*Built with passion to revolutionize the future of hiring by Ashwin Kumar.*
+*Built with passion to revolutionize the future of hiring.*
