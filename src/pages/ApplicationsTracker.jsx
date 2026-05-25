@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 const ApplicationsTracker = () => {
   const [filter, setFilter] = useState('all');
 
-  const applications = [
+  const hardcodedApplications = [
     {
       id: 1,
       title: "Senior React Developer",
@@ -66,6 +66,19 @@ const ApplicationsTracker = () => {
       colorClass: "danger"
     }
   ];
+
+  // Get applications from localStorage
+  const userApplications = JSON.parse(localStorage.getItem('visume_applications') || '[]');
+  
+  // Combine hardcoded and user applications, removing duplicates
+  const allApplications = [
+    ...hardcodedApplications,
+    ...userApplications.filter(userApp => 
+      !hardcodedApplications.some(hApp => hApp.title === userApp.title && hApp.company === userApp.company)
+    )
+  ];
+
+  const applications = allApplications;
 
   const filteredApplications = filter === 'all' 
     ? applications 
