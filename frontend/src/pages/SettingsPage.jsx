@@ -4,6 +4,8 @@ import Navbar from '../components/Navbar';
 import DashboardNavbar from '../components/DashboardNavbar';
 import Sidebar from '../components/Sidebar';
 import Toggle from '../components/Toggle';
+import { auth } from '../firebase';
+import { deleteUser } from 'firebase/auth';
 
 import CustomSelect from '../components/CustomSelect';
 
@@ -16,6 +18,36 @@ const SettingsPage = () => {
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
     navigate('/login');
+  };
+
+  const handleDeactivateAccount = () => {
+    if (window.confirm("Are you sure you want to deactivate your account? You can reactivate it by logging in again.")) {
+      alert("Account deactivated.");
+      handleLogout();
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (window.confirm("Are you ABSOLUTELY sure you want to permanently delete your account? This action cannot be undone.")) {
+      try {
+        const user = auth.currentUser;
+        if (user) {
+          await deleteUser(user);
+        }
+        localStorage.removeItem('visume_profile_data');
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('visume_role');
+        alert("Account permanently deleted.");
+        navigate('/register');
+      } catch (error) {
+        console.error("Error deleting account:", error);
+        if (error.code === 'auth/requires-recent-login') {
+          alert("For security reasons, please log out and log back in before deleting your account.");
+        } else {
+          alert("Error deleting account: " + error.message);
+        }
+      }
+    }
   };
   
   // Set role from router state, local storage, or default to candidate
@@ -699,7 +731,7 @@ const SettingsPage = () => {
                       <p className="text-body-sm font-bold text-text-primary">Deactivate Account</p>
                       <p className="text-[11px] text-text-muted mt-0.5">Temporarily hide your profile and job history. You can reactivate anytime.</p>
                     </div>
-                    <button type="button" className="bg-danger/20 text-danger border border-danger hover:bg-danger hover:text-white px-5 py-2 rounded-lg font-label-md text-label-md font-bold transition-all shrink-0">
+                    <button type="button" onClick={handleDeactivateAccount} className="bg-danger/20 text-danger border border-danger hover:bg-danger hover:text-white px-5 py-2 rounded-lg font-label-md text-label-md font-bold transition-all shrink-0">
                       Deactivate Account
                     </button>
                   </div>
@@ -709,7 +741,7 @@ const SettingsPage = () => {
                       <p className="text-body-sm font-bold text-text-primary">Delete Account & Metadata</p>
                       <p className="text-[11px] text-text-muted mt-0.5">Permanently remove profile records, videos, transcript data, and job history.</p>
                     </div>
-                    <button type="button" className="bg-danger/20 text-danger border border-danger hover:bg-danger hover:text-white px-5 py-2 rounded-lg font-label-md text-label-md font-bold transition-all shrink-0">
+                    <button type="button" onClick={handleDeleteAccount} className="bg-danger/20 text-danger border border-danger hover:bg-danger hover:text-white px-5 py-2 rounded-lg font-label-md text-label-md font-bold transition-all shrink-0">
                       Delete Account
                     </button>
                   </div>
