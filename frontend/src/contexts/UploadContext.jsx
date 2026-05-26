@@ -54,14 +54,9 @@ export const UploadProvider = ({ children }) => {
           setUploadProgress(Math.round(progress));
         });
 
-        // Create a timeout promise (15 seconds)
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Firebase upload timed out')), 15000)
-        );
-
         try {
-          // Wait for upload to complete or timeout
-          await Promise.race([uploadTask, timeoutPromise]);
+          // Wait for upload to complete
+          await uploadTask;
           finalVideoUrl = await getDownloadURL(storageRef);
         } catch (err) {
           console.warn("Global Firebase Upload skipped or failed:", err.message);

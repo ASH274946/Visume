@@ -191,13 +191,20 @@ const SettingsPage = () => {
     setIsUploadingResume(true);
     try {
       // 1. Upload to Backend (Local Storage)
-      const formDataUpload = new FormData();
-      formDataUpload.append('file', file);
-      const backendRes = await fetch('http://localhost:5000/api/upload', {
-        method: 'POST',
-        body: formDataUpload
-      });
-      const backendData = await backendRes.json();
+      let backendData = { localUrl: null };
+      try {
+        const formDataUpload = new FormData();
+        formDataUpload.append('file', file);
+        const backendRes = await fetch('http://localhost:5000/api/upload', {
+          method: 'POST',
+          body: formDataUpload
+        });
+        if (backendRes.ok) {
+          backendData = await backendRes.json();
+        }
+      } catch (e) {
+        console.warn("Failed to upload to local backend. Proceeding with Firebase upload.", e);
+      }
 
       // 2. Upload to Firebase Storage (Global)
       let downloadURL = null;
