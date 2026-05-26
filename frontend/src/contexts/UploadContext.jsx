@@ -50,7 +50,8 @@ export const UploadProvider = ({ children }) => {
           
           xhr.upload.onprogress = (event) => {
             if (event.lengthComputable) {
-              const progress = Math.round((event.loaded / event.total) * 100);
+              // Cap at 90% while waiting for server response
+              const progress = Math.min(90, Math.round((event.loaded / event.total) * 100));
               setUploadProgress(progress);
             }
           };
@@ -86,8 +87,7 @@ export const UploadProvider = ({ children }) => {
         const firebaseUploadPromise = withTimeout(new Promise((resolve, reject) => {
           uploadTask.on('state_changed', 
             (snapshot) => {
-              const progress = (snapshot.bytesTransferred / Math.max(snapshot.totalBytes, 1)) * 100;
-              setUploadProgress(Math.round(progress));
+              // Firebase progress tracking removed to prevent progress bar fighting
             },
             (error) => reject(error),
             () => resolve()
@@ -127,6 +127,7 @@ export const UploadProvider = ({ children }) => {
         await setDoc(docRef, finalResumeData, { merge: true });
       }
 
+      setUploadProgress(100);
       setUploadStatus('success');
       setTimeout(() => {
         setUploadStatus('idle');
@@ -162,7 +163,8 @@ export const UploadProvider = ({ children }) => {
         
         xhr.upload.onprogress = (event) => {
           if (event.lengthComputable) {
-            const progress = Math.round((event.loaded / event.total) * 100);
+            // Cap at 90% while waiting for the server response
+            const progress = Math.min(90, Math.round((event.loaded / event.total) * 100));
             setDocUploadProgress(progress);
           }
         };
@@ -197,8 +199,7 @@ export const UploadProvider = ({ children }) => {
       const firebaseUploadPromise = withTimeout(new Promise((resolve, reject) => {
         uploadTask.on('state_changed', 
           (snapshot) => {
-            const progress = (snapshot.bytesTransferred / Math.max(snapshot.totalBytes, 1)) * 100;
-            setDocUploadProgress(Math.round(progress));
+            // Firebase progress tracking removed to prevent progress bar fighting
           },
           (error) => reject(error),
           () => resolve()
@@ -245,6 +246,7 @@ export const UploadProvider = ({ children }) => {
       const collectionName = role === 'recruiter' ? 'recruiters' : 'candidates';
       await setDoc(doc(db, collectionName, auth.currentUser.uid), newData, { merge: true });
 
+      setDocUploadProgress(100);
       setDocUploadStatus('success');
       setTimeout(() => {
         setDocUploadStatus('idle');
