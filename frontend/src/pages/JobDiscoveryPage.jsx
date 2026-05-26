@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Toggle from '../components/Toggle';
 
@@ -323,7 +323,69 @@ const JobGrid = ({ jobs, onApplied, selectedJob, setSelectedJob }) => {
   const [appliedJobs, setAppliedJobs] = useState(new Set());
   const [applicationJob, setApplicationJob] = useState(null);
   const [selectedResumeId, setSelectedResumeId] = useState(null);
-  const videoResumes = useMemo(() => JSON.parse(localStorage.getItem('visume_video_resumes') || '[]'), [applicationJob]);
+  const [includeDocumentResume, setIncludeDocumentResume] = useState(true);
+  
+  const [videoResumes, setVideoResumes] = useState([]);
+
+  useEffect(() => {
+    const fetchVideos = async () => {
+      if (!applicationJob) return; // Only fetch when opening modal
+      try {
+        const { auth, db } = await import('../firebase');
+        if (!auth.currentUser) return;
+        const { collection, getDocs } = await import('firebase/firestore');
+        const videosRef = collection(db, 'candidates', auth.currentUser.uid, 'videoResumes');
+        const snapshot = await getDocs(videosRef);
+        const videos = [];
+        snapshot.forEach(doc => {
+          videos.push({ id: doc.id, ...doc.data() });
+        });
+        setVideoResumes(videos);
+      } catch (err) {
+        console.error("Error fetching video resumes from Firestore:", err);
+      }
+    };
+    
+    fetchVideos();
+  }, [applicationJob]);
+  const profileData = useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem('visume_profile_data') || '{}');
+    } catch (e) {
+      return {};
+    }
+  }, [applicationJob]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (applicationJob) setApplicationJob(null);
+        else if (selectedJob) {
+          if (typeof setSelectedJob === 'function') setSelectedJob(null);
+        }
+      }
+    };
+
+    const mainContent = document.querySelector('main');
+
+    if (selectedJob || applicationJob) {
+      document.body.style.setProperty('overflow', 'hidden', 'important');
+      document.documentElement.style.setProperty('overflow', 'hidden', 'important');
+      if (mainContent) mainContent.style.setProperty('overflow', 'hidden', 'important');
+      window.addEventListener('keydown', handleKeyDown);
+    } else {
+      document.body.style.removeProperty('overflow');
+      document.documentElement.style.removeProperty('overflow');
+      if (mainContent) mainContent.style.removeProperty('overflow');
+    }
+    
+    return () => {
+      document.body.style.removeProperty('overflow');
+      document.documentElement.style.removeProperty('overflow');
+      if (mainContent) mainContent.style.removeProperty('overflow');
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedJob, applicationJob, setSelectedJob]);
 
   if (jobs.length === 0) {
     return (
@@ -394,8 +456,8 @@ const JobGrid = ({ jobs, onApplied, selectedJob, setSelectedJob }) => {
       </div>
 
       {selectedJob && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-surface-container border border-outline-variant rounded-2xl p-6 w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200" onClick={() => setSelectedJob(null)}>
+          <div className="bg-surface-container border border-outline-variant rounded-2xl p-6 w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-start mb-6">
               <div className="flex gap-4 items-center">
                 <div className="w-16 h-16 rounded-lg bg-white/5 flex items-center justify-center border border-outline-variant overflow-hidden p-2">
@@ -486,7 +548,12 @@ const JobGrid = ({ jobs, onApplied, selectedJob, setSelectedJob }) => {
             </div>
 
             <div className="flex-1 overflow-y-auto mb-6 custom-scrollbar pr-2">
-              <h4 className="font-label-lg text-label-lg text-text-primary mb-3">Select a Video Resume</h4>
+              <div className="flex justify-between items-end mb-3">
+                <h4 className="font-label-lg text-label-lg text-text-primary">Select a Video Resume</h4>
+                <button onClick={() => navigate('/recorder')} className="text-primary text-[12px] hover:underline flex items-center gap-1 font-bold">
+                  <span className="material-symbols-outlined text-[14px]">add_circle</span> New Custom Video
+                </button>
+              </div>
               {videoResumes.length === 0 ? (
                 <div className="text-center py-8 px-4 border border-dashed border-outline-variant rounded-xl bg-surface-container-low">
                   <span className="material-symbols-outlined text-4xl text-text-muted mb-2 opacity-50">videocam_off</span>
@@ -498,7 +565,7 @@ const JobGrid = ({ jobs, onApplied, selectedJob, setSelectedJob }) => {
                   {videoResumes.map(resume => (
                     <div 
                       key={resume.id}
-                      onClick={() => setSelectedResumeId(resume.id)}
+                      onClick={() => setSelectedResumeId(selectedResumeId === resume.id ? null : resume.id)}
                       className={`flex gap-4 p-3 rounded-xl border transition-all cursor-pointer ${selectedResumeId === resume.id ? 'bg-primary-container/10 border-primary-container' : 'bg-surface-container-high border-border-input hover:border-outline-variant'}`}
                     >
                       <div className="w-24 h-16 rounded-lg overflow-hidden shrink-0 border border-outline-variant/30 relative">
@@ -522,6 +589,40 @@ const JobGrid = ({ jobs, onApplied, selectedJob, setSelectedJob }) => {
                   ))}
                 </div>
               )}
+
+              <h4 className="font-label-lg text-label-lg text-text-primary mb-3 mt-6">Document Resume</h4>
+              {profileData?.resumeUrl || profileData?.resumeName ? (
+                <div 
+                  onClick={() => setIncludeDocumentResume(!includeDocumentResume)}
+                  className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${includeDocumentResume ? 'bg-primary-container/10 border-primary-container' : 'bg-surface-container-high border-border-input hover:border-outline-variant'}`}
+                >
+                  <div className="flex-1">
+                    <p className="text-label-md font-bold text-text-primary flex items-center gap-2">
+                      <span className="material-symbols-outlined text-primary text-[18px]">description</span>
+                      {profileData.resumeName || 'Profile Resume'}
+                    </p>
+                    <p className="text-[11px] text-text-muted mt-0.5">Include your uploaded document resume</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {profileData.localResumeUrl && !includeDocumentResume && (
+                      <span className="material-symbols-outlined text-text-muted text-[16px] opacity-50" title="Saved locally">cloud_done</span>
+                    )}
+                    {includeDocumentResume && (
+                      <div className="ml-auto flex items-center pr-2">
+                        <span className="material-symbols-outlined text-primary-container" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center p-4 border border-dashed border-outline-variant rounded-xl bg-surface-container-low flex flex-col items-center gap-2">
+                  <p className="text-body-sm text-text-muted">No document resume found in profile.</p>
+                  <button onClick={() => navigate('/profile')} className="bg-surface-container border border-outline-variant text-text-primary px-4 py-2 rounded-lg text-sm font-bold hover:bg-surface-bright transition-colors flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px]">upload</span>
+                    Upload in Profile
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-4 pt-4 border-t border-outline-variant/30 mt-auto">
@@ -532,7 +633,7 @@ const JobGrid = ({ jobs, onApplied, selectedJob, setSelectedJob }) => {
                 Cancel
               </button>
               <button
-                disabled={!selectedResumeId || applyingIdx !== null}
+                disabled={!selectedResumeId || !includeDocumentResume || applyingIdx !== null}
                 onClick={() => {
                   const idx = jobs.findIndex(j => j.title === applicationJob.title && j.company === applicationJob.company);
                   if (idx === -1) return;
@@ -553,11 +654,22 @@ const JobGrid = ({ jobs, onApplied, selectedJob, setSelectedJob }) => {
                       status: 'applied',
                       statusText: 'Applied',
                       colorClass: 'status-applied',
-                      resumeId: selectedResumeId
+                      resumeId: selectedResumeId,
+                      includeDocumentResume: includeDocumentResume
                     };
                     existingApplications.push(newApplication);
                     localStorage.setItem('visume_applications', JSON.stringify(existingApplications));
                     
+                    // Also update the global applied state used on JobDiscoveryPage if needed
+                    const existingApps = JSON.parse(localStorage.getItem('visume_applications') || '[]');
+                    const newApp = { 
+                      ...applicationJob, 
+                      videoResumeId: selectedResumeId, 
+                      includeDocumentResume: includeDocumentResume,
+                      appliedAt: new Date().toISOString() 
+                    };
+                    localStorage.setItem('visume_applications', JSON.stringify([...existingApps, newApp]));
+
                     if (onApplied) onApplied();
                     setApplicationJob(null);
                   }, 800);

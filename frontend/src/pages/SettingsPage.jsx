@@ -4,9 +4,10 @@ import Navbar from '../components/Navbar';
 import DashboardNavbar from '../components/DashboardNavbar';
 import Sidebar from '../components/Sidebar';
 import Toggle from '../components/Toggle';
-import { auth, db } from '../firebase';
+import { auth, db, storage } from '../firebase';
 import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
 
 import CustomSelect from '../components/CustomSelect';
 
@@ -55,6 +56,9 @@ const SettingsPage = () => {
   const initialRole = location.state?.role || localStorage.getItem('visume_role') || 'candidate';
   const [role, setRole] = useState(initialRole);
   const [activeTab, setActiveTab] = useState(location.state?.tab || 'profile');
+  const [isUploadingResume, setIsUploadingResume] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   
   useEffect(() => {
     if (location.state?.tab) {
@@ -155,7 +159,7 @@ const SettingsPage = () => {
   // Handle inputs
   const handleInputChange = (e) => {
     const { name, value, type, checked, files } = e.target;
-    if (type === 'file') {
+    if (type === 'file' && name !== 'resumeName') {
       setFormData(prev => ({ ...prev, [name]: files[0]?.name || '' }));
       return;
     }
@@ -178,6 +182,114 @@ const SettingsPage = () => {
       headline: newRole === 'recruiter' ? 'Talent Acquisition Director' : 'Senior React Developer & UI Specialist',
       location: newRole === 'recruiter' ? 'Bengaluru, India' : 'Chennai, India',
     }));
+  };
+
+  const handleUploadResume = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploadingResume(true);
+    try {
+      // 1. Upload to Backend (Local Storage)
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', file);
+      const backendRes = await fetch('http://localhost:5000/api/upload', {
+        method: 'POST',
+        body: formDataUpload
+      });
+      const backendData = await backendRes.json();
+
+      // 2. Upload to Firebase Storage (Global)
+      let downloadURL = null;
+      if (auth.currentUser) {
+        const storageRef = ref(storage, `resumes/${auth.currentUser.uid}/${Date.now()}_${file.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+        try {
+          await Promise.race([
+            uploadTask,
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Firebase upload timeout')), 15000))
+          ]);
+          downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+        } catch (fbError) {
+          console.warn("Firebase upload timed out or failed, proceeding with local URL", fbError);
+        }
+      }
+
+      setFormData(prev => {
+        const newData = {
+          ...prev,
+          resumeName: file.name,
+          localResumeUrl: backendData.localUrl,
+          resumeUrl: downloadURL || prev.resumeUrl
+        };
+        localStorage.setItem('visume_profile_data', JSON.stringify(newData));
+        if (auth.currentUser) {
+          const collectionName = role === 'recruiter' ? 'recruiters' : 'candidates';
+          setDoc(doc(db, collectionName, auth.currentUser.uid), newData, { merge: true }).catch(console.error);
+        }
+        return newData;
+      });
+      
+      alert("Resume uploaded successfully!");
+    } catch (err) {
+      console.error("Resume upload failed:", err);
+      alert("Failed to upload resume.");
+    } finally {
+      setIsUploadingResume(false);
+    }
+  };
+
+  const confirmDeleteResume = async () => {
+    setShowDeleteConfirm(false);
+    
+    try {
+      // 1. Delete Local File
+      if (formData.localResumeUrl) {
+        try {
+          await fetch('http://localhost:5000/api/delete', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fileUrl: formData.localResumeUrl })
+          });
+        } catch (e) {
+          console.warn("Failed to delete local resume file", e);
+        }
+      }
+
+      // 2. Delete Global File (Firebase Storage)
+      if (formData.resumeUrl && formData.resumeUrl !== 'mock_url') {
+        try {
+          const fileRef = ref(storage, formData.resumeUrl);
+          await deleteObject(fileRef);
+        } catch (e) {
+          console.warn("Failed to delete global resume file", e);
+        }
+      }
+
+      setFormData(prev => {
+        const newData = { ...prev };
+        delete newData.resumeName;
+        delete newData.resumeUrl;
+        delete newData.localResumeUrl;
+        
+        localStorage.setItem('visume_profile_data', JSON.stringify(newData));
+        if (auth.currentUser) {
+          const collectionName = role === 'recruiter' ? 'recruiters' : 'candidates';
+          setDoc(doc(db, collectionName, auth.currentUser.uid), {
+             resumeName: null,
+             resumeUrl: null,
+             localResumeUrl: null
+          }, { merge: true }).catch(console.error);
+        }
+        return newData;
+      });
+      
+      alert("Resume deleted completely!");
+
+    } catch (err) {
+      console.error("Error deleting resume:", err);
+      alert("Failed to delete resume completely.");
+    }
   };
 
   // Form submission and Firebase sync
@@ -248,6 +360,8 @@ const SettingsPage = () => {
 
   return (
     <div className="flex flex-col h-[calc(100vh-144px)] overflow-hidden">
+
+
       {/* Content Container */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-lg min-h-0 overflow-hidden">
         {/* Sub Navigation Tabs */}
@@ -287,7 +401,7 @@ const SettingsPage = () => {
           
           <div className="h-px bg-outline-variant my-2"></div>
           <button
-            onClick={handleLogout}
+            onClick={() => setShowLogoutConfirm(true)}
             className="flex items-center gap-3 px-4 py-3 rounded-lg font-label-md font-bold text-left text-danger hover:bg-danger/10 border border-transparent transition-all"
           >
             <span className="material-symbols-outlined">logout</span>
@@ -504,21 +618,27 @@ const SettingsPage = () => {
                   <div className="flex flex-col gap-2 h-full">
                     <label className="text-label-md text-text-primary font-bold">Resume</label>
                     <div className="relative flex flex-col justify-center w-full h-full min-h-[9.5rem]">
-                      <label htmlFor="resume-upload" className="flex flex-col items-center justify-center w-full h-full border-2 border-border-input border-dashed rounded-lg cursor-pointer bg-surface-container hover:bg-surface-bright/5 hover:border-primary transition-all">
+                      <label htmlFor="resume-upload" className={`flex flex-col items-center justify-center w-full h-full border-2 border-border-input border-dashed rounded-lg bg-surface-container transition-all ${isUploadingResume ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:bg-surface-bright/5 hover:border-primary'}`}>
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                          <span className="material-symbols-outlined text-text-muted mb-2 text-3xl">upload_file</span>
-                          <p className="mb-1 text-label-md text-text-muted"><span className="font-bold text-text-primary">Click to upload</span> or drag and drop</p>
+                          {isUploadingResume ? (
+                            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-2"></div>
+                          ) : (
+                            <span className="material-symbols-outlined text-text-muted mb-2 text-3xl">upload_file</span>
+                          )}
+                          <p className="mb-1 text-label-md text-text-muted">
+                            <span className="font-bold text-text-primary">{isUploadingResume ? 'Uploading...' : 'Click to upload'}</span> {isUploadingResume ? '' : 'or drag and drop'}
+                          </p>
                           <p className="text-[11px] text-text-muted uppercase tracking-wider">PDF files only (Max 5MB)</p>
                         </div>
-                        <input id="resume-upload" name="resumeName" type="file" accept=".pdf" className="hidden" onChange={handleInputChange} />
+                        <input id="resume-upload" name="resumeName" type="file" accept=".pdf" className="hidden" onChange={handleUploadResume} disabled={isUploadingResume} />
                       </label>
                     </div>
                     {formData.resumeName && (
                       <div className="flex items-center gap-2 mt-2 px-4 py-3 bg-surface-container border border-border-input rounded-lg text-body-sm text-text-primary">
                         <span className="material-symbols-outlined text-primary">picture_as_pdf</span>
                         <span className="flex-1 font-bold">{formData.resumeName}</span>
-                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, resumeName: '' }))} className="text-text-muted hover:text-danger flex items-center justify-center">
-                          <span className="material-symbols-outlined text-sm">close</span>
+                        <button type="button" onClick={() => setShowDeleteConfirm(true)} className="text-text-muted hover:text-danger flex items-center justify-center">
+                          <span className="material-symbols-outlined text-sm">delete</span>
                         </button>
                       </div>
                     )}
@@ -890,6 +1010,90 @@ const SettingsPage = () => {
           </form>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+          onClick={() => setShowDeleteConfirm(false)}
+        >
+          <div 
+            className="bg-surface-container border border-outline-variant rounded-2xl p-6 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-danger/10 flex items-center justify-center text-danger">
+                  <span className="material-symbols-outlined">warning</span>
+                </div>
+                <h3 className="text-headline-md font-display text-text-primary">Confirm Deletion</h3>
+              </div>
+              <button onClick={() => setShowDeleteConfirm(false)} className="text-text-muted hover:text-white transition-colors">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <p className="text-body-md text-text-muted mb-6">
+              Are you sure you want to completely delete <strong>{formData.resumeName}</strong>? This action cannot be undone and will remove the file from all systems.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button 
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-6 py-2.5 rounded-lg border border-outline-variant text-text-primary hover:bg-surface-container-highest transition-colors font-bold"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={confirmDeleteResume}
+                className="px-6 py-2.5 rounded-lg bg-danger text-white hover:bg-danger/90 transition-colors font-bold"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutConfirm && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+          onClick={() => setShowLogoutConfirm(false)}
+        >
+          <div 
+            className="bg-surface-container border border-outline-variant rounded-2xl p-6 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-500">
+                  <span className="material-symbols-outlined">logout</span>
+                </div>
+                <h3 className="text-headline-md font-display text-text-primary">Confirm Logout</h3>
+              </div>
+              <button onClick={() => setShowLogoutConfirm(false)} className="text-text-muted hover:text-white transition-colors">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <p className="text-body-md text-text-muted mb-6">
+              Are you sure you want to log out of your account? You will need to sign in again to access your dashboard.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button 
+                onClick={() => setShowLogoutConfirm(false)}
+                className="px-6 py-2.5 rounded-lg border border-outline-variant text-text-primary hover:bg-surface-container-highest transition-colors font-bold"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleLogout}
+                className="px-6 py-2.5 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors font-bold"
+              >
+                Yes, Log out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

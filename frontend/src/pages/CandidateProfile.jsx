@@ -5,10 +5,13 @@ import DashboardNavbar from '../components/DashboardNavbar';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CustomVideoPlayer from '../components/CustomVideoPlayer';
-
-const HeroSection = ({ profileData, onScheduleInterview, onViewResume }) => {
+import { auth, db, storage } from '../firebase';
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
+import { doc, updateDoc } from 'firebase/firestore';
+const HeroSection = ({ profileData, onScheduleInterview, onViewResume, onUploadResume, onHeroDeleteResume, isUploadingResume }) => {
   const fullName = profileData?.fullName || "Jordan Sterling";
   const headline = profileData?.headline || "Senior Product Designer & Motion Specialist";
+  const hasResume = !!(profileData?.resumeUrl || profileData?.localResumeUrl);
 
   return (
   <section className="card-bg border border-border-input rounded-xl p-lg relative overflow-hidden hero-gradient">
@@ -31,18 +34,46 @@ const HeroSection = ({ profileData, onScheduleInterview, onViewResume }) => {
           <span className="material-symbols-outlined">calendar_today</span>
           Schedule Interview
         </button>
-        <button onClick={onViewResume} className="bg-surface-container border border-outline-variant text-text-primary font-bold py-3 px-8 rounded-lg hover:border-primary transition-all font-body-md text-body-md flex items-center justify-center gap-2 group">
-          <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">picture_as_pdf</span>
-          View Resume
-        </button>
+        {hasResume ? (
+          <div className="flex gap-2">
+            <button onClick={onViewResume} className="flex-1 bg-surface-container border border-outline-variant text-text-primary font-bold py-3 px-6 rounded-lg hover:border-primary transition-all font-body-md text-body-md flex items-center justify-center gap-2 group overflow-hidden">
+              <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform shrink-0">picture_as_pdf</span>
+              <span className="truncate max-w-[150px]">{profileData?.resumeName || 'View Resume'}</span>
+            </button>
+            <label className="bg-surface-container border border-outline-variant text-text-primary font-bold py-3 px-4 rounded-lg hover:border-primary transition-all flex items-center justify-center cursor-pointer group" title="Update Resume">
+              {isUploadingResume ? (
+                <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">edit</span>
+              )}
+              <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={onUploadResume} disabled={isUploadingResume} />
+            </label>
+            <button onClick={onHeroDeleteResume} className="bg-surface-container border border-outline-variant text-danger font-bold py-3 px-4 rounded-lg hover:border-danger hover:bg-danger/10 transition-all flex items-center justify-center cursor-pointer group" title="Delete Resume">
+              <span className="material-symbols-outlined text-danger group-hover:scale-110 transition-transform">delete</span>
+            </button>
+          </div>
+        ) : (
+          <label className="bg-surface-container border border-outline-variant text-text-primary font-bold py-3 px-8 rounded-lg hover:border-primary transition-all font-body-md text-body-md flex items-center justify-center gap-2 group cursor-pointer">
+            <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">upload_file</span>
+            {isUploadingResume ? 'Uploading...' : 'Upload Resume'}
+            <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={onUploadResume} disabled={isUploadingResume} />
+          </label>
+        )}
       </div>
     </div>
   </section>
   );
 };
 
-const VideoResumesGrid = ({ onPlayVideo, resumes }) => {
+const VideoResumesGrid = ({ onPlayVideo, onDeleteVideo, resumes }) => {
   if (!resumes || resumes.length === 0) return null;
+
+  const getFullUrl = (url) => {
+    if (!url || url === 'mock_url') return null;
+    if (url.startsWith('blob:')) return url;
+    if (url.startsWith('/uploads')) return `http://localhost:5000${url}`;
+    return url;
+  };
 
   return (
     <section className="space-y-md">
@@ -53,27 +84,40 @@ const VideoResumesGrid = ({ onPlayVideo, resumes }) => {
         </h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
-        {resumes.map(resume => (
-          <div key={resume.id} onClick={() => onPlayVideo(resume)} className="aspect-video w-full rounded-xl bg-surface-dim border border-border-input relative overflow-hidden group cursor-pointer">
-            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all flex items-center justify-center z-10">
-              <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-transform">
-                <span className="material-symbols-outlined text-white text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
+        {resumes.map(resume => {
+          const finalSrc = getFullUrl(resume.videoUrl) || getFullUrl(resume.localVideoUrl);
+          return (
+            <div key={resume.id} onClick={() => onPlayVideo(resume)} className="aspect-video w-full rounded-xl bg-surface-dim border border-border-input relative overflow-hidden group cursor-pointer">
+              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all flex items-center justify-center z-10">
+                <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-transform">
+                  <span className="material-symbols-outlined text-white text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
+                </div>
+              </div>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeleteVideo(resume.id, resume.title);
+                }}
+                className="absolute top-2 right-2 bg-black/60 hover:bg-danger/80 w-8 h-8 rounded flex items-center justify-center transition-colors z-20 opacity-0 group-hover:opacity-100"
+                title="Delete Video"
+              >
+                <span className="material-symbols-outlined text-white text-[18px]">delete</span>
+              </button>
+              {finalSrc && !finalSrc.startsWith('blob:') ? (
+                <video className="w-full h-full object-cover pointer-events-none" src={finalSrc} poster={resume.thumbnailUrl} preload="metadata" muted playsInline />
+              ) : (
+                <img alt={resume.title} className="w-full h-full object-cover" src={resume.thumbnailUrl}/>
+              )}
+              <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent z-10 flex justify-between items-end">
+                <p className="font-headline-sm text-headline-sm text-white truncate pr-2">{resume.title}</p>
+                <div className="flex gap-3 text-white/80 font-label-sm text-label-sm shrink-0">
+                  <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">visibility</span> {resume.views}</span>
+                  <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">timer</span> {resume.duration}</span>
+                </div>
               </div>
             </div>
-            {resume.videoUrl ? (
-              <video className="w-full h-full object-cover pointer-events-none" src={resume.videoUrl} preload="metadata" muted playsInline />
-            ) : (
-              <img alt={resume.title} className="w-full h-full object-cover" src={resume.thumbnailUrl}/>
-            )}
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent z-10 flex justify-between items-end">
-              <p className="font-headline-sm text-headline-sm text-white truncate pr-2">{resume.title}</p>
-              <div className="flex gap-3 text-white/80 font-label-sm text-label-sm shrink-0">
-                <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">visibility</span> {resume.views}</span>
-                <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">timer</span> {resume.duration}</span>
-              </div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
@@ -220,31 +264,161 @@ const CandidateProfile = () => {
   const [activeVideoUrl, setActiveVideoUrl] = useState('');
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [isUploadingResume, setIsUploadingResume] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState({ visible: false, type: null, id: null, title: null });
   
-  const [videoResumes, setVideoResumes] = useState(() => JSON.parse(localStorage.getItem('visume_video_resumes') || '[]'));
+  const [videoResumes, setVideoResumes] = useState([]);
   
-  let profileData = null;
-  const savedData = localStorage.getItem('visume_profile_data');
-  if (savedData) {
-    try {
-      profileData = JSON.parse(savedData);
-    } catch (e) {
-      console.error(e);
+  useEffect(() => {
+    const fetchVideos = async (userId) => {
+      if (!userId) return;
+      try {
+        const { collection, getDocs } = await import('firebase/firestore');
+        const videosRef = collection(db, 'candidates', userId, 'videoResumes');
+        const snapshot = await getDocs(videosRef);
+        const videos = [];
+        snapshot.forEach(doc => {
+          videos.push({ id: doc.id, ...doc.data() });
+        });
+        setVideoResumes(videos);
+      } catch (err) {
+        console.error("Error fetching video resumes from Firestore:", err);
+      }
+    };
+    
+    // Auth might take a moment to initialize
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) fetchVideos(user.uid);
+    });
+    
+    return () => unsubscribe();
+  }, []);
+
+  const [profileState, setProfileState] = useState(() => {
+    const savedData = localStorage.getItem('visume_profile_data');
+    if (savedData) {
+      try {
+        return JSON.parse(savedData);
+      } catch (e) {
+        console.error(e);
+      }
     }
-  }
+    return null;
+  });
+
+  const profileData = profileState;
 
   const handleScheduleInterview = () => {
     setShowInterviewModal(true);
   };
 
+  const handleUploadResume = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploadingResume(true);
+    try {
+      // 1. Upload to Backend (Local Storage)
+      const formData = new FormData();
+      formData.append('file', file);
+      const backendRes = await fetch('http://localhost:5000/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const backendData = await backendRes.json();
+      console.log("Local Backend Upload Success:", backendData.localUrl);
+
+      // 2. Upload to Firebase Storage (Global)
+      if (auth.currentUser) {
+        const storageRef = ref(storage, `resumes/${auth.currentUser.uid}/${Date.now()}_${file.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+        
+        let downloadURL = null;
+        try {
+          await Promise.race([
+            uploadTask,
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Firebase upload timeout')), 15000))
+          ]);
+          downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+        } catch (fbError) {
+          console.warn("Firebase upload timed out or failed, proceeding with local URL", fbError);
+        }
+        
+        // Save to Firestore profile
+        const userRef = doc(db, 'candidates', auth.currentUser.uid);
+        const updateData = {
+          localResumeUrl: backendData.localUrl,
+          resumeName: file.name
+        };
+        if (downloadURL) updateData.resumeUrl = downloadURL;
+        
+        try {
+          await updateDoc(userRef, updateData);
+        } catch (e) {
+          console.warn("Firestore update failed, but local storage will be updated", e);
+        }
+
+        // Update local state
+        const newProfileData = { 
+          ...profileData, 
+          localResumeUrl: backendData.localUrl,
+          resumeName: file.name 
+        };
+        if (downloadURL) newProfileData.resumeUrl = downloadURL;
+        
+        setProfileState(newProfileData);
+        localStorage.setItem('visume_profile_data', JSON.stringify(newProfileData));
+        alert("Resume uploaded successfully!");
+      } else {
+        // Just mock it if not authenticated
+        const newProfileData = { 
+          ...profileData, 
+          resumeUrl: "mock_url", 
+          localResumeUrl: backendData.localUrl,
+          resumeName: file.name
+        };
+        setProfileState(newProfileData);
+        localStorage.setItem('visume_profile_data', JSON.stringify(newProfileData));
+        alert("Resume uploaded locally!");
+      }
+    } catch (err) {
+      console.error("Resume upload failed:", err);
+      alert("Failed to upload resume.");
+    } finally {
+      setIsUploadingResume(false);
+    }
+  };
+
   const handleViewResume = () => {
-    alert('Resume download would be initiated here. In a real app, this would download the PDF.');
+    const getFullUrl = (url) => {
+      if (!url || url === 'mock_url') return null;
+      if (url.startsWith('/uploads')) {
+        return `http://localhost:5000${url}`;
+      }
+      return url;
+    };
+
+    const finalUrl = getFullUrl(profileData?.resumeUrl) || getFullUrl(profileData?.localResumeUrl);
+    
+    if (finalUrl) {
+      window.open(finalUrl, '_blank');
+    } else {
+      alert('No valid resume found. Please upload a new one.');
+    }
   };
 
   const handlePlayVideo = (resume) => {
+    const getFullUrl = (url) => {
+      if (!url || url === 'mock_url') return null;
+      if (url.startsWith('blob:')) return url;
+      if (url.startsWith('/uploads')) return `http://localhost:5000${url}`;
+      return url;
+    };
+    const finalUrl = getFullUrl(resume.videoUrl) || getFullUrl(resume.localVideoUrl) || "https://www.w3schools.com/html/mov_bbb.mp4";
+
     setActiveVideoTitle(resume.title);
     setActiveVideoDuration(resume.duration);
-    setActiveVideoUrl(resume.videoUrl || "https://www.w3schools.com/html/mov_bbb.mp4");
+    setActiveVideoUrl(finalUrl);
     setShowVideoModal(true);
   };
 
@@ -253,17 +427,122 @@ const CandidateProfile = () => {
     setShowProjectModal(true);
   };
 
+  const handleDeleteResume = async () => {
+    try {
+      // 1. Delete Local File
+      if (profileData?.localResumeUrl) {
+        try {
+          await fetch('http://localhost:5000/api/delete', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fileUrl: profileData.localResumeUrl })
+          });
+        } catch (e) {
+          console.warn("Failed to delete local resume file", e);
+        }
+      }
+
+      // 2. Delete Global File (Firebase Storage)
+      if (profileData?.resumeUrl && profileData.resumeUrl !== 'mock_url') {
+        try {
+          const fileRef = ref(storage, profileData.resumeUrl);
+          await deleteObject(fileRef);
+        } catch (e) {
+          console.warn("Failed to delete global resume file", e);
+        }
+      }
+
+      // 3. Update Firestore (remove fields)
+      if (auth.currentUser) {
+        const { deleteField } = await import('firebase/firestore');
+        const userRef = doc(db, 'candidates', auth.currentUser.uid);
+        await updateDoc(userRef, {
+          resumeUrl: deleteField(),
+          localResumeUrl: deleteField(),
+          resumeName: deleteField()
+        });
+      }
+
+      // 4. Update Local State & UI
+      const newProfileData = { ...profileData };
+      delete newProfileData.resumeUrl;
+      delete newProfileData.localResumeUrl;
+      delete newProfileData.resumeName;
+      
+      setProfileState(newProfileData);
+      localStorage.setItem('visume_profile_data', JSON.stringify(newProfileData));
+      alert("Resume deleted completely!");
+    } catch (err) {
+      console.error("Error deleting resume:", err);
+      alert("Failed to delete resume completely.");
+    }
+  };
+
+  const handleDeleteVideo = async (videoId) => {
+    try {
+      const videoToDelete = videoResumes.find(v => v.id === videoId);
+
+      // 1. Delete Local File
+      if (videoToDelete?.localVideoUrl) {
+        try {
+          await fetch('http://localhost:5000/api/delete', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fileUrl: videoToDelete.localVideoUrl })
+          });
+        } catch (e) {
+          console.warn("Failed to delete local video file", e);
+        }
+      }
+
+      // 2. Delete Global File (Firebase Storage)
+      if (videoToDelete?.videoUrl) {
+        try {
+          const fileRef = ref(storage, videoToDelete.videoUrl);
+          await deleteObject(fileRef);
+        } catch (e) {
+          console.warn("Failed to delete global video file", e);
+        }
+      }
+
+      // 3. Delete Firestore Document
+      if (auth.currentUser) {
+        const { deleteDoc, doc: fsDoc } = await import('firebase/firestore');
+        await deleteDoc(fsDoc(db, 'candidates', auth.currentUser.uid, 'videoResumes', videoId));
+      }
+
+      // 4. Update Local State & UI
+      setVideoResumes(prev => prev.filter(v => v.id !== videoId));
+      alert("Video resume deleted completely!");
+    } catch (err) {
+      console.error("Error deleting video:", err);
+      alert("Failed to delete video completely.");
+    }
+  };
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         setShowVideoModal(false);
         setShowInterviewModal(false);
         setShowProjectModal(false);
+        setShowDeleteConfirm({ visible: false, type: null, id: null, title: null });
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  const confirmDeleteAction = async () => {
+    const { type, id } = showDeleteConfirm;
+    setShowDeleteConfirm({ visible: false, type: null, id: null, title: null });
+    
+    if (type === 'resume') {
+      await handleDeleteResume();
+    } else if (type === 'video') {
+      await handleDeleteVideo(id);
+    }
+  };
 
   if (isLoggedIn) {
     return (
@@ -272,11 +551,17 @@ const CandidateProfile = () => {
           profileData={profileData} 
           onScheduleInterview={handleScheduleInterview}
           onViewResume={handleViewResume}
+          onUploadResume={handleUploadResume}
+          onHeroDeleteResume={() => setShowDeleteConfirm({ visible: true, type: 'resume', title: 'Document Resume' })}
+          isUploadingResume={isUploadingResume}
         />
-        <VideoResumesGrid onPlayVideo={handlePlayVideo} resumes={videoResumes} />
+        <VideoResumesGrid 
+          onPlayVideo={handlePlayVideo} 
+          onDeleteVideo={(id, title) => setShowDeleteConfirm({ visible: true, type: 'video', id, title })} 
+          resumes={videoResumes} 
+        />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
           <div className="lg:col-span-7 space-y-lg">
-            <Skills />
             <Experience profileData={profileData} />
             <Education profileData={profileData} />
           </div>
@@ -388,6 +673,48 @@ const CandidateProfile = () => {
             </div>
           </div>
         )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteConfirm.visible && (
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+            onClick={() => setShowDeleteConfirm({ visible: false, type: null, id: null, title: null })}
+          >
+            <div 
+              className="bg-surface-container border border-outline-variant rounded-2xl p-6 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-danger/10 flex items-center justify-center text-danger">
+                    <span className="material-symbols-outlined">warning</span>
+                  </div>
+                  <h3 className="text-headline-md font-display text-text-primary">Confirm Deletion</h3>
+                </div>
+                <button onClick={() => setShowDeleteConfirm({ visible: false, type: null, id: null, title: null })} className="text-text-muted hover:text-white transition-colors">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+              <p className="text-body-md text-text-muted mb-6">
+                Are you sure you want to completely delete <strong>{showDeleteConfirm.title}</strong>? This action cannot be undone and will remove the file from all systems.
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button 
+                  onClick={() => setShowDeleteConfirm({ visible: false, type: null, id: null, title: null })}
+                  className="px-6 py-2.5 rounded-lg border border-outline-variant text-text-primary hover:bg-surface-container-highest transition-colors font-bold"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={confirmDeleteAction}
+                  className="px-6 py-2.5 rounded-lg bg-danger text-white hover:bg-danger/90 transition-colors font-bold"
+                >
+                  Yes, Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -400,6 +727,8 @@ const CandidateProfile = () => {
           profileData={profileData}
           onScheduleInterview={handleScheduleInterview}
           onViewResume={handleViewResume}
+          onUploadResume={handleUploadResume}
+          isUploadingResume={isUploadingResume}
         />
         <VideoResumesGrid onPlayVideo={handlePlayVideo} resumes={videoResumes} />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">

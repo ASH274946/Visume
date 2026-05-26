@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useUpload } from '../contexts/UploadContext';
 
 const DashboardNavbar = ({ role = 'candidate' }) => {
   const location = useLocation();
   const currentPath = location.pathname;
+  const { uploadStatus, uploadProgress } = useUpload();
 
   const getPageName = (path) => {
     switch (path) {
@@ -72,9 +74,27 @@ const DashboardNavbar = ({ role = 'candidate' }) => {
           {role === 'candidate' ? (
             <Link
               to="/recorder"
-              className="bg-primary px-5 py-2 rounded-lg text-white font-bold hover:opacity-90 active:scale-95 transition-all font-body-md text-body-md shadow-md"
+              className={`px-5 py-2 rounded-lg text-white font-bold transition-all font-body-md text-body-md shadow-md flex items-center gap-2 ${uploadStatus === 'uploading' ? 'bg-primary/80 cursor-wait' : uploadStatus === 'success' ? 'bg-secondary' : uploadStatus === 'error' ? 'bg-danger' : 'bg-primary hover:opacity-90 active:scale-95'}`}
+              style={{ pointerEvents: uploadStatus === 'uploading' ? 'none' : 'auto' }}
             >
-              Upload Video
+              {uploadStatus === 'uploading' ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Uploading... {uploadProgress}%
+                </>
+              ) : uploadStatus === 'success' ? (
+                <>
+                  <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                  Uploaded
+                </>
+              ) : uploadStatus === 'error' ? (
+                <>
+                  <span className="material-symbols-outlined text-[18px]">error</span>
+                  Failed
+                </>
+              ) : (
+                'Upload Video'
+              )}
             </Link>
           ) : (
             <Link

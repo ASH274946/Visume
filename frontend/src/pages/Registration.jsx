@@ -158,6 +158,7 @@ const Step1 = ({ onNext, role, setRole, formData, updateFormData }) => {
           if (data.kycStatus === 'verified' && data.profileComplete) {
             localStorage.setItem('isLoggedIn', 'true');
             localStorage.setItem('visume_role', foundRole);
+            localStorage.setItem('visume_profile_data', JSON.stringify(data));
             alert("Welcome back! You already have an account, so we've logged you in.");
             navigate(foundRole === 'recruiter' ? '/recruiter' : '/dashboard', { replace: true });
             return;

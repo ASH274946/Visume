@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import CustomVideoPlayer from '../components/CustomVideoPlayer';
+import { auth, db } from '../firebase';
+import { collection, getDocs } from 'firebase/firestore';
 
 
 const Header = ({ onNotifications, onRecordVideo }) => {
@@ -19,6 +21,36 @@ const Header = ({ onNotifications, onRecordVideo }) => {
         </button>
       </div>
     </header>
+  );
+};
+
+const GlobalLoadingOverlay = () => {
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    const blockInteraction = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+    window.addEventListener('keydown', blockInteraction, { capture: true });
+    window.addEventListener('wheel', blockInteraction, { passive: false, capture: true });
+    window.addEventListener('touchmove', blockInteraction, { passive: false, capture: true });
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+      window.removeEventListener('keydown', blockInteraction, { capture: true });
+      window.removeEventListener('wheel', blockInteraction, { capture: true });
+      window.removeEventListener('touchmove', blockInteraction, { capture: true });
+    };
+  }, []);
+
+  return (
+    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm pointer-events-auto animate-in fade-in duration-300">
+      <div className="bg-surface-container border border-outline-variant rounded-2xl p-8 flex flex-col items-center justify-center shadow-2xl animate-in zoom-in-95 duration-300">
+        <span className="material-symbols-outlined text-5xl text-primary animate-spin mb-4">progress_activity</span>
+        <h2 className="font-display text-headline-sm text-text-primary mb-2">Loading user details.</h2>
+        <p className="text-text-muted font-body-sm text-center">Synchronizing your dashboard...</p>
+      </div>
+    </div>
   );
 };
 
@@ -56,6 +88,17 @@ const StatsRow = () => (
 );
 
 const VideoResumesSection = ({ resumes, onPlayVideo }) => {
+  if (resumes === null) {
+    return (
+      <section className="bg-card-bg border border-outline-variant rounded-xl p-lg mb-xl flex flex-col items-center justify-center text-center py-12">
+        <span className="material-symbols-outlined text-4xl mb-4 text-text-muted opacity-20">videocam</span>
+        <div className="w-1/2 h-2 bg-surface-container-high rounded-full overflow-hidden mt-4">
+           <div className="w-1/3 h-full bg-primary/40 animate-pulse rounded-full"></div>
+        </div>
+      </section>
+    );
+  }
+
   if (!resumes || resumes.length === 0) {
     return (
       <section className="bg-card-bg border border-outline-variant rounded-xl p-lg mb-xl flex flex-col items-center justify-center text-center py-12">
@@ -69,6 +112,13 @@ const VideoResumesSection = ({ resumes, onPlayVideo }) => {
     );
   }
 
+  const getFullUrl = (url) => {
+    if (!url || url === 'mock_url') return null;
+    if (url.startsWith('blob:')) return url;
+    if (url.startsWith('/uploads')) return `http://localhost:5000${url}`;
+    return url;
+  };
+
   return (
     <section className="mb-xl">
       <div className="flex justify-between items-end mb-lg">
@@ -76,32 +126,35 @@ const VideoResumesSection = ({ resumes, onPlayVideo }) => {
         <Link className="text-primary-container font-label-md text-label-md hover:underline" to="/recorder">Manage Library</Link>
       </div>
       <div className="flex gap-lg overflow-x-auto custom-scrollbar pb-4 -mx-2 px-2 snap-x">
-        {resumes.map(resume => (
-          <div key={resume.id} onClick={() => onPlayVideo(resume)} className="w-[300px] md:w-[400px] flex-none bg-card-bg border border-outline-variant rounded-xl p-md snap-start hover:border-primary-container transition-all group cursor-pointer">
-            <div className="w-full aspect-video rounded-lg overflow-hidden relative border border-outline-variant mb-4">
-              {resume.videoUrl ? (
-                <video className="w-full h-full object-cover pointer-events-none" src={resume.videoUrl} preload="metadata" muted playsInline />
-              ) : (
-                <img alt={resume.title} className="w-full h-full object-cover pointer-events-none" src={resume.thumbnailUrl} />
-              )}
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/20 transition-all">
-                <div className="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                  <span className="material-symbols-outlined text-white text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
+        {resumes.map(resume => {
+          const finalSrc = getFullUrl(resume.videoUrl) || getFullUrl(resume.localVideoUrl);
+          return (
+            <div key={resume.id} onClick={() => onPlayVideo(resume)} className="w-[300px] md:w-[400px] flex-none bg-card-bg border border-outline-variant rounded-xl p-md snap-start hover:border-primary-container transition-all group cursor-pointer">
+              <div className="w-full aspect-video rounded-lg overflow-hidden relative border border-outline-variant mb-4">
+                {finalSrc && !finalSrc.startsWith('blob:') ? (
+                  <video className="w-full h-full object-cover pointer-events-none" src={finalSrc} poster={resume.thumbnailUrl} preload="metadata" muted playsInline />
+                ) : (
+                  <img alt={resume.title} className="w-full h-full object-cover pointer-events-none" src={resume.thumbnailUrl} />
+                )}
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/20 transition-all">
+                  <div className="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                    <span className="material-symbols-outlined text-white text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
+                  </div>
+                </div>
+                <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded text-[11px] font-bold text-white">
+                  {resume.duration}
                 </div>
               </div>
-              <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded text-[11px] font-bold text-white">
-                {resume.duration}
+              <div>
+                <h3 className="font-display text-headline-sm text-text-primary truncate">{resume.title}</h3>
+                <div className="flex justify-between text-text-muted font-body-sm mt-2">
+                  <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">calendar_month</span> {resume.date}</span>
+                  <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">visibility</span> {resume.views} Views</span>
+                </div>
               </div>
             </div>
-            <div>
-              <h3 className="font-display text-headline-sm text-text-primary truncate">{resume.title}</h3>
-              <div className="flex justify-between text-text-muted font-body-sm mt-2">
-                <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">calendar_month</span> {resume.date}</span>
-                <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">visibility</span> {resume.views} Views</span>
-              </div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
@@ -215,13 +268,43 @@ const CandidateDashboard = () => {
   const [activeVideoUrl, setActiveVideoUrl] = useState('');
 
   const [userApplications, setUserApplications] = useState(() => JSON.parse(localStorage.getItem('visume_applications') || '[]'));
-  const [videoResumes, setVideoResumes] = useState(() => JSON.parse(localStorage.getItem('visume_video_resumes') || '[]'));
+  const [withdrawnHardcoded, setWithdrawnHardcoded] = useState(() => JSON.parse(localStorage.getItem('visume_withdrawn_hardcoded') || '[]'));
+  const [videoResumes, setVideoResumes] = useState(null);
 
   useEffect(() => {
     const apps = JSON.parse(localStorage.getItem('visume_applications') || '[]');
     setUserApplications(apps);
-    const resumes = JSON.parse(localStorage.getItem('visume_video_resumes') || '[]');
-    setVideoResumes(resumes);
+    const withdrawn = JSON.parse(localStorage.getItem('visume_withdrawn_hardcoded') || '[]');
+    setWithdrawnHardcoded(withdrawn);
+    
+    const fetchVideos = async (userId) => {
+      if (!userId) {
+        setVideoResumes([]);
+        return;
+      }
+      try {
+        const videosRef = collection(db, 'candidates', userId, 'videoResumes');
+        const snapshot = await getDocs(videosRef);
+        const videos = [];
+        snapshot.forEach(doc => {
+          videos.push({ id: doc.id, ...doc.data() });
+        });
+        setVideoResumes(videos);
+      } catch (err) {
+        console.error("Error fetching videos:", err);
+        setVideoResumes([]);
+      }
+    };
+
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        fetchVideos(user.uid);
+      } else {
+        setVideoResumes([]);
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const handleRecordVideo = () => {
@@ -229,9 +312,17 @@ const CandidateDashboard = () => {
   };
 
   const handlePlayVideo = (resume) => {
+    const getFullUrl = (url) => {
+      if (!url || url === 'mock_url') return null;
+      if (url.startsWith('blob:')) return url;
+      if (url.startsWith('/uploads')) return `http://localhost:5000${url}`;
+      return url;
+    };
+    const finalUrl = getFullUrl(resume.videoUrl) || getFullUrl(resume.localVideoUrl) || "https://www.w3schools.com/html/mov_bbb.mp4";
+
     setActiveVideoTitle(resume.title);
     setActiveVideoDuration(resume.duration);
-    setActiveVideoUrl(resume.videoUrl || "https://www.w3schools.com/html/mov_bbb.mp4");
+    setActiveVideoUrl(finalUrl);
     setShowVideoModal(true);
   };
 
@@ -270,6 +361,76 @@ const CandidateDashboard = () => {
     setAppliedJob({ jobTitle, company });
     setShowApplyModal(true);
   };
+
+  const hardcodedApplications = [
+    {
+      id: 1,
+      title: "Senior React Developer",
+      company: "Stellar AI Solutions",
+      logo: "SA",
+      location: "Remote",
+      date: "Oct 12, 2023",
+      status: "interview",
+      statusText: "Interview Scheduled",
+      colorClass: "secondary-container",
+      details: {
+        timeText: "Interview on May 28, 2026 at 3:00 PM",
+        actionText: "Join Meet"
+      }
+    },
+    {
+      id: 2,
+      title: "Product Manager",
+      company: "Nexus Creative",
+      logo: "NC",
+      location: "Hybrid",
+      date: "Oct 10, 2023",
+      status: "shortlisted",
+      statusText: "Shortlisted",
+      colorClass: "primary-container"
+    },
+    {
+      id: 3,
+      title: "Frontend Developer",
+      company: "CloudFlow",
+      logo: "CF",
+      location: "Remote",
+      date: "Oct 14, 2023",
+      status: "review",
+      statusText: "Under Review",
+      colorClass: "status-review"
+    },
+    {
+      id: 4,
+      title: "Motion Designer",
+      company: "Peak Studio",
+      logo: "PS",
+      location: "Onsite",
+      date: "Oct 15, 2023",
+      status: "applied",
+      statusText: "Applied",
+      colorClass: "status-applied"
+    },
+    {
+      id: 5,
+      title: "UI Engineer",
+      company: "Tech Innovators",
+      logo: "TI",
+      location: "Remote",
+      date: "Sep 20, 2023",
+      status: "rejected",
+      statusText: "Rejected",
+      colorClass: "danger"
+    }
+  ];
+
+  // Combine hardcoded and user applications, removing duplicates and withdrawn ones
+  const combinedApplications = [
+    ...hardcodedApplications.filter(hApp => !withdrawnHardcoded.includes(hApp.id)),
+    ...userApplications.filter(userApp => 
+      !hardcodedApplications.some(hApp => hApp.title === userApp.title && hApp.company === userApp.company)
+    )
+  ].sort((a, b) => b.id - a.id);
 
   const AppliedJobsSection = ({ applications }) => {
     if (!applications || applications.length === 0) return null;
@@ -320,12 +481,15 @@ const CandidateDashboard = () => {
 
   return (
     <>
-      <Header onNotifications={handleNotifications} onRecordVideo={handleRecordVideo} />
-      <StatsRow />
-      <VideoResumesSection resumes={videoResumes} onPlayVideo={handlePlayVideo} />
-      <AppliedJobsSection applications={userApplications} />
-      <RecommendedJobs onApplyJob={handleApplyJob} />
-      <Footer />
+      {videoResumes === null && <GlobalLoadingOverlay />}
+      <div className={videoResumes === null ? "opacity-30 pointer-events-none transition-opacity duration-500 blur-[2px]" : "transition-opacity duration-500"}>
+        <Header onNotifications={handleNotifications} onRecordVideo={handleRecordVideo} />
+        <StatsRow />
+        <VideoResumesSection resumes={videoResumes} onPlayVideo={handlePlayVideo} />
+        <AppliedJobsSection applications={combinedApplications} />
+        <RecommendedJobs onApplyJob={handleApplyJob} />
+        <Footer />
+      </div>
 
       {/* Apply Confirmation Modal */}
       {showApplyModal && (

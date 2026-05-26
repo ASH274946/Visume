@@ -1,18 +1,26 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Toggle from '../components/Toggle';
+import { auth, db, storage } from '../firebase';
+import { collection, doc, setDoc, getDocs, deleteDoc } from 'firebase/firestore';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { useUpload } from '../contexts/UploadContext';
 
 const VideoResumeRecorder = () => {
   const navigate = useNavigate();
   const [showPrompt, setShowPrompt] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState({ visible: false, id: null, title: null });
   
-  const [videoResumes, setVideoResumes] = useState(() => {
-    return JSON.parse(localStorage.getItem('visume_video_resumes') || '[]');
-  });
+  const [videoResumes, setVideoResumes] = useState([]);
+  const [isLoadingVideos, setIsLoadingVideos] = useState(true);
   const [activeResumeId, setActiveResumeId] = useState(null);
   const [activeTitle, setActiveTitle] = useState('');
   const [teleprompterText, setTeleprompterText] = useState('');
+
+  // Upload state
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // Recording & Playback states
   const [recordingStatus, setRecordingStatus] = useState('idle'); // 'idle' | 'recording' | 'recorded'
@@ -32,9 +40,39 @@ const VideoResumeRecorder = () => {
   const chunksRef = useRef([]);
 
   useEffect(() => {
+    const fetchVideos = async () => {
+      if (!auth.currentUser) {
+        setIsLoadingVideos(false);
+        return;
+      }
+      try {
+        const videosRef = collection(db, 'candidates', auth.currentUser.uid, 'videoResumes');
+        const snapshot = await getDocs(videosRef);
+        const videos = [];
+        snapshot.forEach(doc => {
+          videos.push({ id: doc.id, ...doc.data() });
+        });
+        setVideoResumes(videos);
+      } catch (err) {
+        console.error("Error fetching videos:", err);
+      } finally {
+        setIsLoadingVideos(false);
+      }
+    };
+
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        fetchVideos();
+      } else {
+        setIsLoadingVideos(false);
+      }
+    });
+
     if (!activeResumeId) {
       handleCreateNew();
     }
+    
+    return () => unsubscribe();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -56,15 +94,15 @@ const VideoResumeRecorder = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const resetPlaybackState = () => {
+  function resetPlaybackState() {
     setIsPlaying(false);
     setVideoProgress(0);
     setCurrentTime('00:00');
     setDuration('00:00');
     setRawDuration(0);
-  };
+  }
 
-  const handleSelectResume = (id) => {
+  function handleSelectResume(id) {
     const resume = videoResumes.find(r => r.id === id);
     if (resume) {
       setActiveResumeId(id);
@@ -79,9 +117,9 @@ const VideoResumeRecorder = () => {
       chunksRef.current = [];
       resetPlaybackState();
     }
-  };
+  }
 
-  const handleCreateNew = () => {
+  function handleCreateNew() {
     setActiveResumeId('new');
     setActiveTitle('My Video Resume');
     setTeleprompterText('');
@@ -93,7 +131,7 @@ const VideoResumeRecorder = () => {
     setRecordedVideoUrl(null);
     chunksRef.current = [];
     resetPlaybackState();
-  };
+  }
 
   const togglePrompt = () => setShowPrompt(!showPrompt);
 
@@ -240,54 +278,77 @@ const VideoResumeRecorder = () => {
     }
   };
 
-  const handleSave = () => {
+  const { startVideoUpload, uploadStatus } = useUpload();
+
+  const handleSaveAndPublish = async () => {
     if (!activeTitle.trim()) {
       alert("Please enter a title for your video resume.");
       return;
     }
-    
-    let updatedResumes = [...videoResumes];
+    if (!auth.currentUser) {
+      alert("You must be logged in to save videos.");
+      return;
+    }
+
     const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
     const finalDuration = duration === '00:00' ? '01:45' : duration;
     
-    const thumbnailUrl = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&h=256&q=80';
-    
-    if (activeResumeId === 'new') {
-      const newResume = {
-        id: Date.now().toString(),
-        title: activeTitle,
-        date: currentDate,
-        duration: finalDuration,
-        views: 0,
-        thumbnailUrl: thumbnailUrl,
-        videoUrl: recordedVideoUrl,
-        teleprompterText: teleprompterText
-      };
-      updatedResumes.push(newResume);
-      setActiveResumeId(newResume.id);
-    } else {
-      updatedResumes = updatedResumes.map(r => 
-        r.id === activeResumeId ? { ...r, title: activeTitle, date: currentDate, duration: finalDuration, videoUrl: recordedVideoUrl || r.videoUrl, teleprompterText: teleprompterText } : r
-      );
+    // Extract thumbnail from the video element
+    let extractedThumbnail = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&h=256&q=80';
+    if (playbackRef.current) {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = playbackRef.current.videoWidth || 640;
+        canvas.height = playbackRef.current.videoHeight || 360;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(playbackRef.current, 0, 0, canvas.width, canvas.height);
+        extractedThumbnail = canvas.toDataURL('image/jpeg', 0.7);
+      } catch (e) {
+        console.warn("Failed to extract thumbnail", e);
+      }
     }
     
-    setVideoResumes(updatedResumes);
-    localStorage.setItem('visume_video_resumes', JSON.stringify(updatedResumes));
-    alert('Video Resume saved successfully!');
+    const resumeData = {
+      title: activeTitle,
+      date: currentDate,
+      duration: finalDuration,
+      views: 0,
+      thumbnailUrl: extractedThumbnail,
+      teleprompterText: teleprompterText
+    };
+
+    // Trigger global background upload
+    startVideoUpload(recordedVideoUrl, resumeData, activeResumeId);
+
+    alert("Upload started in the background! You can safely navigate away.");
     navigate('/dashboard');
   };
 
   const handleDelete = (id, e) => {
     e.stopPropagation();
-    const confirmDelete = window.confirm("Are you sure you want to delete this video resume?");
-    if (confirmDelete) {
-      const updated = videoResumes.filter(r => r.id !== id);
-      setVideoResumes(updated);
-      localStorage.setItem('visume_video_resumes', JSON.stringify(updated));
-      if (activeResumeId === id) {
-        handleCreateNew();
+    const resume = videoResumes.find(r => r.id === id);
+    if (resume) {
+      setShowDeleteConfirm({ visible: true, id, title: resume.title });
+    }
+  };
+
+  const confirmDelete = async () => {
+    const { id } = showDeleteConfirm;
+    if (id && auth.currentUser) {
+      try {
+        const docRef = doc(db, 'candidates', auth.currentUser.uid, 'videoResumes', id);
+        await deleteDoc(docRef);
+        
+        const updated = videoResumes.filter(r => r.id !== id);
+        setVideoResumes(updated);
+        if (activeResumeId === id) {
+          handleCreateNew();
+        }
+      } catch (err) {
+        console.error("Error deleting document", err);
       }
     }
+    setShowDeleteConfirm({ visible: false, id: null, title: null });
   };
 
   return (
@@ -481,12 +542,21 @@ const VideoResumeRecorder = () => {
               </div>
               <div className="hidden lg:block w-px h-6 bg-border-input mx-1"></div>
               <button 
-                onClick={handleSave}
-                disabled={recordingStatus !== 'recorded'}
-                className={`flex items-center gap-1.5 lg:gap-2 px-3 py-1.5 lg:px-4 lg:py-2 rounded-lg text-sm lg:font-headline-sm transition-all flex-shrink-0 ${recordingStatus === 'recorded' ? 'bg-primary text-white hover:brightness-110 shadow-lg shadow-primary/20 active:scale-95' : 'bg-surface-container text-text-muted opacity-50 cursor-not-allowed border border-outline-variant'}`}
+                onClick={handleSaveAndPublish}
+                disabled={recordingStatus !== 'recorded' || uploadStatus === 'uploading'}
+                className={`flex items-center gap-1.5 lg:gap-2 px-3 py-1.5 lg:px-4 lg:py-2 rounded-lg text-sm lg:font-headline-sm transition-all flex-shrink-0 ${recordingStatus === 'recorded' && uploadStatus !== 'uploading' ? 'bg-primary text-white hover:brightness-110 shadow-lg shadow-primary/20 active:scale-95' : 'bg-surface-container text-text-muted opacity-50 cursor-not-allowed border border-outline-variant'}`}
               >
-                <span className="material-symbols-outlined text-[16px] lg:text-[18px]">publish</span>
-                Publish
+                {uploadStatus === 'uploading' ? (
+                  <span className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[16px] lg:text-[18px] animate-spin">progress_activity</span>
+                    Starting Upload...
+                  </span>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-[16px] lg:text-[18px]">publish</span>
+                    Save & Publish
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -510,7 +580,12 @@ const VideoResumeRecorder = () => {
             </div>
             
             <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-3 pr-2" style={{ maxHeight: 'calc(100vh - 350px)' }}>
-              {videoResumes.length === 0 ? (
+              {isLoadingVideos ? (
+                <div className="text-center py-8 px-4 text-text-muted">
+                  <span className="material-symbols-outlined text-4xl mb-2 animate-spin">progress_activity</span>
+                  <p className="font-body-md">Loading your visumes...</p>
+                </div>
+              ) : videoResumes.length === 0 ? (
                 <div className="text-center py-8 px-4 text-text-muted border border-dashed border-outline-variant rounded-xl">
                   <span className="material-symbols-outlined text-4xl mb-2 opacity-50">videocam_off</span>
                   <p className="font-body-md">You haven't saved any video resumes yet. Record your first one to get started!</p>
@@ -523,11 +598,20 @@ const VideoResumeRecorder = () => {
                     className={`flex gap-3 p-3 rounded-xl border transition-all cursor-pointer ${activeResumeId === resume.id ? 'bg-primary-container/10 border-primary-container' : 'bg-surface-container border-border-input hover:border-outline-variant hover:bg-surface-container-high'}`}
                   >
                     <div className="w-20 h-16 rounded-lg overflow-hidden shrink-0 relative border border-outline-variant/30">
-                      {resume.videoUrl ? (
-                        <video src={resume.videoUrl} className="w-full h-full object-cover pointer-events-none" preload="metadata" muted playsInline />
-                      ) : (
-                        <img src={resume.thumbnailUrl} alt={resume.title} className="w-full h-full object-cover pointer-events-none" />
-                      )}
+                      {(() => {
+                        const getFullUrl = (url) => {
+                          if (!url || url === 'mock_url') return null;
+                          if (url.startsWith('blob:')) return url;
+                          if (url.startsWith('/uploads')) return `http://localhost:5000${url}`;
+                          return url;
+                        };
+                        const finalSrc = getFullUrl(resume.videoUrl) || getFullUrl(resume.localVideoUrl);
+                        return finalSrc && !finalSrc.startsWith('blob:') ? (
+                          <video src={finalSrc} poster={resume.thumbnailUrl} className="w-full h-full object-cover pointer-events-none" preload="metadata" muted playsInline />
+                        ) : (
+                          <img src={resume.thumbnailUrl} alt={resume.title} className="w-full h-full object-cover pointer-events-none" />
+                        );
+                      })()}
                       <div className="absolute bottom-1 right-1 bg-black/70 px-1 rounded text-[9px] font-bold">{resume.duration}</div>
                     </div>
                     <div className="flex-1 flex flex-col justify-center overflow-hidden">
@@ -548,9 +632,22 @@ const VideoResumeRecorder = () => {
             </div>
 
             <div className="pt-4 border-t border-border-input mt-auto">
-              <button onClick={handleSave} className="w-full bg-primary-container text-on-primary-container font-headline-sm py-4 rounded-lg shadow-lg shadow-primary-container/10 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-                <span className="material-symbols-outlined">save</span>
-                Save & Publish Visume
+              <button 
+                onClick={handleSaveAndPublish} 
+                disabled={recordingStatus !== 'recorded' || uploadStatus === 'uploading'}
+                className="w-full bg-primary-container text-on-primary-container font-headline-sm py-4 rounded-lg shadow-lg shadow-primary-container/10 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {uploadStatus === 'uploading' ? (
+                  <>
+                    <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                    Starting Upload...
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined">save</span>
+                    Save & Publish Visume
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -612,6 +709,48 @@ const VideoResumeRecorder = () => {
             <div className="mt-8 pt-4 border-t border-outline-variant flex justify-end">
               <button onClick={() => setShowInstructions(false)} className="bg-primary text-white font-bold py-2 px-6 rounded-lg hover:brightness-110 transition-all">
                 Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm.visible && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+          onClick={() => setShowDeleteConfirm({ visible: false, id: null, title: null })}
+        >
+          <div 
+            className="bg-surface-container border border-outline-variant rounded-2xl p-6 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-danger/10 flex items-center justify-center text-danger">
+                  <span className="material-symbols-outlined">warning</span>
+                </div>
+                <h3 className="text-headline-md font-display text-text-primary">Confirm Deletion</h3>
+              </div>
+              <button onClick={() => setShowDeleteConfirm({ visible: false, id: null, title: null })} className="text-text-muted hover:text-white transition-colors">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <p className="text-body-md text-text-muted mb-6">
+              Are you sure you want to completely delete <strong>{showDeleteConfirm.title}</strong>? This action cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button 
+                onClick={() => setShowDeleteConfirm({ visible: false, id: null, title: null })}
+                className="px-6 py-2.5 rounded-lg border border-outline-variant text-text-primary hover:bg-surface-container-highest transition-colors font-bold"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={confirmDelete}
+                className="px-6 py-2.5 rounded-lg bg-danger text-white hover:bg-danger/90 transition-colors font-bold"
+              >
+                Yes, Delete
               </button>
             </div>
           </div>

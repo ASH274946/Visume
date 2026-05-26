@@ -43,6 +43,8 @@ import DashboardLayout from './components/DashboardLayout';
 
 import FindCandidatesPage from './pages/FindCandidatesPage';
 
+import { UploadProvider } from './contexts/UploadContext';
+
 function App() {
   useEffect(() => {
     const savedTheme = localStorage.getItem('visume_theme');
@@ -56,8 +58,9 @@ function App() {
   }, []);
 
   return (
-    <Router>
-      <div className="bg-background text-text-primary min-h-screen font-body-md selection:bg-primary-container/30">
+    <UploadProvider>
+      <Router>
+        <div className="bg-background text-text-primary min-h-screen font-body-md selection:bg-primary-container/30">
         <Routes>
           {/* Public Pages */}
           <Route path="/" element={<PublicRoute><VisumeLandingPage /></PublicRoute>} />
@@ -85,6 +88,7 @@ function App() {
         </Routes>
       </div>
     </Router>
+    </UploadProvider>
   );
 }
 
