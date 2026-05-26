@@ -1,6 +1,8 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Toggle from '../components/Toggle';
+import { db, auth } from '../firebase';
+import { collection, onSnapshot, query, orderBy, doc, updateDoc, increment, arrayUnion, getDoc } from 'firebase/firestore';
 
 const initialJobs = [
   {
@@ -327,6 +329,78 @@ const JobGrid = ({ jobs, onApplied, selectedJob, setSelectedJob }) => {
   
   const [videoResumes, setVideoResumes] = useState([]);
 
+  const trackJobView = async (job) => {
+    if (!job?.isLive || !job?.id || !auth.currentUser) return;
+
+    const viewedJobsKey = 'visume_viewed_jobs';
+    const viewedJobs = JSON.parse(localStorage.getItem(viewedJobsKey) || '[]');
+    const viewKey = `${auth.currentUser.uid}___${job.id}`;
+
+    if (viewedJobs.includes(viewKey)) return;
+
+    try {
+      await updateDoc(doc(db, 'jobs', job.id), {
+        viewCount: increment(1),
+        viewers: arrayUnion({
+          uid: auth.currentUser.uid,
+          name: profileData.fullName || auth.currentUser.displayName || 'Candidate',
+          headline: profileData.headline || 'Candidate',
+          location: profileData.location || 'Remote',
+          profileImage: profileData.profileImage || auth.currentUser.photoURL || '',
+          viewedAt: new Date().toISOString()
+        })
+      });
+      localStorage.setItem(viewedJobsKey, JSON.stringify([...viewedJobs, viewKey]));
+    } catch (error) {
+      console.error('Error tracking job view:', error);
+    }
+  };
+
+  const openJobDetails = (job) => {
+    trackJobView(job);
+    setSelectedJob(job);
+  };
+
+  const recordJobApplication = async (job, resumeId) => {
+    if (!job?.isLive || !job?.id || !auth.currentUser) return;
+
+    try {
+      const jobRef = doc(db, 'jobs', job.id);
+      const jobSnap = await getDoc(jobRef);
+      const jobData = jobSnap.exists() ? jobSnap.data() : {};
+      const viewers = Array.isArray(jobData.viewers) ? jobData.viewers : [];
+      const applicants = Array.isArray(jobData.applicants) ? jobData.applicants : [];
+      const now = new Date().toISOString();
+      const candidateRecord = {
+        uid: auth.currentUser.uid,
+        name: profileData.fullName || auth.currentUser.displayName || 'Candidate',
+        headline: profileData.headline || 'Candidate',
+        location: profileData.location || 'Remote',
+        profileImage: profileData.profileImage || auth.currentUser.photoURL || '',
+        viewedAt: viewers.find(viewer => viewer.uid === auth.currentUser.uid)?.viewedAt || now,
+        appliedAt: now,
+        status: 'applied',
+        resumeId,
+        includeDocumentResume
+      };
+
+      const nextViewers = viewers.some(viewer => viewer.uid === auth.currentUser.uid)
+        ? viewers.map(viewer => viewer.uid === auth.currentUser.uid ? { ...viewer, ...candidateRecord } : viewer)
+        : [...viewers, candidateRecord];
+      const nextApplicants = applicants.some(applicant => applicant.uid === auth.currentUser.uid)
+        ? applicants.map(applicant => applicant.uid === auth.currentUser.uid ? { ...applicant, ...candidateRecord } : applicant)
+        : [...applicants, candidateRecord];
+
+      await updateDoc(jobRef, {
+        viewers: nextViewers,
+        applicants: nextApplicants,
+        viewCount: Math.max(jobData.viewCount || 0, nextViewers.length)
+      });
+    } catch (error) {
+      console.error('Error recording job application:', error);
+    }
+  };
+
   useEffect(() => {
     const fetchVideos = async () => {
       if (!applicationJob) return; // Only fetch when opening modal
@@ -351,7 +425,7 @@ const JobGrid = ({ jobs, onApplied, selectedJob, setSelectedJob }) => {
   const profileData = useMemo(() => {
     try {
       return JSON.parse(localStorage.getItem('visume_profile_data') || '{}');
-    } catch (e) {
+    } catch {
       return {};
     }
   }, [applicationJob]);
@@ -434,7 +508,7 @@ const JobGrid = ({ jobs, onApplied, selectedJob, setSelectedJob }) => {
             <div className="flex gap-4 mt-6">
               <button
                 type="button"
-                onClick={(e) => { e.stopPropagation(); setSelectedJob(jobs[idx]); }}
+                onClick={(e) => { e.stopPropagation(); openJobDetails(jobs[idx]); }}
                 className="flex-1 text-center border border-border-input text-text-muted py-3 rounded-lg font-bold hover:bg-surface-container-highest transition-colors"
               >
                 View Details
@@ -639,9 +713,10 @@ const JobGrid = ({ jobs, onApplied, selectedJob, setSelectedJob }) => {
                   if (idx === -1) return;
                   
                   setApplyingIdx(idx);
-                  setTimeout(() => {
+                  setTimeout(async () => {
                     setApplyingIdx(null);
                     setAppliedJobs(prev => new Set(prev).add(idx));
+                    await recordJobApplication(jobs[idx], selectedResumeId);
 
                     const existingApplications = JSON.parse(localStorage.getItem('visume_applications') || '[]');
                     const newApplication = {
@@ -734,17 +809,52 @@ const JobDiscoveryPage = () => {
   const [showApplied, setShowApplied] = useState(false);
   const [appsVersion, setAppsVersion] = useState(0);
   const [selectedJob, setSelectedJob] = useState(null);
+  const [liveJobs, setLiveJobs] = useState([]);
+
+  // Real-time subscription to Firestore 'jobs' collection
+  useEffect(() => {
+    const q = query(collection(db, 'jobs'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const jobs = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          title: data.title || 'Untitled Role',
+          company: data.company || 'Unknown',
+          location: `${data.location || 'Remote'}${data.workMode ? ', ' + data.workMode : ''}`,
+          match: Math.floor(Math.random() * 15) + 85, // 85-99 simulated AI match
+          type: data.type || 'Full-time',
+          salary: data.salaryMin || 0,
+          salaryDisplay: data.salaryDisplay || 'Not disclosed',
+          tags: data.skills || [],
+          experience: data.experience || 'Entry',
+          workMode: data.workMode || 'Remote',
+          description: data.description || '',
+          imgSrc: data.recruiterPhoto || 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&q=80',
+          isLive: true // flag to identify live-posted jobs
+        };
+      });
+      setLiveJobs(jobs);
+    }, (error) => {
+      console.error('Error fetching live jobs:', error);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const filteredJobs = useMemo(() => {
     // load user applications from localStorage to hide applied jobs when needed
     const userApplications = JSON.parse(localStorage.getItem('visume_applications') || '[]');
     const appliedSet = new Set(userApplications.map(a => `${a.title}___${a.company}`));
 
-    return initialJobs.filter(job => {
+    // Combine live jobs (first) + static jobs
+    const allJobs = [...liveJobs, ...initialJobs];
+
+    return allJobs.filter(job => {
       const searchMatch = !searchQuery || 
         job.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
         job.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        job.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
+        (job.tags && job.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase())));
         
       if (!searchMatch) return false;
       if (workModes.length > 0 && !workModes.includes(job.workMode)) return false;
@@ -759,7 +869,7 @@ const JobDiscoveryPage = () => {
 
       return true;
     });
-  }, [searchQuery, workModes, jobTypes, salaryMin, experience, aiSmartMatch, showApplied, appsVersion]);
+  }, [searchQuery, workModes, jobTypes, salaryMin, experience, aiSmartMatch, showApplied, appsVersion, liveJobs]);
 
   const clearAll = () => {
      setSearchQuery("");

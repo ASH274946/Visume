@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { db } from '../firebase';
+import { collection, onSnapshot, getDocs, doc, getDoc } from 'firebase/firestore';
 
 const candidatesData = [
   {
@@ -63,6 +65,12 @@ const candidatesData = [
   }
 ];
 
+const getPlayableMediaUrl = (url) => {
+  if (!url || url === 'mock_url') return null;
+  if (url.startsWith('/uploads')) return `http://localhost:5000${url}`;
+  return url;
+};
+
 const FindCandidatesPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('All Candidates');
@@ -72,11 +80,170 @@ const FindCandidatesPage = () => {
   const [experienceLevel, setExperienceLevel] = useState('Any');
   const [minMatchScore, setMinMatchScore] = useState(70);
   const [selectedSkills, setSelectedSkills] = useState([]);
+  const [liveCandidates, setLiveCandidates] = useState([]);
+  const [profileModal, setProfileModal] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileVideos, setProfileVideos] = useState([]);
+  const [profileResume, setProfileResume] = useState(null);
+
+  const closeProfileModal = useCallback(() => {
+    setProfileModal(null);
+    setProfileVideos([]);
+    setProfileResume(null);
+  }, []);
 
   const allSkillsList = [
     "React", "TypeScript", "Node.js", "Python", "AWS", 
     "Figma", "Machine Learning", "SQL", "Agile", "Strategy"
   ];
+
+  // Real-time subscription to Firestore 'candidates' collection
+  useEffect(() => {
+    let unsubscribe = null;
+
+    const fetchCandidates = async () => {
+      try {
+        // Try real-time listener first
+        unsubscribe = onSnapshot(collection(db, 'candidates'), (snapshot) => {
+          console.log(`[FindCandidates] onSnapshot received ${snapshot.docs.length} candidates`);
+          const candidates = snapshot.docs.map((docSnap) => {
+            const data = docSnap.data();
+            const skills = data.skills || [];
+            const expMatch = (data.previousExperience || data.bio || '').match(/(\d+)\+?\s*years?/i);
+            const expYears = expMatch ? parseInt(expMatch[1]) : 2;
+
+            return {
+              id: `live-${docSnap.id}`,
+              name: data.fullName || 'Unknown Candidate',
+              role: data.headline || 'Candidate',
+              location: data.location || 'Remote',
+              match: `${Math.floor(Math.random() * 15) + 85}%`,
+              skills: skills.slice(0, 4),
+              experience: `${expYears} years`,
+              imgSrc: data.profileImage || data.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.fullName || 'U')}&background=6C5CE7&color=fff&size=256`,
+              isLive: true
+            };
+          });
+          setLiveCandidates(candidates);
+        }, (error) => {
+          console.error('[FindCandidates] onSnapshot error (likely Firestore rules). Falling back to getDocs:', error.message);
+          // Fallback: one-time fetch
+          fallbackFetch();
+        });
+      } catch (err) {
+        console.error('[FindCandidates] Setup error:', err);
+        fallbackFetch();
+      }
+    };
+
+    const fallbackFetch = async () => {
+      try {
+        const { getDocs } = await import('firebase/firestore');
+        const snapshot = await getDocs(collection(db, 'candidates'));
+        console.log(`[FindCandidates] getDocs fallback received ${snapshot.docs.length} candidates`);
+        const candidates = snapshot.docs.map((docSnap) => {
+          const data = docSnap.data();
+          const skills = data.skills || [];
+          const expMatch = (data.previousExperience || data.bio || '').match(/(\d+)\+?\s*years?/i);
+          const expYears = expMatch ? parseInt(expMatch[1]) : 2;
+
+          return {
+            id: `live-${docSnap.id}`,
+            name: data.fullName || 'Unknown Candidate',
+            role: data.headline || 'Candidate',
+            location: data.location || 'Remote',
+            match: `${Math.floor(Math.random() * 15) + 85}%`,
+            skills: skills.slice(0, 4),
+            experience: `${expYears} years`,
+            imgSrc: data.profileImage || data.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.fullName || 'U')}&background=6C5CE7&color=fff&size=256`,
+            isLive: true
+          };
+        });
+        setLiveCandidates(candidates);
+      } catch (fallbackErr) {
+        console.error('[FindCandidates] getDocs fallback also failed:', fallbackErr.message);
+      }
+    };
+
+    fetchCandidates();
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!profileModal) return;
+
+    const appScrollContainer = document.querySelector('main');
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousMainOverflow = appScrollContainer?.style.overflow;
+    const previousMainOverflowY = appScrollContainer?.style.overflowY;
+
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    appScrollContainer?.style.setProperty('overflow', 'hidden', 'important');
+    appScrollContainer?.style.setProperty('overflow-y', 'hidden', 'important');
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        closeProfileModal();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      if (appScrollContainer) {
+        appScrollContainer.style.overflow = previousMainOverflow || '';
+        appScrollContainer.style.overflowY = previousMainOverflowY || '';
+      }
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [profileModal, closeProfileModal]);
+
+  // Merge live candidates at the top with mock candidates
+  const allCandidates = [...liveCandidates, ...candidatesData];
+
+  const handleViewProfile = async (candidate) => {
+    setProfileModal(candidate);
+    setProfileLoading(true);
+    setProfileVideos([]);
+    setProfileResume(null);
+
+    // Only fetch from Firestore for live candidates
+    if (candidate.isLive && candidate.id) {
+      const uid = candidate.id.replace('live-', '');
+      try {
+        // Fetch video resumes
+        const videosRef = collection(db, 'candidates', uid, 'videoResumes');
+        const videosSnap = await getDocs(videosRef);
+        const videos = [];
+        videosSnap.forEach(d => {
+          videos.push({ id: d.id, ...d.data() });
+        });
+        setProfileVideos(videos);
+
+        // Fetch document resume from the candidate's profile doc
+        const candidateDoc = await getDoc(doc(db, 'candidates', uid));
+        if (candidateDoc.exists()) {
+          const data = candidateDoc.data();
+          if (data.resumeUrl || data.localResumeUrl) {
+            setProfileResume({
+              name: data.resumeName || 'Resume Document',
+              url: data.resumeUrl || data.localResumeUrl
+            });
+          }
+        }
+      } catch (err) {
+        console.error('[FindCandidates] Error fetching profile data:', err);
+      }
+    }
+    setProfileLoading(false);
+  };
 
   const handleFilterClick = (filter) => {
     setActiveFilter(filter);
@@ -90,7 +257,7 @@ const FindCandidatesPage = () => {
     );
   };
 
-  const filteredCandidates = candidatesData.filter((candidate) => {
+  const filteredCandidates = allCandidates.filter((candidate) => {
     // 1. Filter by Quick Filter
     let matchesFilter = true;
     if (activeFilter === 'UX/UI Designers') {
@@ -148,12 +315,6 @@ const FindCandidatesPage = () => {
 
   return (
     <div className="space-y-lg pb-20">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-xl">
-        <div>
-          <h1 className="font-display text-headline-lg font-bold text-text-primary">Find Candidates</h1>
-          <p className="text-body-md text-text-muted">Discover top talent matching your open roles.</p>
-        </div>
-      </div>
       
       {/* Search and Filter Section */}
       <div className="bg-surface-container border border-outline-variant rounded-xl p-md shadow-lg flex flex-col md:flex-row gap-4 items-center mb-4">
@@ -312,12 +473,13 @@ const FindCandidatesPage = () => {
                 </div>
               </div>
               
-              <div className="flex gap-3 mt-auto">
-                <button className="flex-1 bg-primary text-white py-2.5 rounded-lg font-bold hover:brightness-110 active:scale-95 transition-all text-body-sm shadow-md shadow-primary/20">
-                  View Visume
-                </button>
-                <button className="flex-1 bg-surface-container border border-outline-variant text-text-primary py-2.5 rounded-lg font-bold hover:bg-surface-bright/20 active:scale-95 transition-all text-body-sm">
-                  Shortlist
+              <div className="mt-auto">
+                <button
+                  onClick={() => handleViewProfile(candidate)}
+                  className="w-full bg-primary text-white py-2.5 rounded-lg font-bold hover:brightness-110 active:scale-95 transition-all text-body-sm shadow-md shadow-primary/20 flex items-center justify-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-[18px]">person</span>
+                  View Profile
                 </button>
               </div>
             </div>
@@ -334,6 +496,142 @@ const FindCandidatesPage = () => {
           >
             Clear Filters
           </button>
+        </div>
+      )}
+
+      {/* Profile Modal */}
+      {profileModal && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 backdrop-blur-sm pt-24 px-4 pb-10 overflow-hidden" onClick={closeProfileModal}>
+          <div className="bg-surface-container border border-outline-variant rounded-2xl w-full max-w-2xl shadow-2xl max-h-[calc(100vh-8.5rem)] flex flex-col" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="candidate-profile-title">
+            {/* Header */}
+            <div className="flex items-start justify-between p-6 border-b border-outline-variant/30">
+              <div className="flex gap-4 items-center">
+                <div className="w-16 h-16 rounded-full border-2 border-primary-container/30 overflow-hidden shrink-0">
+                  <img src={profileModal.imgSrc} alt={profileModal.name} className="w-full h-full object-cover" />
+                </div>
+                <div>
+                  <h3 id="candidate-profile-title" className="font-display text-headline-sm font-bold text-text-primary">{profileModal.name}</h3>
+                  <p className="text-body-sm text-text-muted">{profileModal.role}</p>
+                  <div className="flex items-center gap-1 mt-1 text-label-md text-text-muted">
+                    <span className="material-symbols-outlined text-[14px]">location_on</span>
+                    {profileModal.location}
+                  </div>
+                </div>
+              </div>
+              <button onClick={closeProfileModal} className="text-text-muted hover:text-white transition-colors p-1" aria-label="Close profile window">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto overscroll-contain p-6 custom-scrollbar space-y-6">
+              {/* Skills & Stats */}
+              <div className="flex flex-wrap gap-2">
+                {profileModal.skills.map((skill, idx) => (
+                  <span key={idx} className="px-3 py-1 bg-primary-container/10 border border-primary-container/30 rounded-full text-[11px] font-bold text-primary-container tracking-wide uppercase">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-1 bg-surface-container/50 p-3 rounded-lg border border-outline-variant/30 text-center">
+                  <p className="text-[11px] text-text-muted uppercase tracking-wider font-bold mb-1">AI Match</p>
+                  <span className="text-secondary font-bold text-body-lg">{profileModal.match}</span>
+                </div>
+                <div className="flex-1 bg-surface-container/50 p-3 rounded-lg border border-outline-variant/30 text-center">
+                  <p className="text-[11px] text-text-muted uppercase tracking-wider font-bold mb-1">Experience</p>
+                  <span className="text-text-primary font-bold text-body-lg">{profileModal.experience}</span>
+                </div>
+              </div>
+
+              {profileLoading ? (
+                <div className="flex flex-col items-center py-10">
+                  <div className="w-8 h-8 border-2 border-primary-container border-t-transparent rounded-full animate-spin mb-3"></div>
+                  <p className="text-text-muted text-body-sm">Loading profile data...</p>
+                </div>
+              ) : (
+                <>
+                  {/* Video Resumes Section */}
+                  <div>
+                    <h4 className="font-label-lg text-label-lg text-text-primary mb-3 flex items-center gap-2">
+                      <span className="material-symbols-outlined text-primary text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>videocam</span>
+                      Video Resumes
+                    </h4>
+                    {profileVideos.length > 0 ? (
+                      <div className="space-y-3">
+                        {profileVideos.map((video, idx) => {
+                          const playableVideoUrl = getPlayableMediaUrl(video.videoUrl) || getPlayableMediaUrl(video.localVideoUrl);
+
+                          return (
+                          <div key={idx} className="bg-surface-container-low border border-outline-variant/30 rounded-xl overflow-hidden">
+                            {playableVideoUrl ? (
+                              <video
+                                src={playableVideoUrl}
+                                controls
+                                preload="metadata"
+                                playsInline
+                                className="w-full max-h-[300px] rounded-lg object-cover bg-surface-container-low"
+                                poster={video.thumbnailUrl || undefined}
+                              />
+                            ) : (
+                              <div className="flex min-h-[220px] flex-col items-center justify-center gap-2 bg-surface-container-low text-center">
+                                <span className="material-symbols-outlined text-4xl text-text-muted opacity-50">videocam_off</span>
+                                <p className="text-body-sm text-text-muted">This video resume does not have a playable file attached.</p>
+                              </div>
+                            )}
+                            <div className="p-3 flex items-center justify-between">
+                              <div>
+                                <p className="text-body-sm font-bold text-text-primary">{video.title || 'Untitled Video'}</p>
+                                <p className="text-[11px] text-text-muted">{video.date || ''} {video.duration ? `• ${video.duration}` : ''}</p>
+                              </div>
+                            </div>
+                          </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="text-center py-6 border border-dashed border-outline-variant rounded-xl bg-surface-container-low">
+                        <span className="material-symbols-outlined text-3xl text-text-muted mb-2 opacity-50">videocam_off</span>
+                        <p className="text-body-sm text-text-muted">No video resumes available.</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Document Resume Section */}
+                  <div>
+                    <h4 className="font-label-lg text-label-lg text-text-primary mb-3 flex items-center gap-2">
+                      <span className="material-symbols-outlined text-primary text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>description</span>
+                      Document Resume
+                    </h4>
+                    {profileResume ? (
+                      <a
+                        href={profileResume.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 p-4 bg-surface-container-low border border-outline-variant/30 rounded-xl hover:border-primary-container/50 transition-all group"
+                      >
+                        <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                          <span className="material-symbols-outlined text-primary text-[24px]">picture_as_pdf</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-body-sm font-bold text-text-primary truncate">{profileResume.name}</p>
+                          <p className="text-[11px] text-text-muted">Click to view document</p>
+                        </div>
+                        <span className="material-symbols-outlined text-text-muted group-hover:text-primary transition-colors">open_in_new</span>
+                      </a>
+                    ) : (
+                      <div className="text-center py-6 border border-dashed border-outline-variant rounded-xl bg-surface-container-low">
+                        <span className="material-symbols-outlined text-3xl text-text-muted mb-2 opacity-50">description</span>
+                        <p className="text-body-sm text-text-muted">No document resume uploaded.</p>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+
+          </div>
         </div>
       )}
     </div>
