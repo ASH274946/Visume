@@ -40,23 +40,44 @@ export const UploadProvider = ({ children }) => {
         const fileExtension = blob.type.split('/')[1] || 'webm';
         const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExtension}`;
 
-        // 1. Upload to Local Backend (10s timeout)
+        // 1. Upload to Local Backend
         const formData = new FormData();
         formData.append('file', blob, fileName);
-        
-        const localUploadPromise = withTimeout(fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/api/upload`, {
-          method: 'POST',
-          body: formData
-        }), 10000, 'Local Backend Upload')
-          .then(res => res.json())
-          .then(data => {
-            console.log("Local Backend Upload Success:", data.localUrl);
-            return data.localUrl;
-          })
-          .catch(err => {
-            console.warn("Local Backend Upload Failed or Timed Out:", err.message);
-            return null;
-          });
+
+        const localUploadPromise = new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/api/upload`);
+          
+          xhr.upload.onprogress = (event) => {
+            if (event.lengthComputable) {
+              const progress = Math.round((event.loaded / event.total) * 100);
+              setUploadProgress(progress);
+            }
+          };
+
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try {
+                const data = JSON.parse(xhr.responseText);
+                console.log("Local Backend Upload Success:", data.localUrl);
+                resolve(data.localUrl);
+              } catch(e) {
+                console.warn("Local Backend Upload Parse Failed");
+                resolve(null);
+              }
+            } else {
+              console.warn("Local Backend Upload Failed with status:", xhr.status);
+              resolve(null);
+            }
+          };
+          
+          xhr.onerror = () => {
+            console.warn("Local Backend Upload Network Error");
+            resolve(null);
+          };
+          
+          xhr.send(formData);
+        });
 
         // 2. Upload to Global Firebase Storage (60s timeout)
         const storageRef = ref(storage, `video-resumes/${auth.currentUser.uid}/${fileName}`);
@@ -109,7 +130,6 @@ export const UploadProvider = ({ children }) => {
       setUploadStatus('success');
       setTimeout(() => {
         setUploadStatus('idle');
-        window.location.reload();
       }, 1000);
       window.dispatchEvent(new CustomEvent('visumeVideoUpdated'));
       
@@ -136,19 +156,40 @@ export const UploadProvider = ({ children }) => {
       const formData = new FormData();
       formData.append('file', file);
       
-      const localUploadPromise = withTimeout(fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/api/upload`, {
-        method: 'POST',
-        body: formData
-      }), 10000, 'Local Document Upload')
-        .then(res => res.json())
-        .then(data => {
-          console.log("Local Backend Upload Success:", data.localUrl);
-          return data.localUrl;
-        })
-        .catch(err => {
-          console.warn("Local Backend Upload Failed or Timed Out:", err.message);
-          return null;
-        });
+      const localUploadPromise = new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/api/upload`);
+        
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const progress = Math.round((event.loaded / event.total) * 100);
+            setDocUploadProgress(progress);
+          }
+        };
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const data = JSON.parse(xhr.responseText);
+              console.log("Local Backend Upload Success:", data.localUrl);
+              resolve(data.localUrl);
+            } catch(e) {
+              console.warn("Local Backend Upload Parse Failed");
+              resolve(null);
+            }
+          } else {
+            console.warn("Local Backend Upload Failed with status:", xhr.status);
+            resolve(null);
+          }
+        };
+        
+        xhr.onerror = () => {
+          console.warn("Local Backend Upload Network Error");
+          resolve(null);
+        };
+        
+        xhr.send(formData);
+      });
 
       const storageRef = ref(storage, `resumes/${auth.currentUser.uid}/${fileName}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
@@ -207,7 +248,6 @@ export const UploadProvider = ({ children }) => {
       setDocUploadStatus('success');
       setTimeout(() => {
         setDocUploadStatus('idle');
-        window.location.reload();
       }, 1000);
       
       window.dispatchEvent(new CustomEvent('visumeProfileUpdated', { detail: newData }));

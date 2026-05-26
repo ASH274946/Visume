@@ -367,11 +367,25 @@ const CandidateDashboard = () => {
         fetchVideos(auth.currentUser.uid);
       }
     };
+    
+    const handleProfileUpdate = (e) => {
+      if (e.detail) {
+        setProfileData(e.detail);
+      } else {
+        const savedData = localStorage.getItem('visume_profile_data');
+        if (savedData) {
+          try { setProfileData(JSON.parse(savedData)); } catch (err) {}
+        }
+      }
+    };
+
     window.addEventListener('visumeVideoUpdated', handleVideoUpdate);
+    window.addEventListener('visumeProfileUpdated', handleProfileUpdate);
 
     return () => {
       unsubscribe();
       window.removeEventListener('visumeVideoUpdated', handleVideoUpdate);
+      window.removeEventListener('visumeProfileUpdated', handleProfileUpdate);
     };
   }, []);
 
