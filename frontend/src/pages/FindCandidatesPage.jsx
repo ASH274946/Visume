@@ -218,6 +218,13 @@ const FindCandidatesPage = () => {
     if (candidate.isLive && candidate.id) {
       const uid = candidate.id.replace('live-', '');
       try {
+        // Fetch candidate's profile doc first to get defaults
+        const candidateDoc = await getDoc(doc(db, 'candidates', uid));
+        let data = {};
+        if (candidateDoc.exists()) {
+          data = candidateDoc.data();
+        }
+
         // Fetch video resumes
         const videosRef = collection(db, 'candidates', uid, 'videoResumes');
         const videosSnap = await getDocs(videosRef);
@@ -225,18 +232,35 @@ const FindCandidatesPage = () => {
         videosSnap.forEach(d => {
           videos.push({ id: d.id, ...d.data() });
         });
-        setProfileVideos(videos);
 
-        // Fetch document resume from the candidate's profile doc
-        const candidateDoc = await getDoc(doc(db, 'candidates', uid));
-        if (candidateDoc.exists()) {
-          const data = candidateDoc.data();
-          if (data.resumeUrl || data.localResumeUrl) {
+        const defaultVideoId = data.defaultVideoResumeId;
+        if (defaultVideoId) {
+          const defaultVideo = videos.find(v => v.id === defaultVideoId);
+          setProfileVideos(defaultVideo ? [defaultVideo] : []);
+        } else if (videos.length > 0) {
+          // Fallback to the most recently added (usually last in array or could sort)
+          setProfileVideos([videos[videos.length - 1]]);
+        } else {
+          setProfileVideos([]);
+        }
+
+        // Document Resume logic
+        const defaultDocId = data.defaultDocumentResumeId;
+        if (data.documentResumes && Array.isArray(data.documentResumes) && data.documentResumes.length > 0) {
+          const defaultDoc = data.documentResumes.find(r => r.id === defaultDocId);
+          const docToShow = defaultDoc || data.documentResumes[data.documentResumes.length - 1]; // fallback to last
+          if (docToShow) {
             setProfileResume({
-              name: data.resumeName || 'Resume Document',
-              url: data.resumeUrl || data.localResumeUrl
+              name: docToShow.name,
+              url: docToShow.url || docToShow.localUrl
             });
           }
+        } else if (data.resumeUrl || data.localResumeUrl) {
+          // Legacy single resume
+          setProfileResume({
+            name: data.resumeName || 'Resume Document',
+            url: data.resumeUrl || data.localResumeUrl
+          });
         }
       } catch (err) {
         console.error('[FindCandidates] Error fetching profile data:', err);

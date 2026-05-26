@@ -48,12 +48,14 @@ const HeroSection = ({ profileData, onScheduleInterview, onUploadResume, isUploa
   );
 };
 
-const DocumentResumesGrid = ({ profileData, onDeleteResume }) => {
+const DocumentResumesGrid = ({ profileData, onDeleteResume, onSetDefaultResume }) => {
   const documentResumes = Array.isArray(profileData?.documentResumes) && profileData.documentResumes.length > 0 
     ? profileData.documentResumes 
     : profileData?.resumeName ? [{ id: 'legacy', name: profileData.resumeName, url: profileData.resumeUrl, localUrl: profileData.localResumeUrl }] : [];
 
   if (documentResumes.length === 0) return null;
+
+  const defaultId = profileData?.defaultDocumentResumeId;
 
   const getFullUrl = (url) => {
     if (!url || url === 'mock_url') return null;
@@ -74,14 +76,18 @@ const DocumentResumesGrid = ({ profileData, onDeleteResume }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
         {documentResumes.map((resume) => {
            const finalUrl = getFullUrl(resume.url) || getFullUrl(resume.localUrl);
+           const isDefault = resume.id === defaultId;
            return (
-             <div key={resume.id} className="bg-card-bg border border-outline-variant rounded-xl p-md flex flex-col justify-between hover:border-primary-container transition-all group">
+             <div key={resume.id} className={`bg-card-bg border rounded-xl p-md flex flex-col justify-between transition-all group ${isDefault ? 'border-primary' : 'border-outline-variant hover:border-primary-container'}`}>
                 <div className="flex items-start gap-3 mb-4">
                   <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center shrink-0 text-primary">
                     <span className="material-symbols-outlined">picture_as_pdf</span>
                   </div>
                   <div className="overflow-hidden flex-1">
-                    <h3 className="font-headline-sm text-headline-sm text-text-primary truncate" title={resume.name}>{resume.name}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-headline-sm text-headline-sm text-text-primary truncate" title={resume.name}>{resume.name}</h3>
+                      {isDefault && <span className="bg-primary/20 text-primary text-[10px] uppercase font-bold px-2 py-0.5 rounded-full shrink-0">Default</span>}
+                    </div>
                     <p className="text-body-sm text-text-muted mt-1">{new Date(resume.uploadedAt || Date.now()).toLocaleDateString()}</p>
                   </div>
                 </div>
@@ -89,6 +95,11 @@ const DocumentResumesGrid = ({ profileData, onDeleteResume }) => {
                   <button onClick={() => finalUrl ? window.open(finalUrl, '_blank') : alert('No URL found.')} className="flex-1 py-2 bg-primary/10 text-primary font-bold rounded-lg hover:bg-primary/20 transition-colors text-label-sm">
                     View
                   </button>
+                  {!isDefault && (
+                    <button onClick={() => onSetDefaultResume(resume.id)} className="px-3 py-2 bg-surface-container border border-outline-variant text-primary font-bold rounded-lg hover:bg-primary/10 hover:border-primary transition-colors flex items-center justify-center" title="Set as Default">
+                      <span className="material-symbols-outlined text-sm">star</span>
+                    </button>
+                  )}
                   <button onClick={() => onDeleteResume(resume.id, resume.name)} className="px-3 py-2 bg-surface-container border border-outline-variant text-danger font-bold rounded-lg hover:bg-danger/10 hover:border-danger transition-colors flex items-center justify-center" title="Delete">
                     <span className="material-symbols-outlined text-sm">delete</span>
                   </button>
@@ -101,8 +112,10 @@ const DocumentResumesGrid = ({ profileData, onDeleteResume }) => {
   );
 };
 
-const VideoResumesGrid = ({ onPlayVideo, onDeleteVideo, resumes }) => {
+const VideoResumesGrid = ({ profileData, onPlayVideo, onDeleteVideo, onSetDefaultVideo, resumes }) => {
   if (!resumes || resumes.length === 0) return null;
+
+  const defaultId = profileData?.defaultVideoResumeId;
 
   const getFullUrl = (url) => {
     if (!url || url === 'mock_url') return null;
@@ -122,23 +135,43 @@ const VideoResumesGrid = ({ onPlayVideo, onDeleteVideo, resumes }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
         {resumes.map(resume => {
           const finalSrc = getFullUrl(resume.videoUrl) || getFullUrl(resume.localVideoUrl);
+          const isDefault = resume.id === defaultId;
           return (
-            <div key={resume.id} onClick={() => onPlayVideo(resume)} className="aspect-video w-full rounded-xl bg-surface-dim border border-border-input relative overflow-hidden group cursor-pointer">
+            <div key={resume.id} onClick={() => onPlayVideo(resume)} className={`aspect-video w-full rounded-xl bg-surface-dim border relative overflow-hidden group cursor-pointer ${isDefault ? 'border-primary' : 'border-border-input'}`}>
+              {isDefault && (
+                <div className="absolute top-2 left-2 bg-primary/90 text-white text-[10px] uppercase font-bold px-2 py-1 rounded z-20 shadow-md flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[12px]">star</span> Default
+                </div>
+              )}
               <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all flex items-center justify-center z-10">
                 <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-transform">
                   <span className="material-symbols-outlined text-white text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
                 </div>
               </div>
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDeleteVideo(resume.id, resume.title);
-                }}
-                className="absolute top-2 right-2 bg-black/60 hover:bg-danger/80 w-8 h-8 rounded flex items-center justify-center transition-colors z-20 opacity-0 group-hover:opacity-100"
-                title="Delete Video"
-              >
-                <span className="material-symbols-outlined text-white text-[18px]">delete</span>
-              </button>
+              <div className="absolute top-2 right-2 flex gap-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+                {!isDefault && (
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSetDefaultVideo(resume.id);
+                    }}
+                    className="bg-black/60 hover:bg-primary/80 w-8 h-8 rounded flex items-center justify-center transition-colors"
+                    title="Set as Default"
+                  >
+                    <span className="material-symbols-outlined text-white text-[18px]">star</span>
+                  </button>
+                )}
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteVideo(resume.id, resume.title);
+                  }}
+                  className="bg-black/60 hover:bg-danger/80 w-8 h-8 rounded flex items-center justify-center transition-colors"
+                  title="Delete Video"
+                >
+                  <span className="material-symbols-outlined text-white text-[18px]">delete</span>
+                </button>
+              </div>
               {finalSrc && !finalSrc.startsWith('blob:') ? (
                 <video className="w-full h-full object-cover pointer-events-none" src={finalSrc} poster={resume.thumbnailUrl} preload="metadata" muted playsInline />
               ) : (
@@ -484,6 +517,36 @@ const CandidateProfile = () => {
 
   // View Resume logic moved into DocumentResumesGrid
 
+  const handleSetDefaultResume = async (resumeId) => {
+    try {
+      if (auth.currentUser) {
+        const userRef = doc(db, 'candidates', auth.currentUser.uid);
+        await updateDoc(userRef, { defaultDocumentResumeId: resumeId });
+      }
+      const newProfileData = { ...profileData, defaultDocumentResumeId: resumeId };
+      setProfileState(newProfileData);
+      localStorage.setItem('visume_profile_data', JSON.stringify(newProfileData));
+    } catch (err) {
+      console.error("Error setting default resume:", err);
+      alert("Failed to set default document resume.");
+    }
+  };
+
+  const handleSetDefaultVideo = async (videoId) => {
+    try {
+      if (auth.currentUser) {
+        const userRef = doc(db, 'candidates', auth.currentUser.uid);
+        await updateDoc(userRef, { defaultVideoResumeId: videoId });
+      }
+      const newProfileData = { ...profileData, defaultVideoResumeId: videoId };
+      setProfileState(newProfileData);
+      localStorage.setItem('visume_profile_data', JSON.stringify(newProfileData));
+    } catch (err) {
+      console.error("Error setting default video:", err);
+      alert("Failed to set default video resume.");
+    }
+  };
+
   const handlePlayVideo = (resume) => {
     const getFullUrl = (url) => {
       if (!url || url === 'mock_url') return null;
@@ -654,11 +717,14 @@ const CandidateProfile = () => {
         <DocumentResumesGrid 
           profileData={profileData}
           onDeleteResume={(id, title) => setShowDeleteConfirm({ visible: true, type: 'resume', id, title })}
+          onSetDefaultResume={handleSetDefaultResume}
         />
         <VideoResumesGrid 
+          profileData={profileData}
+          resumes={videoResumes} 
           onPlayVideo={handlePlayVideo} 
           onDeleteVideo={(id, title) => setShowDeleteConfirm({ visible: true, type: 'video', id, title })} 
-          resumes={videoResumes} 
+          onSetDefaultVideo={handleSetDefaultVideo}
         />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
           <div className="lg:col-span-7 space-y-lg">
@@ -870,8 +936,15 @@ const CandidateProfile = () => {
         <DocumentResumesGrid 
           profileData={profileData}
           onDeleteResume={(id, title) => setShowDeleteConfirm({ visible: true, type: 'resume', id, title })}
+          onSetDefaultResume={handleSetDefaultResume}
         />
-        <VideoResumesGrid onPlayVideo={handlePlayVideo} resumes={videoResumes} />
+        <VideoResumesGrid 
+          profileData={profileData}
+          resumes={videoResumes} 
+          onPlayVideo={handlePlayVideo} 
+          onDeleteVideo={(id, title) => setShowDeleteConfirm({ visible: true, type: 'video', id, title })} 
+          onSetDefaultVideo={handleSetDefaultVideo}
+        />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
           <div className="lg:col-span-7 space-y-lg">
             <Skills />
