@@ -337,7 +337,8 @@ const VideoResumeRecorder = () => {
       duration: finalDuration,
       views: 0,
       thumbnailUrl: extractedThumbnail,
-      teleprompterText: teleprompterText
+      teleprompterText: teleprompterText,
+      timestamp: Date.now()
     };
 
     // Trigger global background upload

@@ -97,7 +97,11 @@ const PostJob = () => {
       const candidateDoc = await getDoc(doc(db, 'candidates', viewer.uid));
       const candidateData = candidateDoc.exists() ? candidateDoc.data() : {};
       const videosSnap = await getDocs(collection(db, 'candidates', viewer.uid, 'videoResumes'));
-      const videos = videosSnap.docs.map(videoDoc => ({ id: videoDoc.id, ...videoDoc.data() }));
+      let videos = videosSnap.docs.map(videoDoc => ({ id: videoDoc.id, ...videoDoc.data() }));
+
+      if (viewer.resumeId) {
+        videos = videos.filter(v => v.id === viewer.resumeId);
+      }
 
       setViewerProfile({
         ...viewer,
@@ -107,7 +111,7 @@ const PostJob = () => {
         location: candidateData.location || viewer.location || 'Remote',
         profileImage: candidateData.profileImage || viewer.profileImage || '',
         videos,
-        resume: candidateData.resumeUrl || candidateData.localResumeUrl
+        resume: viewer.includeDocumentResume !== false && (candidateData.resumeUrl || candidateData.localResumeUrl)
           ? {
               name: candidateData.resumeName || 'Resume Document',
               url: candidateData.resumeUrl || candidateData.localResumeUrl

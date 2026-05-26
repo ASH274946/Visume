@@ -289,6 +289,10 @@ const CandidateDashboard = () => {
         snapshot.forEach(doc => {
           videos.push({ id: doc.id, ...doc.data() });
         });
+        
+        // Sort newest first (assuming timestamps are generated, or simply by ID fallback / reverse if chronological)
+        videos.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        
         setVideoResumes(videos);
       } catch (err) {
         console.error("Error fetching videos:", err);
@@ -304,7 +308,17 @@ const CandidateDashboard = () => {
       }
     });
 
-    return () => unsubscribe();
+    const handleVideoUpdate = () => {
+      if (auth.currentUser) {
+        fetchVideos(auth.currentUser.uid);
+      }
+    };
+    window.addEventListener('visumeVideoUpdated', handleVideoUpdate);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener('visumeVideoUpdated', handleVideoUpdate);
+    };
   }, []);
 
   const handleRecordVideo = () => {

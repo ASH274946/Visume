@@ -108,6 +108,7 @@ export const UploadProvider = ({ children }) => {
 
       setUploadStatus('success');
       setTimeout(() => setUploadStatus('idle'), 5000);
+      window.dispatchEvent(new CustomEvent('visumeVideoUpdated'));
       
     } catch (error) {
       console.error("Error saving video resume in background:", error);
