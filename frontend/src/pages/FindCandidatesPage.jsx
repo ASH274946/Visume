@@ -1,6 +1,85 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { db } from '../firebase';
 import { collection, onSnapshot, getDocs, doc, getDoc } from 'firebase/firestore';
+
+const CustomVideoPlayer = ({ src, poster }) => {
+  const videoRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [isMuted, setIsMuted] = useState(false);
+
+  const togglePlay = () => {
+    if (videoRef.current.paused) {
+      videoRef.current.play();
+      setIsPlaying(true);
+    } else {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    const prog = (videoRef.current.currentTime / videoRef.current.duration) * 100;
+    setProgress(prog || 0);
+  };
+
+  const handleSeek = (e) => {
+    const seekTo = (e.target.value / 100) * videoRef.current.duration;
+    videoRef.current.currentTime = seekTo;
+    setProgress(e.target.value);
+  };
+
+  const toggleMute = () => {
+    videoRef.current.muted = !isMuted;
+    setIsMuted(!isMuted);
+  };
+
+  return (
+    <div className="relative group rounded-xl overflow-hidden bg-surface-dim border border-outline-variant/30 w-full max-h-[300px]">
+      <video
+        ref={videoRef}
+        src={src}
+        poster={poster}
+        className="w-full h-full object-cover max-h-[300px]"
+        onTimeUpdate={handleTimeUpdate}
+        onEnded={() => setIsPlaying(false)}
+        playsInline
+        onClick={togglePlay}
+      />
+      {/* Overlay Play Button (when paused) */}
+      {!isPlaying && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none transition-all">
+          <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center shadow-xl">
+            <span className="material-symbols-outlined text-white text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
+          </div>
+        </div>
+      )}
+      
+      {/* Custom Controls */}
+      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-2">
+        <input 
+          type="range" 
+          min="0" max="100" 
+          value={progress} 
+          onChange={handleSeek}
+          className="w-full h-1 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary" 
+        />
+        <div className="flex items-center gap-4 text-white">
+          <button onClick={togglePlay} className="hover:text-primary transition-colors flex items-center justify-center">
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
+              {isPlaying ? 'pause' : 'play_arrow'}
+            </span>
+          </button>
+          <button onClick={toggleMute} className="hover:text-primary transition-colors flex items-center justify-center">
+            <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+              {isMuted ? 'volume_off' : 'volume_up'}
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const candidatesData = [
   {
@@ -590,14 +669,7 @@ const FindCandidatesPage = () => {
                           return (
                           <div key={idx} className="bg-surface-container-low border border-outline-variant/30 rounded-xl overflow-hidden">
                             {playableVideoUrl ? (
-                              <video
-                                src={playableVideoUrl}
-                                controls
-                                preload="metadata"
-                                playsInline
-                                className="w-full max-h-[300px] rounded-lg object-cover bg-surface-container-low"
-                                poster={video.thumbnailUrl || undefined}
-                              />
+                              <CustomVideoPlayer src={playableVideoUrl} poster={video.thumbnailUrl || undefined} />
                             ) : (
                               <div className="flex min-h-[220px] flex-col items-center justify-center gap-2 bg-surface-container-low text-center">
                                 <span className="material-symbols-outlined text-4xl text-text-muted opacity-50">videocam_off</span>
