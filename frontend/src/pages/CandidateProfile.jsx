@@ -472,14 +472,19 @@ const CandidateProfile = () => {
         
         // Save to Firestore profile
         const userRef = doc(db, 'candidates', auth.currentUser.uid);
-        const updateData = {
-          localResumeUrl: backendData.localUrl,
-          resumeName: file.name
+        const newResume = {
+          id: Date.now().toString(),
+          name: file.name,
+          localUrl: backendData.localUrl,
+          url: downloadURL || null,
+          uploadedAt: new Date().toISOString()
         };
-        if (downloadURL) updateData.resumeUrl = downloadURL;
+
+        const existingResumes = Array.isArray(profileData?.documentResumes) ? profileData.documentResumes : (profileData?.resumeName ? [{ id: 'legacy', name: profileData.resumeName, url: profileData.resumeUrl, localUrl: profileData.localResumeUrl }] : []);
+        const updatedResumes = [...existingResumes, newResume];
         
         try {
-          await updateDoc(userRef, updateData);
+          await updateDoc(userRef, { documentResumes: updatedResumes });
         } catch (e) {
           console.warn("Firestore update failed, but local storage will be updated", e);
         }
@@ -487,21 +492,27 @@ const CandidateProfile = () => {
         // Update local state
         const newProfileData = { 
           ...profileData, 
-          localResumeUrl: backendData.localUrl,
-          resumeName: file.name 
+          documentResumes: updatedResumes
         };
-        if (downloadURL) newProfileData.resumeUrl = downloadURL;
         
         setProfileState(newProfileData);
         localStorage.setItem('visume_profile_data', JSON.stringify(newProfileData));
         alert("Resume uploaded successfully!");
       } else {
         // Just mock it if not authenticated
+        const newResume = {
+          id: Date.now().toString(),
+          name: file.name,
+          localUrl: backendData.localUrl,
+          url: 'mock_url',
+          uploadedAt: new Date().toISOString()
+        };
+        const existingResumes = Array.isArray(profileData?.documentResumes) ? profileData.documentResumes : (profileData?.resumeName ? [{ id: 'legacy', name: profileData.resumeName, url: profileData.resumeUrl, localUrl: profileData.localResumeUrl }] : []);
+        const updatedResumes = [...existingResumes, newResume];
+
         const newProfileData = { 
           ...profileData, 
-          resumeUrl: "mock_url", 
-          localResumeUrl: backendData.localUrl,
-          resumeName: file.name
+          documentResumes: updatedResumes
         };
         setProfileState(newProfileData);
         localStorage.setItem('visume_profile_data', JSON.stringify(newProfileData));
