@@ -108,7 +108,7 @@ const LibrarySection = ({ resumes, profileData, onPlayVideo }) => {
   const getFullUrl = (url) => {
     if (!url || url === 'mock_url') return null;
     if (url.startsWith('blob:')) return url;
-    if (url.startsWith('/uploads')) return `http://localhost:5000${url}`;
+    if (url.startsWith('/uploads')) return `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}${url}`;
     return url;
   };
 
@@ -383,7 +383,7 @@ const CandidateDashboard = () => {
     const getFullUrl = (url) => {
       if (!url || url === 'mock_url') return null;
       if (url.startsWith('blob:')) return url;
-      if (url.startsWith('/uploads')) return `http://localhost:5000${url}`;
+      if (url.startsWith('/uploads')) return `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}${url}`;
       return url;
     };
     const finalUrl = getFullUrl(resume.videoUrl) || getFullUrl(resume.localVideoUrl) || "https://www.w3schools.com/html/mov_bbb.mp4";

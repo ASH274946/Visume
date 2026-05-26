@@ -44,7 +44,7 @@ export const UploadProvider = ({ children }) => {
         const formData = new FormData();
         formData.append('file', blob, fileName);
         
-        const localUploadPromise = withTimeout(fetch('http://localhost:5000/api/upload', {
+        const localUploadPromise = withTimeout(fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/api/upload`, {
           method: 'POST',
           body: formData
         }), 10000, 'Local Backend Upload')
@@ -136,7 +136,7 @@ export const UploadProvider = ({ children }) => {
       const formData = new FormData();
       formData.append('file', file);
       
-      const localUploadPromise = withTimeout(fetch('http://localhost:5000/api/upload', {
+      const localUploadPromise = withTimeout(fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/api/upload`, {
         method: 'POST',
         body: formData
       }), 10000, 'Local Document Upload')

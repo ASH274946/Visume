@@ -626,7 +626,7 @@ const VideoResumeRecorder = () => {
                         const getFullUrl = (url) => {
                           if (!url || url === 'mock_url') return null;
                           if (url.startsWith('blob:')) return url;
-                          if (url.startsWith('/uploads')) return `http://localhost:5000${url}`;
+                          if (url.startsWith('/uploads')) return `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}${url}`;
                           return url;
                         };
                         const finalSrc = getFullUrl(resume.videoUrl) || getFullUrl(resume.localVideoUrl);

@@ -76,7 +76,7 @@ const demoCandidates = [
 
 const getMediaUrl = (url) => {
   if (!url || url === 'mock_url') return null;
-  if (url.startsWith('/uploads')) return `http://localhost:5000${url}`;
+  if (url.startsWith('/uploads')) return `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}${url}`;
   return url;
 };
 

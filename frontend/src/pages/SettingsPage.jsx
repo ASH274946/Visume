@@ -207,7 +207,7 @@ const SettingsPage = () => {
       const localUrl = resumeToDelete ? resumeToDelete.localUrl : formData.localResumeUrl;
       if (localUrl) {
         try {
-          await fetch('http://localhost:5000/api/delete', {
+          await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/api/delete`, {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ fileUrl: localUrl })

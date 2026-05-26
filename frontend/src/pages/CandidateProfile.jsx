@@ -60,7 +60,7 @@ const DocumentResumesGrid = ({ profileData, onDeleteResume, onSetDefaultResume }
   const getFullUrl = (url) => {
     if (!url || url === 'mock_url') return null;
     if (url.startsWith('/uploads')) {
-      return `http://localhost:5000${url}`;
+      return `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}${url}`;
     }
     return url;
   };
@@ -120,7 +120,7 @@ const VideoResumesGrid = ({ profileData, onPlayVideo, onDeleteVideo, onSetDefaul
   const getFullUrl = (url) => {
     if (!url || url === 'mock_url') return null;
     if (url.startsWith('blob:')) return url;
-    if (url.startsWith('/uploads')) return `http://localhost:5000${url}`;
+    if (url.startsWith('/uploads')) return `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}${url}`;
     return url;
   };
 
@@ -447,7 +447,7 @@ const CandidateProfile = () => {
       // 1. Upload to Backend (Local Storage)
       const formData = new FormData();
       formData.append('file', file);
-      const backendRes = await fetch('http://localhost:5000/api/upload', {
+      const backendRes = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/api/upload`, {
         method: 'POST',
         body: formData
       });
@@ -562,7 +562,7 @@ const CandidateProfile = () => {
     const getFullUrl = (url) => {
       if (!url || url === 'mock_url') return null;
       if (url.startsWith('blob:')) return url;
-      if (url.startsWith('/uploads')) return `http://localhost:5000${url}`;
+      if (url.startsWith('/uploads')) return `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}${url}`;
       return url;
     };
     const finalUrl = getFullUrl(resume.videoUrl) || getFullUrl(resume.localVideoUrl) || "https://www.w3schools.com/html/mov_bbb.mp4";
@@ -591,7 +591,7 @@ const CandidateProfile = () => {
       // 1. Delete Local File
       if (localUrl) {
         try {
-          await fetch('http://localhost:5000/api/delete', {
+          await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/api/delete`, {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ fileUrl: localUrl })
@@ -657,7 +657,7 @@ const CandidateProfile = () => {
       // 1. Delete Local File
       if (videoToDelete?.localVideoUrl) {
         try {
-          await fetch('http://localhost:5000/api/delete', {
+          await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/api/delete`, {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ fileUrl: videoToDelete.localVideoUrl })
