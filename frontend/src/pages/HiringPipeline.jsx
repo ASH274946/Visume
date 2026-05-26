@@ -1,124 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import CustomSelect from '../components/CustomSelect';
-
-const initialPipelineData = {
-  applied: [
-    {
-      id: 'c1',
-      name: "Alexandria Chen", role: "UX/UI Designer", match: "94%", 
-      img: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=256&h=256&q=80",
-      tags: ["Figma", "React"],
-      actions: [{icon: 'visibility', color: 'primary-container'}, {icon: 'calendar_today', color: 'status-interview'}, {icon: 'close', color: 'danger'}]
-    },
-    {
-      id: 'c2',
-      name: "Marcus Thorne", role: "Sr. Interaction Lead", match: "88%", 
-      img: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=256&h=256&q=80",
-      actions: [{icon: 'visibility', color: 'primary-container'}, {icon: 'calendar_today', color: 'status-interview'}, {icon: 'chevron_right', color: 'primary-container'}]
-    }
-  ],
-  review: [
-    {
-      id: 'c3',
-      name: "Elena Rodriguez", role: "Lead Visual Designer", match: "91%", className: "border-l-4 border-l-status-review",
-      img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&h=256&q=80",
-      additionalContent: <span className="text-[10px] text-status-review font-medium uppercase tracking-widest">Watching 2m 14s</span>,
-      actions: [{icon: 'visibility', color: 'primary-container'}]
-    }
-  ],
-  shortlist: [
-    {
-      id: 'c4',
-      name: "Jordan Smith", role: "Principal UI Engineer", match: "97%", indicatorColor: "primary-container",
-      img: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=256&h=256&q=80",
-      additionalContent: (
-        <div className="flex gap-1">
-          <span className="w-2 h-2 rounded-full bg-primary"></span>
-          <span className="w-2 h-2 rounded-full bg-primary/40"></span>
-          <span className="w-2 h-2 rounded-full bg-primary/20"></span>
-        </div>
-      ),
-      actions: [{icon: 'calendar_today', color: 'status-interview'}]
-    }
-  ],
-  interview: [
-    {
-      id: 'c5',
-      name: "Sophie Varma", role: "Creative Strategist", match: "92%",
-      img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=256&h=256&q=80",
-      additionalContent: (
-        <div className="p-2 bg-status-interview/5 border border-status-interview/20 rounded-lg w-full mr-4">
-          <p className="text-[10px] text-status-interview font-bold flex items-center gap-1">
-            <span className="material-symbols-outlined text-[12px]">event</span> TOMORROW 2:00 PM
-          </p>
-        </div>
-      )
-    }
-  ],
-  hired: [
-    {
-      id: 'c6',
-      name: "David Kim", role: "UX Design Lead", indicatorColor: "status-hired", className: "bg-status-hired/5 border-status-hired/20",
-      img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80"
-    }
-  ]
-};
-
-const pipelinesData = {
-  'senior-product-designer': initialPipelineData,
-  'frontend-engineer': {
-    applied: [
-      {
-        id: 'f1',
-        name: "Jessica Wong", role: "React Developer", match: "95%",
-        img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=256&h=256&q=80",
-        tags: ["React", "TypeScript", "Redux"],
-        actions: [{icon: 'visibility', color: 'primary-container'}]
-      },
-      {
-        id: 'f2',
-        name: "Samuel Jackson", role: "Frontend UI Engineer", match: "89%",
-        img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&h=256&q=80",
-        tags: ["Vue", "React"],
-        actions: [{icon: 'visibility', color: 'primary-container'}, {icon: 'close', color: 'danger'}]
-      },
-      {
-        id: 'f3',
-        name: "Aiden Pearce", role: "Junior Web Developer", match: "78%",
-        img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&h=256&q=80",
-        tags: ["HTML", "CSS"],
-        actions: [{icon: 'visibility', color: 'primary-container'}]
-      }
-    ],
-    review: [
-      {
-        id: 'f4',
-        name: "Clara Oswald", role: "Senior Frontend Engineer", match: "98%", className: "border-l-4 border-l-status-review",
-        img: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=256&h=256&q=80",
-        additionalContent: <span className="text-[10px] text-status-review font-medium uppercase tracking-widest">Watching 1m 02s</span>,
-        actions: [{icon: 'visibility', color: 'primary-container'}]
-      }
-    ],
-    shortlist: [
-      {
-        id: 'f5',
-        name: "David Tennant", role: "Frontend Architect", match: "99%", indicatorColor: "primary-container",
-        img: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=256&h=256&q=80",
-        additionalContent: (
-          <div className="flex gap-1">
-            <span className="w-2 h-2 rounded-full bg-primary"></span>
-            <span className="w-2 h-2 rounded-full bg-primary/40"></span>
-            <span className="w-2 h-2 rounded-full bg-primary/20"></span>
-          </div>
-        ),
-        actions: [{icon: 'calendar_today', color: 'status-interview'}]
-      }
-    ],
-    interview: [],
-    hired: []
-  }
-};
+import { db, auth } from '../firebase';
+import { collection, onSnapshot, query, orderBy, doc, updateDoc, getDoc } from 'firebase/firestore';
 
 const CandidateCard = ({ candidate, columnId, onDragStart, onDragEnd, isDragged }) => {
   const [isDraggable, setIsDraggable] = useState(false);
@@ -218,14 +102,75 @@ const KanbanColumn = ({ columnId, title, count, colorClass, candidates, onDragSt
 
 const HiringPipeline = () => {
   const location = useLocation();
-  const [activePipeline, setActivePipeline] = useState(location.state?.pipeline || 'senior-product-designer');
-  const [columns, setColumns] = useState(pipelinesData[activePipeline] || pipelinesData['senior-product-designer']);
+  const [recruiterJobs, setRecruiterJobs] = useState([]);
+  const [activePipeline, setActivePipeline] = useState('');
+  const [columns, setColumns] = useState({ applied: [], review: [], shortlist: [], interview: [], hired: [] });
   const [draggedItem, setDraggedItem] = useState(null);
   const [dropTarget, setDropTarget] = useState(null);
+  const [jobsLoading, setJobsLoading] = useState(true);
 
   useEffect(() => {
-    setColumns(pipelinesData[activePipeline] || pipelinesData['senior-product-designer']);
-  }, [activePipeline]);
+    let unsubscribe;
+    const fetchJobs = async () => {
+      const q = query(collection(db, 'jobs'), orderBy('createdAt', 'desc'));
+      unsubscribe = onSnapshot(q, (snapshot) => {
+        const profileData = JSON.parse(localStorage.getItem('visume_profile_data') || '{}');
+        const companyName = profileData.companyName || profileData.fullName || 'Unknown Company';
+        const recruiterId = auth.currentUser?.uid || '';
+
+        const jobs = snapshot.docs
+          .map(docSnap => ({ id: docSnap.id, ...docSnap.data() }))
+          .filter(job => (
+            recruiterId ? job.recruiterId === recruiterId : job.company === companyName
+          ));
+
+        setRecruiterJobs(jobs);
+        if (jobs.length > 0) {
+           if (!activePipeline) setActivePipeline(location.state?.pipeline || jobs[0].id);
+        }
+        setJobsLoading(false);
+      });
+    };
+    
+    const authUnsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) fetchJobs();
+    });
+
+    return () => {
+      authUnsubscribe();
+      if (unsubscribe) unsubscribe();
+    };
+  }, [activePipeline, location.state?.pipeline]);
+
+  useEffect(() => {
+    if (!activePipeline || recruiterJobs.length === 0) return;
+    const activeJob = recruiterJobs.find(job => job.id === activePipeline);
+    if (!activeJob) return;
+
+    const applicants = Array.isArray(activeJob.applicants) ? activeJob.applicants : [];
+    const newCols = { applied: [], review: [], shortlist: [], interview: [], hired: [] };
+    
+    applicants.forEach(app => {
+      const status = app.status || 'applied';
+      if (newCols[status]) {
+        newCols[status].push({
+           id: app.uid,
+           name: app.name || 'Candidate',
+           role: activeJob.title,
+           match: null, 
+           img: app.profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(app.name || 'Candidate')}&background=6C5CE7&color=fff&size=128`,
+           tags: app.skills || [],
+           indicatorColor: status === 'shortlist' ? 'primary-container' : status === 'hired' ? 'status-hired' : null,
+           actions: [{icon: 'visibility', color: 'primary-container'}],
+           status: status,
+           resumeId: app.resumeId,
+           includeDocumentResume: app.includeDocumentResume
+        });
+      }
+    });
+
+    setColumns(newCols);
+  }, [activePipeline, recruiterJobs]);
 
   const handleDragStart = (e, candidateId, sourceColumnId) => {
     e.dataTransfer.effectAllowed = 'move';
@@ -245,7 +190,7 @@ const HiringPipeline = () => {
     setDropTarget(null);
   };
 
-  const handleDrop = (e, targetColumnId) => {
+  const handleDrop = async (e, targetColumnId) => {
     e.preventDefault();
     setDropTarget(null);
     if (!draggedItem) return;
@@ -261,7 +206,7 @@ const HiringPipeline = () => {
       const targetCol = [...prev[targetColumnId]];
       
       const itemIndex = sourceCol.findIndex(item => item.id === candidateId);
-      if (itemIndex === -1) return prev; // Should not happen, but safeguard
+      if (itemIndex === -1) return prev;
       
       const [item] = sourceCol.splice(itemIndex, 1);
       targetCol.push(item);
@@ -273,12 +218,39 @@ const HiringPipeline = () => {
       };
     });
     setDraggedItem(null);
+
+    // Backend update
+    try {
+       const jobRef = doc(db, 'jobs', activePipeline);
+       const jobSnap = await getDoc(jobRef);
+       if (jobSnap.exists()) {
+           const jobData = jobSnap.data();
+           const applicants = Array.isArray(jobData.applicants) ? jobData.applicants : [];
+           const updatedApplicants = applicants.map(app => {
+              if (app.uid === candidateId) {
+                 return { ...app, status: targetColumnId };
+              }
+              return app;
+           });
+           await updateDoc(jobRef, { applicants: updatedApplicants });
+       }
+    } catch (err) {
+       console.error("Error updating candidate status", err);
+    }
   };
 
   const handleDragEnd = () => {
     setDraggedItem(null);
     setDropTarget(null);
   };
+
+  if (jobsLoading) {
+    return <div className="p-8 text-text-muted">Loading pipeline...</div>;
+  }
+
+  if (recruiterJobs.length === 0) {
+    return <div className="p-8 text-text-muted">No jobs posted yet. Please post a job to see the pipeline.</div>;
+  }
 
   return (
     <>
@@ -289,10 +261,7 @@ const HiringPipeline = () => {
             name="pipeline"
             value={activePipeline}
             onChange={(e) => setActivePipeline(e.target.value)}
-            options={[
-              { value: 'senior-product-designer', label: 'Senior Product Designer' },
-              { value: 'frontend-engineer', label: 'Frontend Engineer (React)' }
-            ]}
+            options={recruiterJobs.map(job => ({ value: job.id, label: job.title }))}
             className="w-80 font-display text-headline-sm text-text-primary font-bold border-none bg-transparent hover:bg-surface-container"
           />
           <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-xs font-bold border border-secondary/20">Active</span>

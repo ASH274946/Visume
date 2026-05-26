@@ -109,6 +109,7 @@ const SettingsPage = () => {
       linkedin: 'linkedin.com/in/ashwinkumar',
       portfolio: 'ashwinkumar.dev',
       resumeName: '',
+      documentResumes: [],
       
       // Video / AI
       webcam: 'webcam-0',
@@ -192,17 +193,24 @@ const SettingsPage = () => {
     e.target.value = null;
   };
 
-  const confirmDeleteResume = async () => {
+  const confirmDeleteResume = async (resumeIdToDelete) => {
+    const resumeToDelete = formData.documentResumes?.find(r => r.id === resumeIdToDelete);
+    if (!resumeToDelete && resumeIdToDelete !== 'legacy') {
+        setShowDeleteConfirm(false);
+        return;
+    }
+
     setShowDeleteConfirm(false);
     
     try {
       // 1. Delete Local File
-      if (formData.localResumeUrl) {
+      const localUrl = resumeToDelete ? resumeToDelete.localUrl : formData.localResumeUrl;
+      if (localUrl) {
         try {
           await fetch('http://localhost:5000/api/delete', {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fileUrl: formData.localResumeUrl })
+            body: JSON.stringify({ fileUrl: localUrl })
           });
         } catch (e) {
           console.warn("Failed to delete local resume file", e);
@@ -210,9 +218,10 @@ const SettingsPage = () => {
       }
 
       // 2. Delete Global File (Firebase Storage)
-      if (formData.resumeUrl && formData.resumeUrl !== 'mock_url') {
+      const globalUrl = resumeToDelete ? resumeToDelete.url : formData.resumeUrl;
+      if (globalUrl && globalUrl !== 'mock_url') {
         try {
-          const fileRef = ref(storage, formData.resumeUrl);
+          const fileRef = ref(storage, globalUrl);
           await deleteObject(fileRef);
         } catch (e) {
           console.warn("Failed to delete global resume file", e);
@@ -221,18 +230,28 @@ const SettingsPage = () => {
 
       setFormData(prev => {
         const newData = { ...prev };
-        delete newData.resumeName;
-        delete newData.resumeUrl;
-        delete newData.localResumeUrl;
+        if (resumeToDelete) {
+           newData.documentResumes = prev.documentResumes.filter(r => r.id !== resumeIdToDelete);
+        } else {
+           delete newData.resumeName;
+           delete newData.resumeUrl;
+           delete newData.localResumeUrl;
+        }
         
         localStorage.setItem('visume_profile_data', JSON.stringify(newData));
         if (auth.currentUser) {
           const collectionName = role === 'recruiter' ? 'recruiters' : 'candidates';
-          setDoc(doc(db, collectionName, auth.currentUser.uid), {
-             resumeName: null,
-             resumeUrl: null,
-             localResumeUrl: null
-          }, { merge: true }).catch(console.error);
+          if (resumeToDelete) {
+              setDoc(doc(db, collectionName, auth.currentUser.uid), {
+                 documentResumes: newData.documentResumes
+              }, { merge: true }).catch(console.error);
+          } else {
+              setDoc(doc(db, collectionName, auth.currentUser.uid), {
+                 resumeName: null,
+                 resumeUrl: null,
+                 localResumeUrl: null
+              }, { merge: true }).catch(console.error);
+          }
         }
         return newData;
       });
@@ -570,7 +589,7 @@ const SettingsPage = () => {
 
                   <div className="flex flex-col gap-2 h-full">
                     <label className="text-label-md text-text-primary font-bold">Resume</label>
-                    <div className="relative flex flex-col justify-center w-full h-full min-h-[9.5rem]">
+                    <div className="relative flex flex-col justify-center w-full min-h-[9.5rem] mb-2">
                       <label htmlFor="resume-upload" className={`flex flex-col items-center justify-center w-full h-full border-2 border-border-input border-dashed rounded-lg bg-surface-container transition-all ${docUploadStatus === 'uploading' ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:bg-surface-bright/5 hover:border-primary'}`}>
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
                           {docUploadStatus === 'uploading' ? (
@@ -586,15 +605,35 @@ const SettingsPage = () => {
                         <input id="resume-upload" name="resumeName" type="file" accept=".pdf" className="hidden" onChange={handleUploadResume} disabled={docUploadStatus === 'uploading'} />
                       </label>
                     </div>
-                    {formData.resumeName && (
-                      <div className="flex items-center gap-2 mt-2 px-4 py-3 bg-surface-container border border-border-input rounded-lg text-body-sm text-text-primary">
-                        <span className="material-symbols-outlined text-primary">picture_as_pdf</span>
-                        <span className="flex-1 font-bold">{formData.resumeName}</span>
-                        <button type="button" onClick={() => setShowDeleteConfirm(true)} className="text-text-muted hover:text-danger flex items-center justify-center">
-                          <span className="material-symbols-outlined text-sm">delete</span>
-                        </button>
-                      </div>
-                    )}
+                    <div className="flex flex-col gap-2 max-h-[150px] overflow-y-auto custom-scrollbar pr-2">
+                      {formData.documentResumes && formData.documentResumes.length > 0 ? (
+                        formData.documentResumes.map(resume => (
+                          <div key={resume.id} className="flex items-center gap-2 px-4 py-3 bg-surface-container border border-border-input rounded-lg text-body-sm text-text-primary">
+                            <span className="material-symbols-outlined text-primary">picture_as_pdf</span>
+                            <span className="flex-1 font-bold truncate" title={resume.name}>{resume.name}</span>
+                            <button type="button" onClick={() => {
+                               if (window.confirm('Delete this resume?')) {
+                                   confirmDeleteResume(resume.id);
+                               }
+                            }} className="text-text-muted hover:text-danger flex items-center justify-center">
+                              <span className="material-symbols-outlined text-sm">delete</span>
+                            </button>
+                          </div>
+                        ))
+                      ) : formData.resumeName ? (
+                        <div className="flex items-center gap-2 px-4 py-3 bg-surface-container border border-border-input rounded-lg text-body-sm text-text-primary">
+                          <span className="material-symbols-outlined text-primary">picture_as_pdf</span>
+                          <span className="flex-1 font-bold truncate" title={formData.resumeName}>{formData.resumeName}</span>
+                          <button type="button" onClick={() => {
+                             if (window.confirm('Delete this legacy resume?')) {
+                                 confirmDeleteResume('legacy');
+                             }
+                          }} className="text-text-muted hover:text-danger flex items-center justify-center">
+                            <span className="material-symbols-outlined text-sm">delete</span>
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
                 </div>
                 )}

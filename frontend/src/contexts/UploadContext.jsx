@@ -173,8 +173,28 @@ export const UploadProvider = ({ children }) => {
       const [localDocUrl, finalDocUrl] = await Promise.all([localUploadPromise, firebaseUploadPromise]);
       console.log("Doc uploads finished. Local:", localDocUrl, "Firebase:", finalDocUrl);
 
+      const existingResumes = Array.isArray(currentProfileData.documentResumes) ? currentProfileData.documentResumes : [];
+      if (existingResumes.length === 0 && currentProfileData.resumeUrl) {
+         existingResumes.push({
+           id: Date.now() - 1000,
+           name: currentProfileData.resumeName || 'Old Resume.pdf',
+           url: currentProfileData.resumeUrl,
+           localUrl: currentProfileData.localResumeUrl || null,
+           uploadedAt: Date.now() - 1000
+         });
+      }
+
+      const newResume = {
+         id: Date.now(),
+         name: file.name,
+         url: finalDocUrl || null,
+         localUrl: localDocUrl || null,
+         uploadedAt: Date.now()
+      };
+
       const newData = {
         ...currentProfileData,
+        documentResumes: [...existingResumes, newResume],
         resumeName: file.name,
         localResumeUrl: localDocUrl,
         resumeUrl: finalDocUrl || currentProfileData.resumeUrl

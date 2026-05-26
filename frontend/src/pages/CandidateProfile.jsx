@@ -8,16 +8,15 @@ import CustomVideoPlayer from '../components/CustomVideoPlayer';
 import { auth, db, storage } from '../firebase';
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
 import { doc, updateDoc } from 'firebase/firestore';
-const HeroSection = ({ profileData, onScheduleInterview, onViewResume, onUploadResume, onHeroDeleteResume, isUploadingResume }) => {
+const HeroSection = ({ profileData, onScheduleInterview, onUploadResume, isUploadingResume }) => {
   const fullName = profileData?.fullName || "Jordan Sterling";
   const headline = profileData?.headline || "Senior Product Designer & Motion Specialist";
-  const hasResume = !!(profileData?.resumeUrl || profileData?.localResumeUrl);
 
   return (
   <section className="card-bg border border-border-input rounded-xl p-lg relative overflow-hidden hero-gradient">
     <div className="flex flex-col md:flex-row items-center md:items-center gap-lg relative z-10">
       <div className="w-24 h-24 rounded-full border-4 border-primary ring-4 ring-primary/20 overflow-hidden shadow-2xl shrink-0">
-        <img alt="Candidate" className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=256&h=256&q=80"/>
+        <img alt="Candidate" className="w-full h-full object-cover" src={auth.currentUser?.photoURL || profileData?.profileImage || "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=256&h=256&q=80"}/>
       </div>
       <div className="flex-grow text-center md:text-left space-y-2">
         <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
@@ -34,34 +33,71 @@ const HeroSection = ({ profileData, onScheduleInterview, onViewResume, onUploadR
           <span className="material-symbols-outlined">calendar_today</span>
           Schedule Interview
         </button>
-        {hasResume ? (
-          <div className="flex gap-2">
-            <button onClick={onViewResume} className="flex-1 bg-surface-container border border-outline-variant text-text-primary font-bold py-3 px-6 rounded-lg hover:border-primary transition-all font-body-md text-body-md flex items-center justify-center gap-2 group overflow-hidden">
-              <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform shrink-0">picture_as_pdf</span>
-              <span className="truncate max-w-[150px]">{profileData?.resumeName || 'View Resume'}</span>
-            </button>
-            <label className="bg-surface-container border border-outline-variant text-text-primary font-bold py-3 px-4 rounded-lg hover:border-primary transition-all flex items-center justify-center cursor-pointer group" title="Update Resume">
-              {isUploadingResume ? (
-                <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">edit</span>
-              )}
-              <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={onUploadResume} disabled={isUploadingResume} />
-            </label>
-            <button onClick={onHeroDeleteResume} className="bg-surface-container border border-outline-variant text-danger font-bold py-3 px-4 rounded-lg hover:border-danger hover:bg-danger/10 transition-all flex items-center justify-center cursor-pointer group" title="Delete Resume">
-              <span className="material-symbols-outlined text-danger group-hover:scale-110 transition-transform">delete</span>
-            </button>
-          </div>
-        ) : (
-          <label className="bg-surface-container border border-outline-variant text-text-primary font-bold py-3 px-8 rounded-lg hover:border-primary transition-all font-body-md text-body-md flex items-center justify-center gap-2 group cursor-pointer">
+        <label className="bg-surface-container border border-outline-variant text-text-primary font-bold py-3 px-8 rounded-lg hover:border-primary transition-all font-body-md text-body-md flex items-center justify-center gap-2 group cursor-pointer">
+          {isUploadingResume ? (
+            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+          ) : (
             <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">upload_file</span>
-            {isUploadingResume ? 'Uploading...' : 'Upload Resume'}
-            <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={onUploadResume} disabled={isUploadingResume} />
-          </label>
-        )}
+          )}
+          {isUploadingResume ? 'Uploading...' : 'Upload Resume'}
+          <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={onUploadResume} disabled={isUploadingResume} />
+        </label>
       </div>
     </div>
   </section>
+  );
+};
+
+const DocumentResumesGrid = ({ profileData, onDeleteResume }) => {
+  const documentResumes = Array.isArray(profileData?.documentResumes) && profileData.documentResumes.length > 0 
+    ? profileData.documentResumes 
+    : profileData?.resumeName ? [{ id: 'legacy', name: profileData.resumeName, url: profileData.resumeUrl, localUrl: profileData.localResumeUrl }] : [];
+
+  if (documentResumes.length === 0) return null;
+
+  const getFullUrl = (url) => {
+    if (!url || url === 'mock_url') return null;
+    if (url.startsWith('/uploads')) {
+      return `http://localhost:5000${url}`;
+    }
+    return url;
+  };
+
+  return (
+    <section className="space-y-md mt-lg mb-lg">
+      <div className="flex items-center justify-between">
+        <h2 className="font-headline-md text-headline-md font-bold text-text-primary flex items-center gap-2">
+          <span className="material-symbols-outlined text-primary">description</span>
+          Document Resumes
+        </h2>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+        {documentResumes.map((resume) => {
+           const finalUrl = getFullUrl(resume.url) || getFullUrl(resume.localUrl);
+           return (
+             <div key={resume.id} className="bg-card-bg border border-outline-variant rounded-xl p-md flex flex-col justify-between hover:border-primary-container transition-all group">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center shrink-0 text-primary">
+                    <span className="material-symbols-outlined">picture_as_pdf</span>
+                  </div>
+                  <div className="overflow-hidden flex-1">
+                    <h3 className="font-headline-sm text-headline-sm text-text-primary truncate" title={resume.name}>{resume.name}</h3>
+                    <p className="text-body-sm text-text-muted mt-1">{new Date(resume.uploadedAt || Date.now()).toLocaleDateString()}</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => finalUrl ? window.open(finalUrl, '_blank') : alert('No URL found.')} className="flex-1 py-2 bg-primary/10 text-primary font-bold rounded-lg hover:bg-primary/20 transition-colors text-label-sm">
+                    View
+                  </button>
+                  <button onClick={() => onDeleteResume(resume.id, resume.name)} className="px-3 py-2 bg-surface-container border border-outline-variant text-danger font-bold rounded-lg hover:bg-danger/10 hover:border-danger transition-colors flex items-center justify-center" title="Delete">
+                    <span className="material-symbols-outlined text-sm">delete</span>
+                  </button>
+                </div>
+             </div>
+           );
+        })}
+      </div>
+    </section>
   );
 };
 
@@ -268,6 +304,8 @@ const CandidateProfile = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState({ visible: false, type: null, id: null, title: null });
   
   const [videoResumes, setVideoResumes] = useState([]);
+  const [candidateApplications, setCandidateApplications] = useState([]);
+  const [selectedApplicationForInterview, setSelectedApplicationForInterview] = useState(null);
   
   useEffect(() => {
     const fetchVideos = async (userId) => {
@@ -293,6 +331,61 @@ const CandidateProfile = () => {
     
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    let unsubscribeJobs;
+    const fetchApplications = async () => {
+      const { collection, onSnapshot, query, orderBy } = await import('firebase/firestore');
+      if (!auth.currentUser) return;
+      const q = query(collection(db, 'jobs'), orderBy('createdAt', 'desc'));
+      unsubscribeJobs = onSnapshot(q, (snapshot) => {
+        const myApps = [];
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const applicants = Array.isArray(data.applicants) ? data.applicants : [];
+          const myApp = applicants.find(a => a.uid === auth.currentUser.uid);
+          if (myApp) {
+            myApps.push({ jobId: doc.id, jobTitle: data.title, company: data.company, ...myApp });
+          }
+        });
+        setCandidateApplications(myApps);
+      });
+    };
+    
+    const authUnsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        fetchApplications();
+      }
+    });
+    
+    return () => {
+      authUnsubscribe();
+      if (unsubscribeJobs) unsubscribeJobs();
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setShowInterviewModal(false);
+        setSelectedApplicationForInterview(null);
+      }
+    };
+    if (showInterviewModal) {
+      document.body.style.setProperty('overflow', 'hidden', 'important');
+      document.documentElement.style.setProperty('overflow', 'hidden', 'important');
+      window.addEventListener('keydown', handleKeyDown);
+    } else {
+      document.body.style.removeProperty('overflow');
+      document.documentElement.style.removeProperty('overflow');
+      window.removeEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.body.style.removeProperty('overflow');
+      document.documentElement.style.removeProperty('overflow');
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showInterviewModal]);
 
   const [profileState, setProfileState] = useState(() => {
     const savedData = localStorage.getItem('visume_profile_data');
@@ -389,23 +482,7 @@ const CandidateProfile = () => {
     }
   };
 
-  const handleViewResume = () => {
-    const getFullUrl = (url) => {
-      if (!url || url === 'mock_url') return null;
-      if (url.startsWith('/uploads')) {
-        return `http://localhost:5000${url}`;
-      }
-      return url;
-    };
-
-    const finalUrl = getFullUrl(profileData?.resumeUrl) || getFullUrl(profileData?.localResumeUrl);
-    
-    if (finalUrl) {
-      window.open(finalUrl, '_blank');
-    } else {
-      alert('No valid resume found. Please upload a new one.');
-    }
-  };
+  // View Resume logic moved into DocumentResumesGrid
 
   const handlePlayVideo = (resume) => {
     const getFullUrl = (url) => {
@@ -427,15 +504,23 @@ const CandidateProfile = () => {
     setShowProjectModal(true);
   };
 
-  const handleDeleteResume = async () => {
+  const handleDeleteResume = async (resumeId) => {
     try {
+      const documentResumes = Array.isArray(profileData?.documentResumes) ? profileData.documentResumes : [];
+      const resumeToDelete = documentResumes.find(r => r.id === resumeId);
+      
+      if (!resumeToDelete && resumeId !== 'legacy') return;
+
+      const localUrl = resumeToDelete ? resumeToDelete.localUrl : profileData?.localResumeUrl;
+      const globalUrl = resumeToDelete ? resumeToDelete.url : profileData?.resumeUrl;
+
       // 1. Delete Local File
-      if (profileData?.localResumeUrl) {
+      if (localUrl) {
         try {
           await fetch('http://localhost:5000/api/delete', {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fileUrl: profileData.localResumeUrl })
+            body: JSON.stringify({ fileUrl: localUrl })
           });
         } catch (e) {
           console.warn("Failed to delete local resume file", e);
@@ -443,9 +528,9 @@ const CandidateProfile = () => {
       }
 
       // 2. Delete Global File (Firebase Storage)
-      if (profileData?.resumeUrl && profileData.resumeUrl !== 'mock_url') {
+      if (globalUrl && globalUrl !== 'mock_url') {
         try {
-          const fileRef = ref(storage, profileData.resumeUrl);
+          const fileRef = ref(storage, globalUrl);
           await deleteObject(fileRef);
         } catch (e) {
           console.warn("Failed to delete global resume file", e);
@@ -453,22 +538,35 @@ const CandidateProfile = () => {
       }
 
       // 3. Update Firestore (remove fields)
+      const newProfileData = { ...profileData };
       if (auth.currentUser) {
         const { deleteField } = await import('firebase/firestore');
         const userRef = doc(db, 'candidates', auth.currentUser.uid);
-        await updateDoc(userRef, {
-          resumeUrl: deleteField(),
-          localResumeUrl: deleteField(),
-          resumeName: deleteField()
-        });
+        
+        if (resumeToDelete) {
+           newProfileData.documentResumes = documentResumes.filter(r => r.id !== resumeId);
+           await updateDoc(userRef, { documentResumes: newProfileData.documentResumes });
+        } else {
+           await updateDoc(userRef, {
+             resumeUrl: deleteField(),
+             localResumeUrl: deleteField(),
+             resumeName: deleteField()
+           });
+           delete newProfileData.resumeUrl;
+           delete newProfileData.localResumeUrl;
+           delete newProfileData.resumeName;
+        }
+      } else {
+         if (resumeToDelete) {
+           newProfileData.documentResumes = documentResumes.filter(r => r.id !== resumeId);
+         } else {
+           delete newProfileData.resumeUrl;
+           delete newProfileData.localResumeUrl;
+           delete newProfileData.resumeName;
+         }
       }
 
       // 4. Update Local State & UI
-      const newProfileData = { ...profileData };
-      delete newProfileData.resumeUrl;
-      delete newProfileData.localResumeUrl;
-      delete newProfileData.resumeName;
-      
       setProfileState(newProfileData);
       localStorage.setItem('visume_profile_data', JSON.stringify(newProfileData));
       alert("Resume deleted completely!");
@@ -538,7 +636,7 @@ const CandidateProfile = () => {
     setShowDeleteConfirm({ visible: false, type: null, id: null, title: null });
     
     if (type === 'resume') {
-      await handleDeleteResume();
+      await handleDeleteResume(id);
     } else if (type === 'video') {
       await handleDeleteVideo(id);
     }
@@ -550,10 +648,12 @@ const CandidateProfile = () => {
         <HeroSection 
           profileData={profileData} 
           onScheduleInterview={handleScheduleInterview}
-          onViewResume={handleViewResume}
           onUploadResume={handleUploadResume}
-          onHeroDeleteResume={() => setShowDeleteConfirm({ visible: true, type: 'resume', title: 'Document Resume' })}
           isUploadingResume={isUploadingResume}
+        />
+        <DocumentResumesGrid 
+          profileData={profileData}
+          onDeleteResume={(id, title) => setShowDeleteConfirm({ visible: true, type: 'resume', id, title })}
         />
         <VideoResumesGrid 
           onPlayVideo={handlePlayVideo} 
@@ -575,38 +675,68 @@ const CandidateProfile = () => {
         {showInterviewModal && (
           <div 
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200"
-            onClick={() => setShowInterviewModal(false)}
+            onClick={() => { setShowInterviewModal(false); setSelectedApplicationForInterview(null); }}
           >
             <div 
-              className="bg-surface-container border border-outline-variant rounded-2xl p-6 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200"
+              className="bg-surface-container border border-outline-variant rounded-2xl p-6 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto custom-scrollbar"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-headline-md font-display text-text-primary">Schedule Interview</h3>
-                <button onClick={() => setShowInterviewModal(false)} className="text-text-muted hover:text-white transition-colors">
+                <button onClick={() => { setShowInterviewModal(false); setSelectedApplicationForInterview(null); }} className="text-text-muted hover:text-white transition-colors">
                   <span className="material-symbols-outlined">close</span>
                 </button>
               </div>
-              <p className="text-body-md text-text-muted mb-6">Select a time slot for your interview with Jordan Sterling.</p>
-              <div className="space-y-3 mb-6">
-                <button className="w-full p-3 border border-outline-variant rounded-lg text-left text-body-md text-text-primary hover:bg-surface-container-highest transition-colors">
-                   Tomorrow, 2:00 PM - 3:00 PM
-                </button>
-                <button className="w-full p-3 border border-outline-variant rounded-lg text-left text-body-md text-text-primary hover:bg-surface-container-highest transition-colors">
-                   Next Monday, 10:00 AM - 11:00 AM
-                </button>
-                <button className="w-full p-3 border border-outline-variant rounded-lg text-left text-body-md text-text-primary hover:bg-surface-container-highest transition-colors">
-                   Next Wednesday, 3:00 PM - 4:00 PM
-                </button>
-              </div>
-              <div className="flex gap-3">
-                <button onClick={() => setShowInterviewModal(false)} className="flex-1 py-2 border border-border-input text-text-muted font-bold rounded-lg hover:bg-surface-container-highest transition-colors">
-                  Cancel
-                </button>
-                <button onClick={() => { setShowInterviewModal(false); alert('Interview scheduled successfully!'); }} className="flex-1 py-2 bg-primary text-white font-bold rounded-lg hover:brightness-110 transition-all">
-                  Confirm
-                </button>
-              </div>
+
+              {!selectedApplicationForInterview ? (
+                <>
+                  <p className="text-body-md text-text-muted mb-6">Select an application to schedule your interview.</p>
+                  <div className="space-y-3 mb-6">
+                    {candidateApplications.length === 0 ? (
+                      <div className="text-center py-6 border border-dashed border-outline-variant rounded-xl bg-surface-container-low text-text-muted">
+                        No active applications found.
+                      </div>
+                    ) : (
+                      candidateApplications.map((app) => (
+                        <button 
+                          key={app.jobId}
+                          onClick={() => setSelectedApplicationForInterview(app)}
+                          className="w-full p-4 border border-outline-variant rounded-lg text-left hover:bg-surface-container-highest hover:border-primary-container transition-all group flex flex-col gap-1"
+                        >
+                          <div className="flex justify-between items-start w-full">
+                            <span className="font-bold text-text-primary group-hover:text-primary-container transition-colors">{app.jobTitle}</span>
+                            <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${app.status === 'interview' ? 'bg-secondary/20 text-secondary' : 'bg-surface-container-highest text-text-muted'}`}>{app.status}</span>
+                          </div>
+                          <span className="text-body-sm text-text-muted">{app.company}</span>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="text-body-md text-text-muted mb-6">Select a time slot for your interview at <strong>{selectedApplicationForInterview.company}</strong> for <strong>{selectedApplicationForInterview.jobTitle}</strong>.</p>
+                  <div className="space-y-3 mb-6">
+                    <button className="w-full p-3 border border-outline-variant rounded-lg text-left text-body-md text-text-primary hover:bg-surface-container-highest focus:ring-2 focus:ring-primary-container transition-all">
+                       Tomorrow, 2:00 PM - 3:00 PM
+                    </button>
+                    <button className="w-full p-3 border border-outline-variant rounded-lg text-left text-body-md text-text-primary hover:bg-surface-container-highest focus:ring-2 focus:ring-primary-container transition-all">
+                       Next Monday, 10:00 AM - 11:00 AM
+                    </button>
+                    <button className="w-full p-3 border border-outline-variant rounded-lg text-left text-body-md text-text-primary hover:bg-surface-container-highest focus:ring-2 focus:ring-primary-container transition-all">
+                       Next Wednesday, 3:00 PM - 4:00 PM
+                    </button>
+                  </div>
+                  <div className="flex gap-3">
+                    <button onClick={() => setSelectedApplicationForInterview(null)} className="flex-1 py-2 border border-border-input text-text-muted font-bold rounded-lg hover:bg-surface-container-highest transition-colors">
+                      Back
+                    </button>
+                    <button onClick={() => { setShowInterviewModal(false); setSelectedApplicationForInterview(null); alert('Interview scheduled successfully!'); }} className="flex-1 py-2 bg-primary text-white font-bold rounded-lg hover:brightness-110 transition-all shadow-lg shadow-primary/20">
+                      Confirm
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -726,9 +856,12 @@ const CandidateProfile = () => {
         <HeroSection 
           profileData={profileData}
           onScheduleInterview={handleScheduleInterview}
-          onViewResume={handleViewResume}
           onUploadResume={handleUploadResume}
           isUploadingResume={isUploadingResume}
+        />
+        <DocumentResumesGrid 
+          profileData={profileData}
+          onDeleteResume={(id, title) => setShowDeleteConfirm({ visible: true, type: 'resume', id, title })}
         />
         <VideoResumesGrid onPlayVideo={handlePlayVideo} resumes={videoResumes} />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">

@@ -87,27 +87,20 @@ const StatsRow = () => (
   </section>
 );
 
-const VideoResumesSection = ({ resumes, onPlayVideo }) => {
+const LibrarySection = ({ resumes, profileData, onPlayVideo }) => {
+  const documentResumes = Array.isArray(profileData?.documentResumes) && profileData.documentResumes.length > 0 
+    ? profileData.documentResumes 
+    : profileData?.resumeName ? [{ id: 'legacy', name: profileData.resumeName, url: profileData.resumeUrl }] : [];
+
+  const hasResume = documentResumes.length > 0;
+  
   if (resumes === null) {
     return (
       <section className="bg-card-bg border border-outline-variant rounded-xl p-lg mb-xl flex flex-col items-center justify-center text-center py-12">
-        <span className="material-symbols-outlined text-4xl mb-4 text-text-muted opacity-20">videocam</span>
+        <span className="material-symbols-outlined text-4xl mb-4 text-text-muted opacity-20">local_library</span>
         <div className="w-1/2 h-2 bg-surface-container-high rounded-full overflow-hidden mt-4">
            <div className="w-1/3 h-full bg-primary/40 animate-pulse rounded-full"></div>
         </div>
-      </section>
-    );
-  }
-
-  if (!resumes || resumes.length === 0) {
-    return (
-      <section className="bg-card-bg border border-outline-variant rounded-xl p-lg mb-xl flex flex-col items-center justify-center text-center py-12">
-        <span className="material-symbols-outlined text-5xl text-text-muted mb-4">videocam_off</span>
-        <h2 className="font-display text-headline-md text-text-primary mb-2">No Video Resumes Yet</h2>
-        <p className="text-text-muted font-body-sm mb-6 max-w-md">Record your first Visume to stand out to employers and increase your match rate.</p>
-        <Link to="/recorder" className="bg-primary-container text-white px-6 py-3 rounded-lg font-bold hover:brightness-110 transition-all shadow-lg shadow-primary-container/20">
-          Record Now
-        </Link>
       </section>
     );
   }
@@ -122,39 +115,92 @@ const VideoResumesSection = ({ resumes, onPlayVideo }) => {
   return (
     <section className="mb-xl">
       <div className="flex justify-between items-end mb-lg">
-        <h2 className="font-display text-headline-md text-text-primary">My Video Resumes</h2>
+        <h2 className="font-display text-headline-md text-text-primary">My Library</h2>
         <Link className="text-primary-container font-label-md text-label-md hover:underline" to="/recorder">Manage Library</Link>
       </div>
-      <div className="flex gap-lg overflow-x-auto custom-scrollbar pb-4 -mx-2 px-2 snap-x">
-        {resumes.map(resume => {
-          const finalSrc = getFullUrl(resume.videoUrl) || getFullUrl(resume.localVideoUrl);
-          return (
-            <div key={resume.id} onClick={() => onPlayVideo(resume)} className="w-[300px] md:w-[400px] flex-none bg-card-bg border border-outline-variant rounded-xl p-md snap-start hover:border-primary-container transition-all group cursor-pointer">
-              <div className="w-full aspect-video rounded-lg overflow-hidden relative border border-outline-variant mb-4">
-                {finalSrc && !finalSrc.startsWith('blob:') ? (
-                  <video className="w-full h-full object-cover pointer-events-none" src={finalSrc} poster={resume.thumbnailUrl} preload="metadata" muted playsInline />
-                ) : (
-                  <img alt={resume.title} className="w-full h-full object-cover pointer-events-none" src={resume.thumbnailUrl} />
-                )}
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/20 transition-all">
-                  <div className="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                    <span className="material-symbols-outlined text-white text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
+      <div className="flex flex-col lg:flex-row gap-lg">
+        {/* Document Resume Sidebar */}
+        <div className="w-full lg:w-1/4 flex-shrink-0">
+          <div className="bg-card-bg border border-outline-variant rounded-xl p-md h-full flex flex-col min-h-[220px]">
+            <div className="flex flex-col items-center justify-center border-b border-outline-variant pb-3 mb-3">
+              <span className="material-symbols-outlined text-4xl text-primary mb-2">description</span>
+              <h3 className="font-display text-headline-sm text-text-primary">Document Resumes</h3>
+            </div>
+            {hasResume ? (
+              <div className="flex-1 overflow-y-auto custom-scrollbar pr-1" style={{ maxHeight: 'calc(100% - 80px)' }}>
+                <div className="flex flex-col gap-2">
+                  {documentResumes.map(resume => (
+                    <div key={resume.id} className="flex items-center justify-between p-2 rounded-lg bg-surface-container-low hover:bg-surface-container border border-outline-variant transition-colors group">
+                      <div className="flex items-center gap-2 overflow-hidden">
+                        <span className="material-symbols-outlined text-text-muted text-sm shrink-0">picture_as_pdf</span>
+                        <span className="text-body-sm text-text-primary truncate" title={resume.name}>{resume.name}</span>
+                      </div>
+                      <Link to="/profile" className="text-primary-container hover:text-primary shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-1">
+                        <span className="material-symbols-outlined text-sm">edit</span>
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 flex justify-center">
+                  <Link to="/profile" className="text-primary font-bold text-label-sm hover:underline">
+                    Manage Resumes
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center text-center">
+                <p className="text-body-sm text-text-muted mb-4">No resume uploaded</p>
+                <Link to="/profile" className="text-primary font-bold text-label-md bg-primary/10 px-4 py-2 rounded-lg hover:bg-primary/20 transition-colors inline-block">
+                  Upload Resume
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Video Resumes Scrollable Area */}
+        <div className="w-full lg:w-3/4 overflow-x-auto custom-scrollbar pb-4 snap-x flex gap-md">
+          {(!resumes || resumes.length === 0) ? (
+            <div className="w-full bg-card-bg border border-outline-variant rounded-xl p-lg flex flex-col items-center justify-center text-center py-12">
+              <span className="material-symbols-outlined text-5xl text-text-muted mb-4">videocam_off</span>
+              <h2 className="font-display text-headline-md text-text-primary mb-2">No Video Resumes Yet</h2>
+              <p className="text-text-muted font-body-sm mb-6 max-w-md">Record your first Visume to stand out to employers and increase your match rate.</p>
+              <Link to="/recorder" className="bg-primary-container text-white px-6 py-3 rounded-lg font-bold hover:brightness-110 transition-all shadow-lg shadow-primary-container/20">
+                Record Now
+              </Link>
+            </div>
+          ) : (
+            resumes.map(resume => {
+              const finalSrc = getFullUrl(resume.videoUrl) || getFullUrl(resume.localVideoUrl);
+              return (
+                <div key={resume.id} onClick={() => onPlayVideo(resume)} className="w-[280px] md:w-[320px] flex-none bg-card-bg border border-outline-variant rounded-xl p-md snap-start hover:border-primary-container transition-all group cursor-pointer flex flex-col">
+                  <div className="w-full aspect-video rounded-lg overflow-hidden relative border border-outline-variant mb-4 flex-shrink-0">
+                    {finalSrc && !finalSrc.startsWith('blob:') ? (
+                      <video className="w-full h-full object-cover pointer-events-none" src={finalSrc} poster={resume.thumbnailUrl} preload="metadata" muted playsInline />
+                    ) : (
+                      <img alt={resume.title} className="w-full h-full object-cover pointer-events-none" src={resume.thumbnailUrl} />
+                    )}
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/20 transition-all">
+                      <div className="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                        <span className="material-symbols-outlined text-white text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
+                      </div>
+                    </div>
+                    <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded text-[11px] font-bold text-white">
+                      {resume.duration}
+                    </div>
+                  </div>
+                  <div className="flex flex-col flex-grow justify-between">
+                    <h3 className="font-display text-headline-sm text-text-primary line-clamp-2" title={resume.title}>{resume.title}</h3>
+                    <div className="flex justify-between text-text-muted font-body-sm mt-2">
+                      <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">calendar_month</span> {resume.date}</span>
+                      <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">visibility</span> {resume.views} Views</span>
+                    </div>
                   </div>
                 </div>
-                <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded text-[11px] font-bold text-white">
-                  {resume.duration}
-                </div>
-              </div>
-              <div>
-                <h3 className="font-display text-headline-sm text-text-primary truncate">{resume.title}</h3>
-                <div className="flex justify-between text-text-muted font-body-sm mt-2">
-                  <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">calendar_month</span> {resume.date}</span>
-                  <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">visibility</span> {resume.views} Views</span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+              );
+            })
+          )}
+        </div>
       </div>
     </section>
   );
@@ -270,6 +316,14 @@ const CandidateDashboard = () => {
   const [userApplications, setUserApplications] = useState(() => JSON.parse(localStorage.getItem('visume_applications') || '[]'));
   const [withdrawnHardcoded, setWithdrawnHardcoded] = useState(() => JSON.parse(localStorage.getItem('visume_withdrawn_hardcoded') || '[]'));
   const [videoResumes, setVideoResumes] = useState(null);
+  
+  const [profileData, setProfileData] = useState(() => {
+    const savedData = localStorage.getItem('visume_profile_data');
+    if (savedData) {
+      try { return JSON.parse(savedData); } catch (e) { return {}; }
+    }
+    return {};
+  });
 
   useEffect(() => {
     const apps = JSON.parse(localStorage.getItem('visume_applications') || '[]');
@@ -499,7 +553,7 @@ const CandidateDashboard = () => {
       <div className={videoResumes === null ? "opacity-30 pointer-events-none transition-opacity duration-500 blur-[2px]" : "transition-opacity duration-500"}>
         <Header onNotifications={handleNotifications} onRecordVideo={handleRecordVideo} />
         <StatsRow />
-        <VideoResumesSection resumes={videoResumes} onPlayVideo={handlePlayVideo} />
+        <LibrarySection resumes={videoResumes} profileData={profileData} onPlayVideo={handlePlayVideo} />
         <AppliedJobsSection applications={combinedApplications} />
         <RecommendedJobs onApplyJob={handleApplyJob} />
         <Footer />
