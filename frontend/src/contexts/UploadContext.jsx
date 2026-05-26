@@ -11,6 +11,9 @@ export const UploadProvider = ({ children }) => {
   const [uploadStatus, setUploadStatus] = useState('idle'); // 'idle', 'uploading', 'success', 'error'
   const [uploadProgress, setUploadProgress] = useState(0);
 
+  const [docUploadStatus, setDocUploadStatus] = useState('idle');
+  const [docUploadProgress, setDocUploadProgress] = useState(0);
+
   const startVideoUpload = async (recordedVideoUrl, resumeData, activeResumeId) => {
     if (!auth.currentUser) {
       alert("You must be logged in to save videos.");
@@ -33,50 +36,51 @@ export const UploadProvider = ({ children }) => {
         // 1. Upload to Local Backend
         const formData = new FormData();
         formData.append('file', blob, fileName);
-        try {
-          const backendRes = await fetch('http://localhost:5000/api/upload', {
-            method: 'POST',
-            body: formData
+        
+        const localUploadPromise = fetch('http://localhost:5000/api/upload', {
+          method: 'POST',
+          body: formData
+        }).then(res => res.json())
+          .then(data => data.localUrl)
+          .catch(err => {
+            console.error("Local Backend Upload Failed:", err);
+            return null;
           });
-          const backendData = await backendRes.json();
-          localVideoUrl = backendData.localUrl;
-          console.log("Local Backend Upload Success:", localVideoUrl);
-        } catch (err) {
-          console.error("Local Backend Upload Failed:", err);
-        }
 
-        // 2. Upload to Global Firebase Storage with Timeout
+        // 2. Upload to Global Firebase Storage
         const storageRef = ref(storage, `video-resumes/${auth.currentUser.uid}/${fileName}`);
         const uploadTask = uploadBytesResumable(storageRef, blob);
         
-        try {
-          // Wait for upload to complete
-          await new Promise((resolve, reject) => {
-            uploadTask.on('state_changed', 
-              (snapshot) => {
-                const progress = (snapshot.bytesTransferred / Math.max(snapshot.totalBytes, 1)) * 100;
-                setUploadProgress(Math.round(progress));
-              },
-              (error) => reject(error),
-              () => resolve()
-            );
+        const firebaseUploadPromise = new Promise((resolve, reject) => {
+          uploadTask.on('state_changed', 
+            (snapshot) => {
+              const progress = (snapshot.bytesTransferred / Math.max(snapshot.totalBytes, 1)) * 100;
+              setUploadProgress(Math.round(progress));
+            },
+            (error) => reject(error),
+            () => resolve()
+          );
+        }).then(() => getDownloadURL(storageRef))
+          .catch(err => {
+            console.warn("Global Firebase Upload skipped or failed:", err.message);
+            return null;
           });
-          finalVideoUrl = await getDownloadURL(storageRef);
-        } catch (err) {
-          console.warn("Global Firebase Upload skipped or failed:", err.message);
-          // If it fails or times out, we still have the localVideoUrl!
+
+        const [localVideoUrlResult, finalVideoUrlResult] = await Promise.all([localUploadPromise, firebaseUploadPromise]);
+        localVideoUrl = localVideoUrlResult;
+        if (finalVideoUrlResult) {
+          finalVideoUrl = finalVideoUrlResult;
+        } else {
           finalVideoUrl = null; // Do not save the dead blob URL
         }
       }
 
-      // Update the resumeData object with the new URLs
       const finalResumeData = {
         ...resumeData,
         videoUrl: finalVideoUrl,
         localVideoUrl: localVideoUrl
       };
 
-      // 3. Save to Firestore
       const videosRef = collection(db, 'candidates', auth.currentUser.uid, 'videoResumes');
       
       if (activeResumeId === 'new') {
@@ -88,17 +92,93 @@ export const UploadProvider = ({ children }) => {
       }
 
       setUploadStatus('success');
-      setTimeout(() => setUploadStatus('idle'), 5000); // Reset to idle after 5 seconds
+      setTimeout(() => setUploadStatus('idle'), 5000);
       
     } catch (error) {
       console.error("Error saving video resume in background:", error);
       setUploadStatus('error');
-      setTimeout(() => setUploadStatus('idle'), 5000); // Reset to idle after 5 seconds
+      setTimeout(() => setUploadStatus('idle'), 5000);
+    }
+  };
+
+  const startDocumentUpload = async (file, role) => {
+    if (!auth.currentUser) {
+      alert("You must be logged in to save resumes.");
+      return;
+    }
+    
+    setDocUploadStatus('uploading');
+    setDocUploadProgress(0);
+
+    try {
+      const fileName = `${Date.now()}_${file.name}`;
+      const currentProfileData = JSON.parse(localStorage.getItem('visume_profile_data')) || {};
+
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const localUploadPromise = fetch('http://localhost:5000/api/upload', {
+        method: 'POST',
+        body: formData
+      }).then(res => res.json())
+        .then(data => data.localUrl)
+        .catch(err => {
+          console.warn("Local Backend Upload Failed:", err);
+          return null;
+        });
+
+      const storageRef = ref(storage, `resumes/${auth.currentUser.uid}/${fileName}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+      
+      const firebaseUploadPromise = new Promise((resolve, reject) => {
+        uploadTask.on('state_changed', 
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / Math.max(snapshot.totalBytes, 1)) * 100;
+            setDocUploadProgress(Math.round(progress));
+          },
+          (error) => reject(error),
+          () => resolve()
+        );
+      }).then(() => getDownloadURL(storageRef))
+        .catch(err => {
+          console.warn("Global Firebase Upload skipped or failed:", err.message);
+          return null;
+        });
+
+      const [localDocUrl, finalDocUrl] = await Promise.all([localUploadPromise, firebaseUploadPromise]);
+
+      const newData = {
+        ...currentProfileData,
+        resumeName: file.name,
+        localResumeUrl: localDocUrl,
+        resumeUrl: finalDocUrl || currentProfileData.resumeUrl
+      };
+      
+      localStorage.setItem('visume_profile_data', JSON.stringify(newData));
+      const collectionName = role === 'recruiter' ? 'recruiters' : 'candidates';
+      await setDoc(doc(db, collectionName, auth.currentUser.uid), newData, { merge: true });
+
+      setDocUploadStatus('success');
+      setTimeout(() => setDocUploadStatus('idle'), 5000);
+      
+      window.dispatchEvent(new CustomEvent('visumeProfileUpdated', { detail: newData }));
+      
+    } catch (error) {
+      console.error("Error saving document in background:", error);
+      setDocUploadStatus('error');
+      setTimeout(() => setDocUploadStatus('idle'), 5000);
     }
   };
 
   return (
-    <UploadContext.Provider value={{ uploadStatus, uploadProgress, startVideoUpload }}>
+    <UploadContext.Provider value={{ 
+      uploadStatus, 
+      uploadProgress, 
+      startVideoUpload,
+      docUploadStatus,
+      docUploadProgress,
+      startDocumentUpload
+    }}>
       {children}
     </UploadContext.Provider>
   );

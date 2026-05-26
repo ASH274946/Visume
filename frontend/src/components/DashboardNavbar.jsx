@@ -5,7 +5,19 @@ import { useUpload } from '../contexts/UploadContext';
 const DashboardNavbar = ({ role = 'candidate' }) => {
   const location = useLocation();
   const currentPath = location.pathname;
-  const { uploadStatus, uploadProgress } = useUpload();
+  const { uploadStatus, uploadProgress, docUploadStatus, docUploadProgress, startDocumentUpload } = useUpload();
+
+  const handleDocumentUploadClick = () => {
+    document.getElementById('navbar-resume-upload').click();
+  };
+  
+  const handleDocumentFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      startDocumentUpload(file, role);
+    }
+    e.target.value = null; // reset
+  };
 
   const getPageName = (path) => {
     switch (path) {
@@ -72,30 +84,64 @@ const DashboardNavbar = ({ role = 'candidate' }) => {
         </div>
         <div className="flex items-center gap-4">
           {role === 'candidate' ? (
-            <Link
-              to="/recorder"
-              className={`px-5 py-2 rounded-lg text-white font-bold transition-all font-body-md text-body-md shadow-md flex items-center gap-2 ${uploadStatus === 'uploading' ? 'bg-primary/80 cursor-wait' : uploadStatus === 'success' ? 'bg-secondary' : uploadStatus === 'error' ? 'bg-danger' : 'bg-primary hover:opacity-90 active:scale-95'}`}
-              style={{ pointerEvents: uploadStatus === 'uploading' ? 'none' : 'auto' }}
-            >
-              {uploadStatus === 'uploading' ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Uploading... {uploadProgress}%
-                </>
-              ) : uploadStatus === 'success' ? (
-                <>
-                  <span className="material-symbols-outlined text-[18px]">check_circle</span>
-                  Uploaded
-                </>
-              ) : uploadStatus === 'error' ? (
-                <>
-                  <span className="material-symbols-outlined text-[18px]">error</span>
-                  Failed
-                </>
-              ) : (
-                'Upload Video'
-              )}
-            </Link>
+            <div className="flex items-center gap-2">
+              <input 
+                type="file" 
+                id="navbar-resume-upload" 
+                accept=".pdf" 
+                className="hidden" 
+                onChange={handleDocumentFileChange} 
+              />
+              <button
+                onClick={handleDocumentUploadClick}
+                disabled={docUploadStatus === 'uploading'}
+                className={`px-5 py-2 rounded-lg text-white font-bold transition-all font-body-md text-body-md shadow-md flex items-center gap-2 ${docUploadStatus === 'uploading' ? 'bg-primary/80 cursor-wait' : docUploadStatus === 'success' ? 'bg-secondary' : docUploadStatus === 'error' ? 'bg-danger' : 'bg-primary hover:opacity-90 active:scale-95'}`}
+              >
+                {docUploadStatus === 'uploading' ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Doc... {docUploadProgress}%
+                  </>
+                ) : docUploadStatus === 'success' ? (
+                  <>
+                    <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                    Uploaded
+                  </>
+                ) : docUploadStatus === 'error' ? (
+                  <>
+                    <span className="material-symbols-outlined text-[18px]">error</span>
+                    Failed
+                  </>
+                ) : (
+                  'Upload Resume'
+                )}
+              </button>
+              
+              <Link
+                to="/recorder"
+                className={`px-5 py-2 rounded-lg text-white font-bold transition-all font-body-md text-body-md shadow-md flex items-center gap-2 ${uploadStatus === 'uploading' ? 'bg-primary/80 cursor-wait' : uploadStatus === 'success' ? 'bg-secondary' : uploadStatus === 'error' ? 'bg-danger' : 'bg-primary hover:opacity-90 active:scale-95'}`}
+                style={{ pointerEvents: uploadStatus === 'uploading' ? 'none' : 'auto' }}
+              >
+                {uploadStatus === 'uploading' ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Video... {uploadProgress}%
+                  </>
+                ) : uploadStatus === 'success' ? (
+                  <>
+                    <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                    Uploaded
+                  </>
+                ) : uploadStatus === 'error' ? (
+                  <>
+                    <span className="material-symbols-outlined text-[18px]">error</span>
+                    Failed
+                  </>
+                ) : (
+                  'Upload Video'
+                )}
+              </Link>
+            </div>
           ) : (
             <Link
               to="/post-job"

@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import DashboardNavbar from '../components/DashboardNavbar';
 import Sidebar from '../components/Sidebar';
+import { useUpload } from '../contexts/UploadContext';
 import Toggle from '../components/Toggle';
 import { auth, db, storage } from '../firebase';
 import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
@@ -16,6 +17,7 @@ import CustomDatePicker from '../components/CustomDatePicker';
 const SettingsPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { docUploadStatus, startDocumentUpload } = useUpload();
 
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
@@ -56,7 +58,6 @@ const SettingsPage = () => {
   const initialRole = location.state?.role || localStorage.getItem('visume_role') || 'candidate';
   const [role, setRole] = useState(initialRole);
   const [activeTab, setActiveTab] = useState(location.state?.tab || 'profile');
-  const [isUploadingResume, setIsUploadingResume] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   
@@ -184,65 +185,11 @@ const SettingsPage = () => {
     }));
   };
 
-  const handleUploadResume = async (e) => {
+  const handleUploadResume = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    setIsUploadingResume(true);
-    try {
-      // 1. Upload to Backend (Local Storage)
-      let backendData = { localUrl: null };
-      try {
-        const formDataUpload = new FormData();
-        formDataUpload.append('file', file);
-        const backendRes = await fetch('http://localhost:5000/api/upload', {
-          method: 'POST',
-          body: formDataUpload
-        });
-        if (backendRes.ok) {
-          backendData = await backendRes.json();
-        }
-      } catch (e) {
-        console.warn("Failed to upload to local backend. Proceeding with Firebase upload.", e);
-      }
-
-      // 2. Upload to Firebase Storage (Global)
-      let downloadURL = null;
-      if (auth.currentUser) {
-        const storageRef = ref(storage, `resumes/${auth.currentUser.uid}/${Date.now()}_${file.name}`);
-        const uploadTask = uploadBytesResumable(storageRef, file);
-        try {
-          await new Promise((resolve, reject) => {
-            uploadTask.on('state_changed', null, reject, resolve);
-          });
-          downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-        } catch (fbError) {
-          console.warn("Firebase upload failed, proceeding with local URL", fbError);
-        }
-      }
-
-      setFormData(prev => {
-        const newData = {
-          ...prev,
-          resumeName: file.name,
-          localResumeUrl: backendData.localUrl,
-          resumeUrl: downloadURL || prev.resumeUrl
-        };
-        localStorage.setItem('visume_profile_data', JSON.stringify(newData));
-        if (auth.currentUser) {
-          const collectionName = role === 'recruiter' ? 'recruiters' : 'candidates';
-          setDoc(doc(db, collectionName, auth.currentUser.uid), newData, { merge: true }).catch(console.error);
-        }
-        return newData;
-      });
-      
-      alert("Resume uploaded successfully!");
-    } catch (err) {
-      console.error("Resume upload failed:", err);
-      alert("Failed to upload resume.");
-    } finally {
-      setIsUploadingResume(false);
-    }
+    startDocumentUpload(file, role);
+    e.target.value = null;
   };
 
   const confirmDeleteResume = async () => {
@@ -624,19 +571,19 @@ const SettingsPage = () => {
                   <div className="flex flex-col gap-2 h-full">
                     <label className="text-label-md text-text-primary font-bold">Resume</label>
                     <div className="relative flex flex-col justify-center w-full h-full min-h-[9.5rem]">
-                      <label htmlFor="resume-upload" className={`flex flex-col items-center justify-center w-full h-full border-2 border-border-input border-dashed rounded-lg bg-surface-container transition-all ${isUploadingResume ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:bg-surface-bright/5 hover:border-primary'}`}>
+                      <label htmlFor="resume-upload" className={`flex flex-col items-center justify-center w-full h-full border-2 border-border-input border-dashed rounded-lg bg-surface-container transition-all ${docUploadStatus === 'uploading' ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:bg-surface-bright/5 hover:border-primary'}`}>
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                          {isUploadingResume ? (
+                          {docUploadStatus === 'uploading' ? (
                             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-2"></div>
                           ) : (
                             <span className="material-symbols-outlined text-text-muted mb-2 text-3xl">upload_file</span>
                           )}
                           <p className="mb-1 text-label-md text-text-muted">
-                            <span className="font-bold text-text-primary">{isUploadingResume ? 'Uploading...' : 'Click to upload'}</span> {isUploadingResume ? '' : 'or drag and drop'}
+                            <span className="font-bold text-text-primary">{docUploadStatus === 'uploading' ? 'Uploading...' : 'Click to upload'}</span> {docUploadStatus === 'uploading' ? '' : 'or drag and drop'}
                           </p>
                           <p className="text-[11px] text-text-muted uppercase tracking-wider">PDF files only (Max 5MB)</p>
                         </div>
-                        <input id="resume-upload" name="resumeName" type="file" accept=".pdf" className="hidden" onChange={handleUploadResume} disabled={isUploadingResume} />
+                        <input id="resume-upload" name="resumeName" type="file" accept=".pdf" className="hidden" onChange={handleUploadResume} disabled={docUploadStatus === 'uploading'} />
                       </label>
                     </div>
                     {formData.resumeName && (
