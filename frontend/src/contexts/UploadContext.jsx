@@ -5,6 +5,13 @@ import { collection, doc, setDoc } from 'firebase/firestore';
 
 const UploadContext = createContext();
 
+const withTimeout = (promise, ms, name) => {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error(`${name} timed out after ${ms}ms`)), ms))
+  ]);
+};
+
 export const useUpload = () => useContext(UploadContext);
 
 export const UploadProvider = ({ children }) => {
@@ -33,25 +40,29 @@ export const UploadProvider = ({ children }) => {
         const fileExtension = blob.type.split('/')[1] || 'webm';
         const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExtension}`;
 
-        // 1. Upload to Local Backend
+        // 1. Upload to Local Backend (10s timeout)
         const formData = new FormData();
         formData.append('file', blob, fileName);
         
-        const localUploadPromise = fetch('http://localhost:5000/api/upload', {
+        const localUploadPromise = withTimeout(fetch('http://localhost:5000/api/upload', {
           method: 'POST',
           body: formData
-        }).then(res => res.json())
-          .then(data => data.localUrl)
+        }), 10000, 'Local Backend Upload')
+          .then(res => res.json())
+          .then(data => {
+            console.log("Local Backend Upload Success:", data.localUrl);
+            return data.localUrl;
+          })
           .catch(err => {
-            console.error("Local Backend Upload Failed:", err);
+            console.warn("Local Backend Upload Failed or Timed Out:", err.message);
             return null;
           });
 
-        // 2. Upload to Global Firebase Storage
+        // 2. Upload to Global Firebase Storage (60s timeout)
         const storageRef = ref(storage, `video-resumes/${auth.currentUser.uid}/${fileName}`);
         const uploadTask = uploadBytesResumable(storageRef, blob);
         
-        const firebaseUploadPromise = new Promise((resolve, reject) => {
+        const firebaseUploadPromise = withTimeout(new Promise((resolve, reject) => {
           uploadTask.on('state_changed', 
             (snapshot) => {
               const progress = (snapshot.bytesTransferred / Math.max(snapshot.totalBytes, 1)) * 100;
@@ -60,13 +71,17 @@ export const UploadProvider = ({ children }) => {
             (error) => reject(error),
             () => resolve()
           );
-        }).then(() => getDownloadURL(storageRef))
+        }), 60000, 'Firebase Video Upload')
+          .then(() => getDownloadURL(storageRef))
           .catch(err => {
             console.warn("Global Firebase Upload skipped or failed:", err.message);
             return null;
           });
 
+        console.log("Waiting for both uploads to finish (or timeout)...");
         const [localVideoUrlResult, finalVideoUrlResult] = await Promise.all([localUploadPromise, firebaseUploadPromise]);
+        console.log("Uploads finished. Local:", localVideoUrlResult, "Firebase:", finalVideoUrlResult);
+        
         localVideoUrl = localVideoUrlResult;
         if (finalVideoUrlResult) {
           finalVideoUrl = finalVideoUrlResult;
@@ -117,20 +132,24 @@ export const UploadProvider = ({ children }) => {
       const formData = new FormData();
       formData.append('file', file);
       
-      const localUploadPromise = fetch('http://localhost:5000/api/upload', {
+      const localUploadPromise = withTimeout(fetch('http://localhost:5000/api/upload', {
         method: 'POST',
         body: formData
-      }).then(res => res.json())
-        .then(data => data.localUrl)
+      }), 10000, 'Local Document Upload')
+        .then(res => res.json())
+        .then(data => {
+          console.log("Local Backend Upload Success:", data.localUrl);
+          return data.localUrl;
+        })
         .catch(err => {
-          console.warn("Local Backend Upload Failed:", err);
+          console.warn("Local Backend Upload Failed or Timed Out:", err.message);
           return null;
         });
 
       const storageRef = ref(storage, `resumes/${auth.currentUser.uid}/${fileName}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
       
-      const firebaseUploadPromise = new Promise((resolve, reject) => {
+      const firebaseUploadPromise = withTimeout(new Promise((resolve, reject) => {
         uploadTask.on('state_changed', 
           (snapshot) => {
             const progress = (snapshot.bytesTransferred / Math.max(snapshot.totalBytes, 1)) * 100;
@@ -139,13 +158,16 @@ export const UploadProvider = ({ children }) => {
           (error) => reject(error),
           () => resolve()
         );
-      }).then(() => getDownloadURL(storageRef))
+      }), 60000, 'Firebase Document Upload')
+        .then(() => getDownloadURL(storageRef))
         .catch(err => {
           console.warn("Global Firebase Upload skipped or failed:", err.message);
           return null;
         });
 
+      console.log("Waiting for both doc uploads to finish (or timeout)...");
       const [localDocUrl, finalDocUrl] = await Promise.all([localUploadPromise, firebaseUploadPromise]);
+      console.log("Doc uploads finished. Local:", localDocUrl, "Firebase:", finalDocUrl);
 
       const newData = {
         ...currentProfileData,

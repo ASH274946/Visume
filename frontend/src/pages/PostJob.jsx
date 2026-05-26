@@ -3,6 +3,7 @@ import { db, auth } from '../firebase';
 import { collection, addDoc, serverTimestamp, onSnapshot, orderBy, query, updateDoc, doc, getDoc, getDocs } from 'firebase/firestore';
 import CustomSelect from '../components/CustomSelect';
 import CustomDatePicker from '../components/CustomDatePicker';
+import CustomVideoPlayer from '../components/CustomVideoPlayer';
 
 const RequiredMark = () => <span className="text-red-500">*</span>;
 
@@ -659,7 +660,7 @@ const PostJob = () => {
                           return (
                             <div key={video.id} className="overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-low">
                               {videoUrl ? (
-                                <video src={videoUrl} controls preload="metadata" playsInline poster={video.thumbnailUrl || undefined} className="max-h-[300px] w-full bg-black object-contain" />
+                                <CustomVideoPlayer src={videoUrl} className="aspect-video w-full rounded-xl" />
                               ) : (
                                 <div className="flex min-h-[180px] items-center justify-center text-text-muted">No playable video file.</div>
                               )}

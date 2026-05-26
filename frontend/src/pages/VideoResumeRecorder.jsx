@@ -24,6 +24,7 @@ const VideoResumeRecorder = () => {
 
   // Recording & Playback states
   const [recordingStatus, setRecordingStatus] = useState('idle'); // 'idle' | 'recording' | 'recorded'
+  const [recordingTime, setRecordingTime] = useState(0);
   const [recordedVideoUrl, setRecordedVideoUrl] = useState(null);
   
   // Custom Video Player states
@@ -94,6 +95,21 @@ const VideoResumeRecorder = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  useEffect(() => {
+    let interval;
+    if (recordingStatus === 'recording') {
+      setRecordingTime(0);
+      interval = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+    } else {
+      if (interval) clearInterval(interval);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [recordingStatus]);
+
   function resetPlaybackState() {
     setIsPlaying(false);
     setVideoProgress(0);
@@ -137,7 +153,14 @@ const VideoResumeRecorder = () => {
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          aspectRatio: { ideal: 16/9 }
+        }, 
+        audio: true 
+      });
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
@@ -413,7 +436,7 @@ const VideoResumeRecorder = () => {
             {/* Live Camera Stream */}
             <video 
               ref={videoRef}
-              className={`w-full h-full object-cover ${(recordingStatus === 'idle' || recordingStatus === 'recorded') ? 'hidden' : 'block'}`}
+              className={`w-full h-full object-contain ${(recordingStatus === 'idle' || recordingStatus === 'recorded') ? 'hidden' : 'block'}`}
             />
             
             {/* Recorded Video Playback with Custom Controls */}
@@ -480,7 +503,7 @@ const VideoResumeRecorder = () => {
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-2 bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full border border-danger/30">
                     <span className="w-2.5 h-2.5 bg-danger rounded-full recording-pulse animate-pulse"></span>
-                    <span className="font-label-md text-label-md font-bold text-danger tracking-widest">REC</span>
+                    <span className="font-label-md text-label-md font-bold text-danger tracking-widest">REC {formatTime(recordingTime)}</span>
                   </div>
                 </div>
                 
