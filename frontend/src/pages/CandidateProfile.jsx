@@ -697,19 +697,27 @@ const CandidateProfile = () => {
                         No active applications found.
                       </div>
                     ) : (
-                      candidateApplications.map((app) => (
-                        <button 
-                          key={app.jobId}
-                          onClick={() => setSelectedApplicationForInterview(app)}
-                          className="w-full p-4 border border-outline-variant rounded-lg text-left hover:bg-surface-container-highest hover:border-primary-container transition-all group flex flex-col gap-1"
-                        >
-                          <div className="flex justify-between items-start w-full">
-                            <span className="font-bold text-text-primary group-hover:text-primary-container transition-colors">{app.jobTitle}</span>
-                            <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${app.status === 'interview' ? 'bg-secondary/20 text-secondary' : 'bg-surface-container-highest text-text-muted'}`}>{app.status}</span>
-                          </div>
-                          <span className="text-body-sm text-text-muted">{app.company}</span>
-                        </button>
-                      ))
+                      candidateApplications.map((app) => {
+                        const isInterview = app.status === 'interview';
+                        return (
+                          <button 
+                            key={app.jobId}
+                            onClick={() => isInterview && setSelectedApplicationForInterview(app)}
+                            disabled={!isInterview}
+                            className={`w-full p-4 border border-outline-variant rounded-lg text-left flex flex-col gap-1 ${
+                              isInterview 
+                                ? 'hover:bg-surface-container-highest hover:border-primary-container transition-all group cursor-pointer' 
+                                : 'opacity-60 cursor-not-allowed'
+                            }`}
+                          >
+                            <div className="flex justify-between items-start w-full">
+                              <span className={`font-bold text-text-primary ${isInterview ? 'group-hover:text-primary-container transition-colors' : ''}`}>{app.jobTitle}</span>
+                              <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${isInterview ? 'bg-secondary/20 text-secondary' : 'bg-surface-container-highest text-text-muted'}`}>{app.status}</span>
+                            </div>
+                            <span className="text-body-sm text-text-muted">{app.company}</span>
+                          </button>
+                        );
+                      })
                     )}
                   </div>
                 </>
