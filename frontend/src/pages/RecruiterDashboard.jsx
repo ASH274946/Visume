@@ -138,7 +138,36 @@ const StatsRow = ({ metrics }) => (
   </div>
 );
 
-const AIMatchedCandidates = ({ candidates, onViewProfile }) => (
+const AIMatchedCandidates = ({ candidates, onViewProfile }) => {
+  const handleInitiateChat = async (e, candidate) => {
+    e.stopPropagation();
+    if (!candidate.isLive) {
+      alert("Cannot chat with mock candidates.");
+      return;
+    }
+    try {
+      const { initiateChat } = await import('../components/MessagesInbox');
+      const { auth } = await import('../firebase');
+      const uid = candidate.id.replace('live-', '');
+      const profileData = JSON.parse(localStorage.getItem('visume_profile_data') || '{}');
+      const recruiterName = profileData.fullName || auth.currentUser?.displayName || 'Recruiter';
+      
+      const chatId = await initiateChat(
+        'direct_message',
+        uid,
+        candidate.name,
+        candidate.role || 'Candidate',
+        auth.currentUser.uid,
+        recruiterName
+      );
+      
+      window.dispatchEvent(new CustomEvent('open-messages', { detail: { chatId } }));
+    } catch (err) {
+      console.error('Error initiating chat:', err);
+    }
+  };
+
+  return (
   <section className="lg:w-[70%]">
     <div className="flex items-center justify-between mb-md">
       <h2 className="font-headline-md text-headline-md text-text-primary">AI-Matched Candidates</h2>
@@ -158,10 +187,19 @@ const AIMatchedCandidates = ({ candidates, onViewProfile }) => (
                 <img alt={candidate.name} className="w-full h-full object-cover rounded-full" src={candidate.imgSrc} />
                 <div className="absolute bottom-0 right-0 w-4 h-4 bg-secondary rounded-full border-2 border-card-bg"></div>
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-headline-sm text-headline-sm text-text-primary truncate">{candidate.name}</h3>
-                <p className="font-label-md text-text-muted truncate">{candidate.role}</p>
-                <p className="font-label-md text-text-muted text-[12px] truncate">{candidate.location}</p>
+              <div className="flex-1 min-w-0 flex justify-between items-start gap-2">
+                <div className="min-w-0">
+                  <h3 className="font-headline-sm text-headline-sm text-text-primary truncate">{candidate.name}</h3>
+                  <p className="font-label-md text-text-muted truncate">{candidate.role}</p>
+                  <p className="font-label-md text-text-muted text-[12px] truncate">{candidate.location}</p>
+                </div>
+                <button
+                  onClick={(e) => handleInitiateChat(e, candidate)}
+                  className="p-1.5 rounded-full hover:bg-primary/10 text-primary transition-colors flex items-center justify-center shrink-0 border border-transparent hover:border-primary/20"
+                  title="Chat with candidate"
+                >
+                  <span className="material-symbols-outlined text-[20px]">chat</span>
+                </button>
               </div>
             </div>
 
@@ -189,7 +227,8 @@ const AIMatchedCandidates = ({ candidates, onViewProfile }) => (
       </div>
     )}
   </section>
-);
+  );
+};
 
 const RecentActivity = ({ activities }) => (
   <section className="lg:w-[30%]">
@@ -273,9 +312,44 @@ const CandidateProfileModal = ({ candidate, loading, onClose }) => {
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="text-text-muted hover:text-white transition-colors p-1">
-            <span className="material-symbols-outlined">close</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={async (e) => {
+                e.stopPropagation();
+                if (candidate.isDemo) {
+                  alert("Cannot chat with mock candidates.");
+                  return;
+                }
+                try {
+                  const { initiateChat } = await import('../components/MessagesInbox');
+                  const { auth } = await import('../firebase');
+                  const uid = candidate.id.replace('live-', '');
+                  const profileData = JSON.parse(localStorage.getItem('visume_profile_data') || '{}');
+                  const recruiterName = profileData.fullName || auth.currentUser?.displayName || 'Recruiter';
+                  
+                  const chatId = await initiateChat(
+                    'direct_message',
+                    uid,
+                    candidate.name,
+                    candidate.role || 'Candidate',
+                    auth.currentUser?.uid,
+                    recruiterName
+                  );
+                  
+                  window.dispatchEvent(new CustomEvent('open-messages', { detail: { chatId } }));
+                } catch (err) {
+                  console.error('Error initiating chat:', err);
+                }
+              }}
+              className="bg-primary text-white px-4 py-2 rounded-lg font-bold hover:brightness-110 active:scale-95 transition-all text-body-sm flex items-center gap-2"
+              title="Chat with candidate"
+            >
+              <span className="material-symbols-outlined text-[18px]">chat</span> Chat
+            </button>
+            <button onClick={onClose} className="text-text-muted hover:text-white transition-colors p-1">
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto overscroll-contain p-6 custom-scrollbar space-y-6">

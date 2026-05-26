@@ -367,8 +367,8 @@ const PostJob = () => {
                             <button
                               key={viewer.uid}
                               type="button"
-                              onClick={() => openViewerProfile(viewer)}
-                              className="flex w-full items-center gap-3 rounded-lg border border-outline-variant/40 bg-surface-container p-3 text-left transition-colors hover:border-primary-container/60 hover:bg-primary-container/5"
+                              onClick={() => openViewerProfile({ ...viewer, jobId: job.id, jobTitle: job.title })}
+                              className="flex w-full items-center gap-3 rounded-lg border border-outline-variant/40 bg-surface-container p-3 text-left transition-colors hover:border-primary-container/60 hover:bg-primary-container/5 group"
                             >
                               <img
                                 src={viewer.profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(viewer.name || 'Candidate')}&background=6C5CE7&color=fff&size=128`}
@@ -379,7 +379,32 @@ const PostJob = () => {
                                 <p className="truncate font-bold text-text-primary">{viewer.name || 'Candidate'}</p>
                                 <p className="truncate text-[12px] text-text-muted">{viewer.headline || 'Candidate'} • Applied {formatViewerDate(viewer.appliedAt || viewer.viewedAt)}</p>
                               </div>
-                              <span className="material-symbols-outlined text-text-muted">person_search</span>
+                              <button
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  try {
+                                    const { initiateChat } = await import('../components/MessagesInbox');
+                                    const profileData = JSON.parse(localStorage.getItem('visume_profile_data') || '{}');
+                                    const recruiterName = profileData.fullName || auth.currentUser?.displayName || 'Recruiter';
+                                    const chatId = await initiateChat(
+                                      job.id,
+                                      viewer.uid,
+                                      viewer.name || 'Candidate',
+                                      job.title,
+                                      auth.currentUser.uid,
+                                      recruiterName
+                                    );
+                                    window.dispatchEvent(new CustomEvent('open-messages', { detail: { chatId } }));
+                                  } catch (err) {
+                                    console.error('Error initiating chat:', err);
+                                  }
+                                }}
+                                className="p-2 rounded-full hover:bg-primary/10 text-text-muted hover:text-primary transition-colors flex items-center justify-center shrink-0 border border-transparent hover:border-primary/20 opacity-0 group-hover:opacity-100"
+                                title="Chat with candidate"
+                              >
+                                <span className="material-symbols-outlined text-[20px]">chat</span>
+                              </button>
+                              <span className="material-symbols-outlined text-text-muted ml-2 shrink-0">person_search</span>
                             </button>
                           ))}
                         </div>
@@ -622,8 +647,35 @@ const PostJob = () => {
                   alt={viewerProfile.name || 'Candidate'}
                   className="h-16 w-16 shrink-0 rounded-full border-2 border-primary-container/30 object-cover"
                 />
-                <div className="min-w-0">
-                  <h3 id="viewer-profile-title" className="font-display text-headline-sm font-bold text-text-primary">{viewerProfile.name || 'Candidate'}</h3>
+                <div className="min-w-0 flex flex-col justify-center">
+                  <div className="flex items-center gap-3">
+                    <h3 id="viewer-profile-title" className="font-display text-headline-sm font-bold text-text-primary">{viewerProfile.name || 'Candidate'}</h3>
+                    <button
+                      onClick={async () => {
+                        try {
+                          const { initiateChat } = await import('../components/MessagesInbox');
+                          const profileData = JSON.parse(localStorage.getItem('visume_profile_data') || '{}');
+                          const recruiterName = profileData.fullName || auth.currentUser?.displayName || 'Recruiter';
+                          const chatId = await initiateChat(
+                            viewerProfile.jobId || 'direct_message',
+                            viewerProfile.uid,
+                            viewerProfile.name || 'Candidate',
+                            viewerProfile.jobTitle || viewerProfile.headline || 'Candidate',
+                            auth.currentUser.uid,
+                            recruiterName
+                          );
+                          window.dispatchEvent(new CustomEvent('open-messages', { detail: { chatId } }));
+                          setViewerProfile(null);
+                        } catch (err) {
+                          console.error('Error initiating chat:', err);
+                        }
+                      }}
+                      className="p-1.5 rounded-full hover:bg-primary/10 text-primary transition-colors flex items-center justify-center shrink-0"
+                      title="Chat with candidate"
+                    >
+                      <span className="material-symbols-outlined text-[20px]">chat</span>
+                    </button>
+                  </div>
                   <p className="text-body-sm text-text-muted">{viewerProfile.headline || 'Candidate'}</p>
                   <p className="mt-1 flex items-center gap-1 text-label-md text-text-muted">
                     <span className="material-symbols-outlined text-[14px]">location_on</span>

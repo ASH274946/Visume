@@ -287,6 +287,34 @@ const FindCandidatesPage = () => {
   // Merge live candidates at the top with mock candidates
   const allCandidates = [...liveCandidates, ...candidatesData];
 
+  const handleInitiateChat = async (e, candidate) => {
+    e.stopPropagation();
+    if (!candidate.isLive) {
+      alert("Cannot chat with mock candidates.");
+      return;
+    }
+    try {
+      const { initiateChat } = await import('../components/MessagesInbox');
+      const { auth } = await import('../firebase');
+      const uid = candidate.id.replace('live-', '');
+      const profileData = JSON.parse(localStorage.getItem('visume_profile_data') || '{}');
+      const recruiterName = profileData.fullName || auth.currentUser?.displayName || 'Recruiter';
+      
+      const chatId = await initiateChat(
+        'direct_message',
+        uid,
+        candidate.name,
+        candidate.role || 'Candidate',
+        auth.currentUser.uid,
+        recruiterName
+      );
+      
+      window.dispatchEvent(new CustomEvent('open-messages', { detail: { chatId } }));
+    } catch (err) {
+      console.error('Error initiating chat:', err);
+    }
+  };
+
   const handleViewProfile = async (candidate) => {
     setProfileModal(candidate);
     setProfileLoading(true);
@@ -540,13 +568,22 @@ const FindCandidatesPage = () => {
                 <div className="w-16 h-16 rounded-full border-2 border-primary-container/20 overflow-hidden shrink-0 group-hover:border-primary-container transition-colors">
                   <img src={candidate.imgSrc} alt={candidate.name} className="w-full h-full object-cover" />
                 </div>
-                <div>
-                  <h3 className="font-display text-headline-sm font-bold text-text-primary">{candidate.name}</h3>
-                  <p className="text-body-sm text-text-muted">{candidate.role}</p>
-                  <div className="flex items-center gap-1 mt-1 text-label-md text-text-muted">
-                    <span className="material-symbols-outlined text-[14px]">location_on</span>
-                    {candidate.location}
+                <div className="flex-1 min-w-0 flex justify-between items-start gap-2">
+                  <div className="min-w-0">
+                    <h3 className="font-display text-headline-sm font-bold text-text-primary truncate">{candidate.name}</h3>
+                    <p className="text-body-sm text-text-muted truncate">{candidate.role}</p>
+                    <div className="flex items-center gap-1 mt-1 text-label-md text-text-muted">
+                      <span className="material-symbols-outlined text-[14px]">location_on</span>
+                      {candidate.location}
+                    </div>
                   </div>
+                  <button
+                    onClick={(e) => handleInitiateChat(e, candidate)}
+                    className="p-1.5 rounded-full hover:bg-primary/10 text-primary transition-colors flex items-center justify-center shrink-0 border border-transparent hover:border-primary/20"
+                    title="Chat with candidate"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">chat</span>
+                  </button>
                 </div>
               </div>
               
@@ -612,8 +649,17 @@ const FindCandidatesPage = () => {
                 <div className="w-16 h-16 rounded-full border-2 border-primary-container/30 overflow-hidden shrink-0">
                   <img src={profileModal.imgSrc} alt={profileModal.name} className="w-full h-full object-cover" />
                 </div>
-                <div>
-                  <h3 id="candidate-profile-title" className="font-display text-headline-sm font-bold text-text-primary">{profileModal.name}</h3>
+                <div className="min-w-0 flex flex-col justify-center">
+                  <div className="flex items-center gap-3">
+                    <h3 id="candidate-profile-title" className="font-display text-headline-sm font-bold text-text-primary">{profileModal.name}</h3>
+                    <button
+                      onClick={(e) => handleInitiateChat(e, profileModal)}
+                      className="p-1.5 rounded-full hover:bg-primary/10 text-primary transition-colors flex items-center justify-center shrink-0"
+                      title="Chat with candidate"
+                    >
+                      <span className="material-symbols-outlined text-[20px]">chat</span>
+                    </button>
+                  </div>
                   <p className="text-body-sm text-text-muted">{profileModal.role}</p>
                   <div className="flex items-center gap-1 mt-1 text-label-md text-text-muted">
                     <span className="material-symbols-outlined text-[14px]">location_on</span>

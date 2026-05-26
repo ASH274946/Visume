@@ -325,6 +325,7 @@ const JobGrid = ({ jobs, onApplied, selectedJob, setSelectedJob }) => {
   const [appliedJobs, setAppliedJobs] = useState(new Set());
   const [applicationJob, setApplicationJob] = useState(null);
   const [selectedResumeId, setSelectedResumeId] = useState(null);
+  const [selectedDocumentId, setSelectedDocumentId] = useState(null);
   const [includeDocumentResume, setIncludeDocumentResume] = useState(true);
   
   const [videoResumes, setVideoResumes] = useState([]);
@@ -381,7 +382,8 @@ const JobGrid = ({ jobs, onApplied, selectedJob, setSelectedJob }) => {
         appliedAt: now,
         status: 'applied',
         resumeId,
-        includeDocumentResume
+        includeDocumentResume: !!selectedDocumentId,
+        documentResumeId: selectedDocumentId
       };
 
       const nextViewers = viewers.some(viewer => viewer.uid === auth.currentUser.uid)
@@ -665,38 +667,53 @@ const JobGrid = ({ jobs, onApplied, selectedJob, setSelectedJob }) => {
               )}
 
               <h4 className="font-label-lg text-label-lg text-text-primary mb-3 mt-6">Document Resume</h4>
-              {profileData?.resumeUrl || profileData?.resumeName ? (
-                <div 
-                  onClick={() => setIncludeDocumentResume(!includeDocumentResume)}
-                  className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${includeDocumentResume ? 'bg-primary-container/10 border-primary-container' : 'bg-surface-container-high border-border-input hover:border-outline-variant'}`}
-                >
-                  <div className="flex-1">
-                    <p className="text-label-md font-bold text-text-primary flex items-center gap-2">
-                      <span className="material-symbols-outlined text-primary text-[18px]">description</span>
-                      {profileData.resumeName || 'Profile Resume'}
-                    </p>
-                    <p className="text-[11px] text-text-muted mt-0.5">Include your uploaded document resume</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {profileData.localResumeUrl && !includeDocumentResume && (
-                      <span className="material-symbols-outlined text-text-muted text-[16px] opacity-50" title="Saved locally">cloud_done</span>
-                    )}
-                    {includeDocumentResume && (
-                      <div className="ml-auto flex items-center pr-2">
-                        <span className="material-symbols-outlined text-primary-container" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+              {(() => {
+                const documentResumes = Array.isArray(profileData?.documentResumes) && profileData.documentResumes.length > 0 
+                  ? profileData.documentResumes 
+                  : profileData?.resumeName ? [{ id: 'legacy', name: profileData.resumeName, url: profileData.resumeUrl, localUrl: profileData.localResumeUrl }] : [];
+
+                if (documentResumes.length === 0) {
+                  return (
+                    <div className="text-center p-4 border border-dashed border-outline-variant rounded-xl bg-surface-container-low flex flex-col items-center gap-2">
+                      <p className="text-body-sm text-text-muted">No document resume found in profile.</p>
+                      <button onClick={() => navigate('/profile')} className="bg-surface-container border border-outline-variant text-text-primary px-4 py-2 rounded-lg text-sm font-bold hover:bg-surface-bright transition-colors flex items-center gap-2">
+                        <span className="material-symbols-outlined text-[18px]">upload</span>
+                        Upload in Profile
+                      </button>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="flex flex-col gap-3">
+                    {documentResumes.map(resume => (
+                      <div 
+                        key={resume.id}
+                        onClick={() => setSelectedDocumentId(selectedDocumentId === resume.id ? null : resume.id)}
+                        className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${selectedDocumentId === resume.id ? 'bg-primary-container/10 border-primary-container' : 'bg-surface-container-high border-border-input hover:border-outline-variant'}`}
+                      >
+                        <div className="flex-1">
+                          <p className="text-label-md font-bold text-text-primary flex items-center gap-2">
+                            <span className="material-symbols-outlined text-primary text-[18px]">description</span>
+                            {resume.name || 'Profile Resume'}
+                          </p>
+                          <p className="text-[11px] text-text-muted mt-0.5">Uploaded on {new Date(resume.uploadedAt || Date.now()).toLocaleDateString()}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {resume.localUrl && selectedDocumentId !== resume.id && (
+                            <span className="material-symbols-outlined text-text-muted text-[16px] opacity-50" title="Saved locally">cloud_done</span>
+                          )}
+                          {selectedDocumentId === resume.id && (
+                            <div className="ml-auto flex items-center pr-2">
+                              <span className="material-symbols-outlined text-primary-container" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    )}
+                    ))}
                   </div>
-                </div>
-              ) : (
-                <div className="text-center p-4 border border-dashed border-outline-variant rounded-xl bg-surface-container-low flex flex-col items-center gap-2">
-                  <p className="text-body-sm text-text-muted">No document resume found in profile.</p>
-                  <button onClick={() => navigate('/profile')} className="bg-surface-container border border-outline-variant text-text-primary px-4 py-2 rounded-lg text-sm font-bold hover:bg-surface-bright transition-colors flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[18px]">upload</span>
-                    Upload in Profile
-                  </button>
-                </div>
-              )}
+                );
+              })()}
             </div>
 
             <div className="flex gap-4 pt-4 border-t border-outline-variant/30 mt-auto">
@@ -707,7 +724,7 @@ const JobGrid = ({ jobs, onApplied, selectedJob, setSelectedJob }) => {
                 Cancel
               </button>
               <button
-                disabled={!selectedResumeId || !includeDocumentResume || applyingIdx !== null}
+                disabled={!selectedResumeId || !selectedDocumentId || applyingIdx !== null}
                 onClick={() => {
                   const idx = jobs.findIndex(j => j.title === applicationJob.title && j.company === applicationJob.company);
                   if (idx === -1) return;
@@ -730,7 +747,8 @@ const JobGrid = ({ jobs, onApplied, selectedJob, setSelectedJob }) => {
                       statusText: 'Applied',
                       colorClass: 'status-applied',
                       resumeId: selectedResumeId,
-                      includeDocumentResume: includeDocumentResume
+                      includeDocumentResume: !!selectedDocumentId,
+                      documentResumeId: selectedDocumentId
                     };
                     existingApplications.push(newApplication);
                     localStorage.setItem('visume_applications', JSON.stringify(existingApplications));
@@ -740,7 +758,8 @@ const JobGrid = ({ jobs, onApplied, selectedJob, setSelectedJob }) => {
                     const newApp = { 
                       ...applicationJob, 
                       videoResumeId: selectedResumeId, 
-                      includeDocumentResume: includeDocumentResume,
+                      includeDocumentResume: !!selectedDocumentId,
+                      documentResumeId: selectedDocumentId,
                       appliedAt: new Date().toISOString() 
                     };
                     localStorage.setItem('visume_applications', JSON.stringify([...existingApps, newApp]));
@@ -749,7 +768,7 @@ const JobGrid = ({ jobs, onApplied, selectedJob, setSelectedJob }) => {
                     setApplicationJob(null);
                   }, 800);
                 }}
-                className={`flex-1 py-3 bg-primary-container text-white font-bold rounded-lg transition-all ${!selectedResumeId ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-110 active:scale-95 shadow-lg shadow-primary-container/20'}`}
+                className={`flex-1 py-3 bg-primary-container text-white font-bold rounded-lg transition-all ${!selectedResumeId || !selectedDocumentId ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-110 active:scale-95 shadow-lg shadow-primary-container/20'}`}
               >
                 {applyingIdx !== null ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto"></div>
