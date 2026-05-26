@@ -107,7 +107,10 @@ export const UploadProvider = ({ children }) => {
       }
 
       setUploadStatus('success');
-      setTimeout(() => setUploadStatus('idle'), 5000);
+      setTimeout(() => {
+        setUploadStatus('idle');
+        window.location.reload();
+      }, 1000);
       window.dispatchEvent(new CustomEvent('visumeVideoUpdated'));
       
     } catch (error) {
@@ -182,7 +185,10 @@ export const UploadProvider = ({ children }) => {
       await setDoc(doc(db, collectionName, auth.currentUser.uid), newData, { merge: true });
 
       setDocUploadStatus('success');
-      setTimeout(() => setDocUploadStatus('idle'), 5000);
+      setTimeout(() => {
+        setDocUploadStatus('idle');
+        window.location.reload();
+      }, 1000);
       
       window.dispatchEvent(new CustomEvent('visumeProfileUpdated', { detail: newData }));
       
