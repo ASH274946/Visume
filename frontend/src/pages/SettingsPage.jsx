@@ -212,13 +212,12 @@ const SettingsPage = () => {
         const storageRef = ref(storage, `resumes/${auth.currentUser.uid}/${Date.now()}_${file.name}`);
         const uploadTask = uploadBytesResumable(storageRef, file);
         try {
-          await Promise.race([
-            uploadTask,
-            new Promise((_, reject) => setTimeout(() => reject(new Error('Firebase upload timeout')), 15000))
-          ]);
+          await new Promise((resolve, reject) => {
+            uploadTask.on('state_changed', null, reject, resolve);
+          });
           downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
         } catch (fbError) {
-          console.warn("Firebase upload timed out or failed, proceeding with local URL", fbError);
+          console.warn("Firebase upload failed, proceeding with local URL", fbError);
         }
       }
 

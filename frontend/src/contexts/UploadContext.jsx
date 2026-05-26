@@ -49,14 +49,18 @@ export const UploadProvider = ({ children }) => {
         const storageRef = ref(storage, `video-resumes/${auth.currentUser.uid}/${fileName}`);
         const uploadTask = uploadBytesResumable(storageRef, blob);
         
-        uploadTask.on('state_changed', (snapshot) => {
-          const progress = (snapshot.bytesTransferred / Math.max(snapshot.totalBytes, 1)) * 100;
-          setUploadProgress(Math.round(progress));
-        });
-
         try {
           // Wait for upload to complete
-          await uploadTask;
+          await new Promise((resolve, reject) => {
+            uploadTask.on('state_changed', 
+              (snapshot) => {
+                const progress = (snapshot.bytesTransferred / Math.max(snapshot.totalBytes, 1)) * 100;
+                setUploadProgress(Math.round(progress));
+              },
+              (error) => reject(error),
+              () => resolve()
+            );
+          });
           finalVideoUrl = await getDownloadURL(storageRef);
         } catch (err) {
           console.warn("Global Firebase Upload skipped or failed:", err.message);
