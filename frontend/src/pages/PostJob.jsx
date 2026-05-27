@@ -392,9 +392,10 @@ const PostJob = () => {
                                       viewer.name || 'Candidate',
                                       job.title,
                                       auth.currentUser.uid,
-                                      recruiterName
+                                      recruiterName,
+                                      profileData.companyName || ''
                                     );
-                                    window.dispatchEvent(new CustomEvent('open-messages', { detail: { chatId } }));
+                                    window.dispatchEvent(new CustomEvent('openMessages', { detail: { chatId } }));
                                   } catch (err) {
                                     console.error('Error initiating chat:', err);
                                   }
@@ -662,9 +663,10 @@ const PostJob = () => {
                             viewerProfile.name || 'Candidate',
                             viewerProfile.jobTitle || viewerProfile.headline || 'Candidate',
                             auth.currentUser.uid,
-                            recruiterName
+                            recruiterName,
+                            profileData.companyName || ''
                           );
-                          window.dispatchEvent(new CustomEvent('open-messages', { detail: { chatId } }));
+                          window.dispatchEvent(new CustomEvent('openMessages', { detail: { chatId } }));
                           setViewerProfile(null);
                         } catch (err) {
                           console.error('Error initiating chat:', err);

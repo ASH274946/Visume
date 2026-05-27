@@ -141,7 +141,7 @@ const StatsRow = ({ metrics }) => (
 const AIMatchedCandidates = ({ candidates, onViewProfile }) => {
   const handleInitiateChat = async (e, candidate) => {
     e.stopPropagation();
-    if (!candidate.isLive) {
+    if (candidate.isDemo) {
       alert("Cannot chat with mock candidates.");
       return;
     }
@@ -158,10 +158,11 @@ const AIMatchedCandidates = ({ candidates, onViewProfile }) => {
         candidate.name,
         candidate.role || 'Candidate',
         auth.currentUser.uid,
-        recruiterName
+        recruiterName,
+        profileData.companyName || ''
       );
       
-      window.dispatchEvent(new CustomEvent('open-messages', { detail: { chatId } }));
+      window.dispatchEvent(new CustomEvent('openMessages', { detail: { chatId } }));
     } catch (err) {
       console.error('Error initiating chat:', err);
     }

@@ -40,11 +40,7 @@ const DashboardNavbar = ({ role = 'candidate' }) => {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const notifications = [
-    { id: 1, icon: '️', title: 'Interview Invitation', body: 'Stellar AI Solutions invited you for an interview.', time: '2h ago' },
-    { id: 2, icon: '⭐', title: 'New Recommended Role', body: 'A new job matching your profile is available.', time: '1d ago' },
-    { id: 3, icon: '', title: 'Profile Viewed', body: 'Company Nexus Creative viewed your profile.', time: '3d ago' }
-  ];
+  // Removed hardcoded notifications
 
   useEffect(() => {
     const onClick = (e) => {
@@ -62,6 +58,54 @@ const DashboardNavbar = ({ role = 'candidate' }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const notificationRef = useRef(null);
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    import('../firebase').then(({ db, auth }) => {
+      import('firebase/firestore').then(({ collection, query, where, onSnapshot, orderBy, limit }) => {
+        if (!auth.currentUser) return;
+        const currentUserId = auth.currentUser.uid;
+        const virtualCurrentUserId = `${currentUserId}_${role === 'recruiter' ? 'recruiter' : 'candidate'}`;
+        
+        const q = query(
+          collection(db, 'notifications'),
+          where('userId', '==', virtualCurrentUserId),
+          orderBy('timestamp', 'desc'),
+          limit(10)
+        );
+        
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+          const notifs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          setNotifications(notifs);
+        });
+        
+        return () => unsubscribe();
+      });
+    });
+  }, [role]);
+
+  const markAllRead = async () => {
+    try {
+      const { db } = await import('../firebase');
+      const { doc, deleteDoc } = await import('firebase/firestore');
+      for (const n of notifications) {
+        await deleteDoc(doc(db, 'notifications', n.id));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleNotificationClick = (n) => {
+    if (n.type === 'message' && n.chatId) {
+      window.dispatchEvent(new CustomEvent('openMessages', { detail: { chatId: n.chatId } }));
+    }
+    import('../firebase').then(({ db }) => {
+      import('firebase/firestore').then(({ doc, deleteDoc }) => {
+        deleteDoc(doc(db, 'notifications', n.id));
+      });
+    });
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -73,6 +117,8 @@ const DashboardNavbar = ({ role = 'candidate' }) => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const unreadCount = notifications.length;
 
   return (
     <header className="absolute top-0 left-0 right-0 z-40 px-lg pt-4 pb-2 backdrop-blur-xl bg-background/25 pointer-events-none">
@@ -156,35 +202,43 @@ const DashboardNavbar = ({ role = 'candidate' }) => {
               className="relative w-10 h-10 rounded-full bg-surface-container flex items-center justify-center border border-outline-variant hover:border-primary transition-all text-text-muted hover:text-text-primary shrink-0"
             >
               <span className="material-symbols-outlined text-[20px]">notifications</span>
-              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-danger rounded-full border border-surface-container"></span>
+              {unreadCount > 0 && (
+                <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-danger rounded-full border border-surface-container animate-pulse"></span>
+              )}
             </button>
             {showNotifications && (
               <div className="absolute right-0 mt-2 w-72 bg-surface-container-highest border border-outline-variant rounded-xl shadow-2xl overflow-hidden z-50">
                 <div className="p-4 border-b border-outline-variant flex justify-between items-center bg-surface-container">
                   <h3 className="font-bold text-text-primary font-body-md">Notifications</h3>
-                  <button onClick={() => setShowNotifications(false)} className="text-xs text-primary font-bold hover:underline">Mark all read</button>
+                  {unreadCount > 0 && (
+                    <button onClick={markAllRead} className="text-xs text-primary font-bold hover:underline">Mark all read</button>
+                  )}
                 </div>
                 <div className={`overflow-y-auto custom-scrollbar transition-all duration-300 ${isExpanded ? 'max-h-[60vh]' : 'max-h-64'}`}>
-                  <div className="p-4 border-b border-outline-variant/50 hover:bg-surface-container/50 cursor-pointer transition-colors">
-                    <p className="text-sm text-text-primary mb-1"><span className="font-bold">Sarah Jenkins</span> applied for <span className="font-bold text-primary">Senior Frontend Engineer</span></p>
-                    <p className="text-xs text-text-muted">2 hours ago</p>
-                  </div>
-                  <div className="p-4 border-b border-outline-variant/50 hover:bg-surface-container/50 cursor-pointer transition-colors">
-                    <p className="text-sm text-text-primary mb-1">Your job post <span className="font-bold text-primary">UX Designer</span> is expiring soon</p>
-                    <p className="text-xs text-text-muted">1 day ago</p>
-                  </div>
-                  <div className="p-4 border-b border-outline-variant/50 hover:bg-surface-container/50 cursor-pointer transition-colors">
-                    <p className="text-sm text-text-primary mb-1"><span className="font-bold">Michael Chen</span> submitted a video response</p>
-                    <p className="text-xs text-text-muted">1 day ago</p>
-                  </div>
-                  <div className="p-4 border-b border-outline-variant/50 hover:bg-surface-container/50 cursor-pointer transition-colors">
-                    <p className="text-sm text-text-primary mb-1">New AI matches for <span className="font-bold text-primary">Product Manager</span></p>
-                    <p className="text-xs text-text-muted">2 days ago</p>
-                  </div>
-                  <div className="p-4 hover:bg-surface-container/50 cursor-pointer transition-colors">
-                    <p className="text-sm text-text-primary mb-1">System maintenance scheduled for weekend</p>
-                    <p className="text-xs text-text-muted">3 days ago</p>
-                  </div>
+                  {notifications.length === 0 ? (
+                    <div className="p-6 text-center text-text-muted text-sm">No new notifications.</div>
+                  ) : (
+                    notifications.map(n => {
+                      return (
+                        <div 
+                          key={n.id} 
+                          onClick={() => handleNotificationClick(n)}
+                          className={`p-4 border-b border-outline-variant/50 cursor-pointer transition-colors flex items-start gap-3 bg-primary-container/10 border-l-2 border-l-primary`}
+                        >
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-primary text-white`}>
+                            <span className="material-symbols-outlined text-[16px]">{n.type === 'message' ? 'forum' : 'notifications'}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm mb-1 text-text-primary font-bold`}>{n.title}</p>
+                            <p className="text-xs text-text-muted mb-1 truncate">{n.body}</p>
+                            <p className="text-[10px] text-text-muted">
+                              {n.timestamp?.toDate ? n.timestamp.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
                 <div className="p-3 border-t border-outline-variant text-center bg-surface-container">
                   <button onClick={() => setIsExpanded(!isExpanded)} className="text-sm text-primary font-bold hover:underline">

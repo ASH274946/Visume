@@ -289,7 +289,7 @@ const FindCandidatesPage = () => {
 
   const handleInitiateChat = async (e, candidate) => {
     e.stopPropagation();
-    if (!candidate.isLive) {
+    if (candidate.isDemo) {
       alert("Cannot chat with mock candidates.");
       return;
     }
@@ -309,7 +309,7 @@ const FindCandidatesPage = () => {
         recruiterName
       );
       
-      window.dispatchEvent(new CustomEvent('open-messages', { detail: { chatId } }));
+      window.dispatchEvent(new CustomEvent('openMessages', { detail: { chatId } }));
     } catch (err) {
       console.error('Error initiating chat:', err);
     }
