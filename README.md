@@ -12,10 +12,18 @@ For recruiters, Visume provides an enterprise-grade dashboard equipped with AI-m
 
 ## Key Features & Functionality
 
+### 💬 Real-Time Messaging & Notifications
+
+* **Dual-Role Segregation:** Seamlessly switch between Candidate and Recruiter roles using the same account, with completely isolated, role-specific chat inboxes and notification pipelines.
+* **Instant Communication:** Integrated chat module allowing recruiters to initiate conversations directly from candidate profile cards or applicant lists.
+* **Smart Notification Sync:** Real-time push notifications alert you to new messages. Actively viewing a chat intelligently intercepts and clears incoming notifications to keep your dashboard clutter-free.
+* **Dynamic Contextual UI:** The messaging interface automatically adapts to your role, displaying company names for candidates and job titles for recruiters.
+
 ### For Candidates
 
 * **Video & Document Resume Library:** Upload, manage, and delete multiple video and PDF/document resumes from a centralized "My Library" dashboard.
 * **Default Resume Showcasing:** Candidates can easily star and set a specific Document and Video resume as their "Default," ensuring recruiters see the best, curated version of their profile.
+* **Comprehensive Job Applications:** Apply to jobs with both your customized Video and Document resumes directly from the discovery page.
 * **Real-time Pipeline Sync:** Watch your application status change instantly! As recruiters move you through their hiring pipeline (Applied ➡️ Shortlisted ➡️ Interview ➡️ Hired), your dashboard updates in real-time.
 * **Interactive Interview Scheduling:** Candidates shortlisted for an interview unlock a dynamic "Schedule Interview" modal, allowing them to coordinate next steps directly from their profile.
 * **Video Resume Studio:** Record, review, and upload video introductions with advanced configuration for webcam/microphone selection and a customizable teleprompter.
@@ -28,6 +36,7 @@ For recruiters, Visume provides an enterprise-grade dashboard equipped with AI-m
 * **Curated Profile Viewing:** When finding candidates, recruiters are presented with the candidate's chosen "Default" video and document resumes via a custom-designed, theme-matching media player.
 * **Pipeline Management:** Move candidates seamlessly through recruitment stages using an intuitive Kanban-style tracker that instantly notifies candidates.
 * **AI-Matched Candidates:** Visume's AI automatically scores candidates based on their video resumes and profiles, providing a precise "Match Score" (e.g., 94% fit).
+* **Direct Outreach:** Initiate chats with promising candidates instantly from their profile cards or the job applicant tracking view.
 * **Company Branding:** Fully customizable company profiles, including enterprise logos, CIN, company size, and dynamic links.
 * **Automated Screening:** Define default AI screening questions for specific roles to standardize the interview process.
 
@@ -35,6 +44,7 @@ For recruiters, Visume provides an enterprise-grade dashboard equipped with AI-m
 
 * **Authentication:** Secure login and registration powered by Firebase Auth.
 * **Dynamic Theming:** Seamless Light and Dark mode toggles with customized component styling (like our custom HTML5 video player).
+* **Real-Time Data Sync:** Powered by Firestore's real-time listeners for instant pipeline updates, chat delivery, and notification badges.
 * **Privacy Controls:** Options to temporarily deactivate accounts or permanently delete user data and metadata.
 
 ## Project Structure
