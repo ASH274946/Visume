@@ -12,7 +12,7 @@ const Sidebar = ({ role = 'candidate', activePage = '' }) => {
 
   if (role === 'recruiter') {
     return (
-      <aside className="w-[240px] flex-shrink-0 bg-surface-container border border-outline-variant flex flex-col h-[calc(100vh-32px)] my-4 ml-4 rounded-2xl shadow-xl shadow-black/40 z-50">
+      <aside className="w-[240px] flex-shrink-0 bg-surface-container border border-outline-variant flex flex-col h-[calc(125vh-32px)] my-4 ml-4 rounded-2xl shadow-xl shadow-black/40 z-50">
         <div className="p-md">
           <div className="flex items-center gap-xs">
             <Link to="/" className="font-display text-headline-sm font-bold text-primary-container">Visume</Link>
@@ -76,7 +76,7 @@ const Sidebar = ({ role = 'candidate', activePage = '' }) => {
   }
 
   return (
-    <aside className="w-[240px] flex-shrink-0 bg-surface-container border border-outline-variant flex flex-col h-[calc(100vh-32px)] my-4 ml-4 rounded-2xl shadow-xl shadow-black/40 z-50">
+    <aside className="w-[240px] flex-shrink-0 bg-surface-container border border-outline-variant flex flex-col h-[calc(125vh-32px)] my-4 ml-4 rounded-2xl shadow-xl shadow-black/40 z-50">
       <div className="p-md">
         <div className="flex items-center gap-xs">
           <Link to="/" className="font-display text-headline-sm font-bold text-primary-container">Visume</Link>

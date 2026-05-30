@@ -3,6 +3,9 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    zoom: 0.8;
+  }
   body {
     @apply bg-background text-text-primary;
     -webkit-font-smoothing: antialiased;
@@ -136,6 +139,14 @@
   }
   .page-transition {
     animation: pageFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  /* Override h-screen and min-h-screen for 80% zoom (100vh / 0.8 = 125vh) */
+  .h-screen {
+    height: 125vh !important;
+  }
+  .min-h-screen {
+    min-height: 125vh !important;
   }
 }
 
