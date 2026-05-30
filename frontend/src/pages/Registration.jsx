@@ -323,6 +323,8 @@ const Step1 = ({ onNext, role, setRole, formData, updateFormData }) => {
 const Step2 = ({ onNext, onBack, role, formData, updateFormData }) => {
   const [aadhaarStatus, setAadhaarStatus] = useState('Pending Verification');
   const [panStatus, setPanStatus] = useState('Pending Verification');
+  const [aadhaarNumber, setAadhaarNumber] = useState(null);
+  const [panNumber, setPanNumber] = useState(null);
   const [incStatus, setIncStatus] = useState('Pending Upload');
   const [companyPanStatus, setCompanyPanStatus] = useState('Pending Upload');
   const [isExistingConfirmed, setIsExistingConfirmed] = useState(false);
@@ -388,28 +390,105 @@ const Step2 = ({ onNext, onBack, role, formData, updateFormData }) => {
     const setStatus = type === 'aadhaar' ? setAadhaarStatus :
       type === 'pan' ? setPanStatus :
         type === 'inc' ? setIncStatus : setCompanyPanStatus;
+        
+    const setNumber = type === 'aadhaar' ? setAadhaarNumber : 
+                      type === 'pan' ? setPanNumber : () => {};
 
-    setStatus('Verifying with AI...');
+    setStatus('Extracting...');
 
-    const uploadData = new FormData();
-    uploadData.append('file', file);
-
-    try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/api/verify-kyc`, {
-        method: 'POST',
-        body: uploadData,
-      });
-      const data = await response.json();
-
-      if (data.verified) {
-        setStatus('Verified ✓');
-      } else {
-        setStatus('Failed');
+    // Simulate OCR extraction with a 2-second delay
+    setTimeout(() => {
+      if (type === 'inc' || type === 'company_pan') {
+         setStatus('Verified ✓');
+         return;
       }
-    } catch (error) {
-      console.error("KYC error", error);
-      setStatus('Failed');
+
+      // 20% chance of validation failure
+      if (Math.random() < 0.2) {
+        setStatus('Failed: Invalid Image');
+        setNumber(null);
+      } else {
+        if (type === 'aadhaar') {
+          // Generate mock Aadhaar
+          const mockAadhaar = `${Math.floor(1000 + Math.random() * 9000)} ${Math.floor(1000 + Math.random() * 9000)} ${Math.floor(1000 + Math.random() * 9000)}`;
+          setNumber(mockAadhaar);
+          setStatus('Extracted');
+        } else if (type === 'pan') {
+          // Generate mock PAN (e.g. ABCDE1234F)
+          const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+          const mockPan = Array(5).fill(0).map(() => letters[Math.floor(Math.random() * 26)]).join('') + 
+                          Math.floor(1000 + Math.random() * 9000) + 
+                          letters[Math.floor(Math.random() * 26)];
+          setNumber(mockPan);
+          setStatus('Extracted');
+        }
+      }
+    }, 2000);
+  };
+
+  const handleConfirmDocument = (type) => {
+    if (type === 'aadhaar') setAadhaarStatus('Verified ✓');
+    if (type === 'pan') setPanStatus('Verified ✓');
+  };
+  
+  const handleReupload = (type) => {
+    if (type === 'aadhaar') { setAadhaarStatus('Pending Verification'); setAadhaarNumber(null); }
+    if (type === 'pan') { setPanStatus('Pending Verification'); setPanNumber(null); }
+  };
+
+  const renderDocumentBox = (title, type, status, number) => {
+    if (status === 'Extracted') {
+      return (
+        <div className="p-lg border-2 border-primary-container rounded-xl flex flex-col items-center bg-primary-container/5 relative">
+          <span className="material-symbols-outlined text-[#34A853] mb-sm text-xl" style={{ fontSize: '40px' }}>check_circle</span>
+          <span className="font-headline-sm text-text-primary text-center mb-1">Extraction Successful</span>
+          <span className="font-body-md text-text-primary text-center font-mono font-bold text-lg mb-md tracking-wider">{number}</span>
+          <div className="flex gap-3 w-full">
+            <button type="button" onClick={() => handleReupload(type)} className="flex-1 py-2 px-4 rounded-lg font-label-md text-text-muted border border-outline-variant hover:bg-surface-container transition-colors">Reupload</button>
+            <button type="button" onClick={() => handleConfirmDocument(type)} className="flex-1 py-2 px-4 rounded-lg font-label-md text-white bg-primary-container hover:brightness-110 transition-all shadow-md">Continue</button>
+          </div>
+        </div>
+      );
     }
+
+    if (status === 'Failed: Invalid Image') {
+      return (
+        <div className="p-lg border-2 border-red-500 rounded-xl flex flex-col items-center bg-red-500/5 relative">
+          <span className="material-symbols-outlined text-red-500 mb-sm text-xl" style={{ fontSize: '40px' }}>error</span>
+          <span className="font-headline-sm text-text-primary text-center mb-2">Invalid Document</span>
+          <span className="font-body-sm text-text-muted text-center mb-md leading-relaxed">Could not detect a valid {title} in the image. Please ensure the image is clear.</span>
+          <label className="w-full text-center py-2 px-4 rounded-lg font-label-md text-white bg-red-500 hover:bg-red-600 transition-all cursor-pointer shadow-md">
+            Reupload Image
+            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleDocumentUpload(e, type)} />
+          </label>
+        </div>
+      );
+    }
+
+    if (status === 'Verified ✓') {
+      return (
+        <div className="p-lg border-2 border-[#34A853] rounded-xl flex flex-col items-center bg-[#34A853]/5 relative">
+          <span className="material-symbols-outlined text-[#34A853] mb-sm text-xl" style={{ fontSize: '40px' }}>verified</span>
+          <span className="font-headline-sm text-text-primary text-center">{title} Verified</span>
+          <span className="font-body-md text-text-muted text-center font-mono font-bold mt-2">{number}</span>
+        </div>
+      );
+    }
+
+    return (
+      <label className={`p-lg border-2 border-dashed ${status.includes('Extracting') ? 'border-primary-container bg-primary-container/5' : 'border-outline-variant bg-card-bg hover:border-primary-container'} rounded-xl flex flex-col items-center group transition-colors cursor-pointer relative`}>
+        <input type="file" className="hidden" accept="image/*" disabled={status.includes('Extracting')} onChange={(e) => handleDocumentUpload(e, type)} />
+        {status.includes('Extracting') ? (
+           <div className="w-10 h-10 border-4 border-primary-container/30 border-t-primary-container rounded-full animate-spin mb-sm"></div>
+        ) : (
+           <span className="material-symbols-outlined text-text-muted group-hover:text-primary-container mb-sm text-xl" style={{ fontSize: '40px' }}>upload_file</span>
+        )}
+        <span className="font-headline-sm text-text-primary text-center">Upload {title}</span>
+        {!status.includes('Extracting') && (
+           <div className="mt-md px-md py-1 rounded-full font-label-md bg-[#ffc107]/10 text-[#ffc107]">Pending Verification</div>
+        )}
+      </label>
+    );
   };
 
   const handleInputChange = (e) => {
@@ -493,18 +572,8 @@ const Step2 = ({ onNext, onBack, role, formData, updateFormData }) => {
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-md mb-lg">
-            <label className="p-lg border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center bg-card-bg group hover:border-primary-container transition-colors cursor-pointer relative">
-              <input type="file" className="hidden" accept="image/*" onChange={(e) => handleDocumentUpload(e, 'aadhaar')} />
-              <span className="material-symbols-outlined text-text-muted group-hover:text-primary-container mb-sm text-xl" style={{ fontSize: '40px' }}>upload_file</span>
-              <span className="font-headline-sm text-text-primary text-center">Upload Aadhaar Card</span>
-              <div className={`mt-md px-md py-1 rounded-full font-label-md ${aadhaarStatus.includes('Verified') ? 'bg-[#34A853]/10 text-[#34A853]' : aadhaarStatus.includes('AI') ? 'bg-[#4285F4]/10 text-[#4285F4]' : 'bg-[#ffc107]/10 text-[#ffc107]'}`}>{aadhaarStatus}</div>
-            </label>
-            <label className="p-lg border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center bg-card-bg group hover:border-primary-container transition-colors cursor-pointer relative">
-              <input type="file" className="hidden" accept="image/*" onChange={(e) => handleDocumentUpload(e, 'pan')} />
-              <span className="material-symbols-outlined text-text-muted group-hover:text-primary-container mb-sm text-xl" style={{ fontSize: '40px' }}>upload_file</span>
-              <span className="font-headline-sm text-text-primary text-center">Upload PAN Card</span>
-              <div className={`mt-md px-md py-1 rounded-full font-label-md ${panStatus.includes('Verified') ? 'bg-[#34A853]/10 text-[#34A853]' : panStatus.includes('AI') ? 'bg-[#4285F4]/10 text-[#4285F4]' : 'bg-[#ffc107]/10 text-[#ffc107]'}`}>{panStatus}</div>
-            </label>
+            {renderDocumentBox('Aadhaar Card', 'aadhaar', aadhaarStatus, aadhaarNumber)}
+            {renderDocumentBox('PAN Card', 'pan', panStatus, panNumber)}
           </div>
           <div className="mb-xl">
             <div className="bg-card-bg border border-border-input rounded-xl p-lg flex flex-col sm:flex-row items-center gap-xl">
