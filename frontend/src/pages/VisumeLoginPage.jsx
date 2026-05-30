@@ -26,20 +26,41 @@ const VisumeLoginPage = () => {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       
       let fetchedData = null;
-      let foundRole = role; // default to what is selected
+      let finalRole = role; // default to what is selected
+      
       try {
-        let docRef = doc(db, "candidates", userCredential.user.uid);
-        let docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          fetchedData = docSnap.data();
-          foundRole = 'candidate';
-        } else {
-          docRef = doc(db, "recruiters", userCredential.user.uid);
-          docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            fetchedData = docSnap.data();
-            foundRole = 'recruiter';
-          }
+        let isCandidate = false;
+        let isRecruiter = false;
+        let candidateData = null;
+        let recruiterData = null;
+
+        // Check both collections independently
+        const candidateRef = doc(db, "candidates", userCredential.user.uid);
+        const candidateSnap = await getDoc(candidateRef);
+        if (candidateSnap.exists()) {
+          isCandidate = true;
+          candidateData = candidateSnap.data();
+        }
+
+        const recruiterRef = doc(db, "recruiters", userCredential.user.uid);
+        const recruiterSnap = await getDoc(recruiterRef);
+        if (recruiterSnap.exists()) {
+          isRecruiter = true;
+          recruiterData = recruiterSnap.data();
+        }
+
+        if (isCandidate && isRecruiter) {
+          // Dual-role user: let them go to the dashboard they requested
+          finalRole = role;
+          fetchedData = finalRole === 'recruiter' ? recruiterData : candidateData;
+        } else if (isCandidate) {
+          // Single-role candidate
+          finalRole = 'candidate';
+          fetchedData = candidateData;
+        } else if (isRecruiter) {
+          // Single-role recruiter
+          finalRole = 'recruiter';
+          fetchedData = recruiterData;
         }
         
         if (fetchedData) {
@@ -58,10 +79,15 @@ const VisumeLoginPage = () => {
 
       // Set a flag in localStorage that the user is logged in
       localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('visume_role', foundRole);
+      localStorage.setItem('visume_role', finalRole);
       
-      // Get the redirect path from state, default based on role
-      const from = location.state?.redirectTo || (foundRole === 'recruiter' ? '/recruiter' : '/dashboard');
+      // Smart Auto-Routing: If they are single-role, force them to their correct dashboard, overriding any invalid redirect.
+      // If they are dual-role, respect the location.state.redirectTo.
+      let from = location.state?.redirectTo;
+      if (!from || (finalRole === 'candidate' && from.includes('recruiter')) || (finalRole === 'recruiter' && !from.includes('recruiter'))) {
+        from = finalRole === 'recruiter' ? '/recruiter' : '/dashboard';
+      }
+      
       navigate(from, { replace: true });
     } catch (error) {
       console.error("Error logging in:", error);
@@ -90,20 +116,40 @@ const VisumeLoginPage = () => {
       }
 
       let fetchedData = null;
-      let foundRole = role; // default to what is selected
+      let finalRole = role; // default to what is selected
       try {
-        let docRef = doc(db, "candidates", result.user.uid);
-        let docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          fetchedData = docSnap.data();
-          foundRole = 'candidate';
-        } else {
-          docRef = doc(db, "recruiters", result.user.uid);
-          docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            fetchedData = docSnap.data();
-            foundRole = 'recruiter';
-          }
+        let isCandidate = false;
+        let isRecruiter = false;
+        let candidateData = null;
+        let recruiterData = null;
+
+        // Check both collections independently
+        const candidateRef = doc(db, "candidates", result.user.uid);
+        const candidateSnap = await getDoc(candidateRef);
+        if (candidateSnap.exists()) {
+          isCandidate = true;
+          candidateData = candidateSnap.data();
+        }
+
+        const recruiterRef = doc(db, "recruiters", result.user.uid);
+        const recruiterSnap = await getDoc(recruiterRef);
+        if (recruiterSnap.exists()) {
+          isRecruiter = true;
+          recruiterData = recruiterSnap.data();
+        }
+
+        if (isCandidate && isRecruiter) {
+          // Dual-role user: let them go to the dashboard they requested
+          finalRole = role;
+          fetchedData = finalRole === 'recruiter' ? recruiterData : candidateData;
+        } else if (isCandidate) {
+          // Single-role candidate
+          finalRole = 'candidate';
+          fetchedData = candidateData;
+        } else if (isRecruiter) {
+          // Single-role recruiter
+          finalRole = 'recruiter';
+          fetchedData = recruiterData;
         }
 
         if (fetchedData) {
@@ -128,8 +174,15 @@ const VisumeLoginPage = () => {
       }
 
       localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('visume_role', foundRole);
-      const from = location.state?.redirectTo || (foundRole === 'recruiter' ? '/recruiter' : '/dashboard');
+      localStorage.setItem('visume_role', finalRole);
+      
+      // Smart Auto-Routing: If they are single-role, force them to their correct dashboard, overriding any invalid redirect.
+      // If they are dual-role, respect the location.state.redirectTo.
+      let from = location.state?.redirectTo;
+      if (!from || (finalRole === 'candidate' && from.includes('recruiter')) || (finalRole === 'recruiter' && !from.includes('recruiter'))) {
+        from = finalRole === 'recruiter' ? '/recruiter' : '/dashboard';
+      }
+      
       navigate(from, { replace: true });
     } catch (error) {
       console.error("Error signing in with Google", error);
