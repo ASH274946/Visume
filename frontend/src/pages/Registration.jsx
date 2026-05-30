@@ -1,24 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { auth, googleProvider, signInWithPopup, db } from '../firebase';
+import { auth, googleProvider, signInWithPopup, db, storage } from '../firebase';
 import { getAdditionalUserInfo, createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import CustomSelect from '../components/CustomSelect';
 
 const countryCodes = [
-  {"name":"Afghanistan","code":"+93"},{"name":"Albania","code":"+355"},{"name":"Algeria","code":"+213"},{"name":"Andorra","code":"+376"},{"name":"Angola","code":"+244"},{"name":"Argentina","code":"+54"},{"name":"Armenia","code":"+374"},{"name":"Australia","code":"+61"},{"name":"Austria","code":"+43"},{"name":"Azerbaijan","code":"+994"},{"name":"Bahrain","code":"+973"},{"name":"Bangladesh","code":"+880"},{"name":"Belarus","code":"+375"},{"name":"Belgium","code":"+32"},{"name":"Belize","code":"+501"},{"name":"Benin","code":"+229"},{"name":"Bhutan","code":"+975"},{"name":"Bolivia","code":"+591"},{"name":"Bosnia and Herzegovina","code":"+387"},{"name":"Botswana","code":"+267"},{"name":"Brazil","code":"+55"},{"name":"Brunei","code":"+673"},{"name":"Bulgaria","code":"+359"},{"name":"Burkina Faso","code":"+226"},{"name":"Burundi","code":"+257"},{"name":"Cambodia","code":"+855"},{"name":"Cameroon","code":"+237"},{"name":"Canada","code":"+1"},{"name":"Cape Verde","code":"+238"},{"name":"Central African Republic","code":"+236"},{"name":"Chad","code":"+235"},{"name":"Chile","code":"+56"},{"name":"China","code":"+86"},{"name":"Colombia","code":"+57"},{"name":"Comoros","code":"+269"},{"name":"Congo","code":"+242"},{"name":"Costa Rica","code":"+506"},{"name":"Croatia","code":"+385"},{"name":"Cuba","code":"+53"},{"name":"Cyprus","code":"+357"},{"name":"Czech Republic","code":"+420"},{"name":"Denmark","code":"+45"},{"name":"Djibouti","code":"+253"},{"name":"Dominican Republic","code":"+1"},{"name":"Ecuador","code":"+593"},{"name":"Egypt","code":"+20"},{"name":"El Salvador","code":"+503"},{"name":"Equatorial Guinea","code":"+240"},{"name":"Eritrea","code":"+291"},{"name":"Estonia","code":"+372"},{"name":"Ethiopia","code":"+251"},{"name":"Fiji","code":"+679"},{"name":"Finland","code":"+358"},{"name":"France","code":"+33"},{"name":"Gabon","code":"+241"},{"name":"Gambia","code":"+220"},{"name":"Georgia","code":"+995"},{"name":"Germany","code":"+49"},{"name":"Ghana","code":"+233"},{"name":"Greece","code":"+30"},{"name":"Guatemala","code":"+502"},{"name":"Guinea","code":"+224"},{"name":"Guyana","code":"+592"},{"name":"Haiti","code":"+509"},{"name":"Honduras","code":"+504"},{"name":"Hungary","code":"+36"},{"name":"Iceland","code":"+354"},{"name":"India","code":"+91"},{"name":"Indonesia","code":"+62"},{"name":"Iran","code":"+98"},{"name":"Iraq","code":"+964"},{"name":"Ireland","code":"+353"},{"name":"Israel","code":"+972"},{"name":"Italy","code":"+39"},{"name":"Jamaica","code":"+1"},{"name":"Japan","code":"+81"},{"name":"Jordan","code":"+962"},{"name":"Kazakhstan","code":"+7"},{"name":"Kenya","code":"+254"},{"name":"Kiribati","code":"+686"},{"name":"North Korea","code":"+850"},{"name":"South Korea","code":"+82"},{"name":"Kuwait","code":"+965"},{"name":"Kyrgyzstan","code":"+996"},{"name":"Laos","code":"+856"},{"name":"Latvia","code":"+371"},{"name":"Lebanon","code":"+961"},{"name":"Lesotho","code":"+266"},{"name":"Liberia","code":"+231"},{"name":"Libya","code":"+218"},{"name":"Liechtenstein","code":"+423"},{"name":"Lithuania","code":"+370"},{"name":"Luxembourg","code":"+352"},{"name":"Madagascar","code":"+261"},{"name":"Malawi","code":"+265"},{"name":"Malaysia","code":"+60"},{"name":"Maldives","code":"+960"},{"name":"Mali","code":"+223"},{"name":"Malta","code":"+356"},{"name":"Mauritania","code":"+222"},{"name":"Mauritius","code":"+230"},{"name":"Mexico","code":"+52"},{"name":"Micronesia","code":"+691"},{"name":"Moldova","code":"+373"},{"name":"Monaco","code":"+377"},{"name":"Mongolia","code":"+976"},{"name":"Montenegro","code":"+382"},{"name":"Morocco","code":"+212"},{"name":"Mozambique","code":"+258"},{"name":"Myanmar","code":"+95"},{"name":"Namibia","code":"+264"},{"name":"Nauru","code":"+674"},{"name":"Nepal","code":"+977"},{"name":"Netherlands","code":"+31"},{"name":"New Zealand","code":"+64"},{"name":"Nicaragua","code":"+505"},{"name":"Niger","code":"+227"},{"name":"Nigeria","code":"+234"},{"name":"Norway","code":"+47"},{"name":"Oman","code":"+968"},{"name":"Pakistan","code":"+92"},{"name":"Palau","code":"+680"},{"name":"Panama","code":"+507"},{"name":"Papua New Guinea","code":"+675"},{"name":"Paraguay","code":"+595"},{"name":"Peru","code":"+51"},{"name":"Philippines","code":"+63"},{"name":"Poland","code":"+48"},{"name":"Portugal","code":"+351"},{"name":"Qatar","code":"+974"},{"name":"Romania","code":"+40"},{"name":"Russia","code":"+7"},{"name":"Rwanda","code":"+250"},{"name":"Samoa","code":"+685"},{"name":"San Marino","code":"+378"},{"name":"Saudi Arabia","code":"+966"},{"name":"Senegal","code":"+221"},{"name":"Serbia","code":"+381"},{"name":"Seychelles","code":"+248"},{"name":"Sierra Leone","code":"+232"},{"name":"Singapore","code":"+65"},{"name":"Slovakia","code":"+421"},{"name":"Slovenia","code":"+386"},{"name":"Solomon Islands","code":"+677"},{"name":"Somalia","code":"+252"},{"name":"South Africa","code":"+27"},{"name":"Spain","code":"+34"},{"name":"Sri Lanka","code":"+94"},{"name":"Sudan","code":"+249"},{"name":"Suriname","code":"+597"},{"name":"Swaziland","code":"+268"},{"name":"Sweden","code":"+46"},{"name":"Switzerland","code":"+41"},{"name":"Syria","code":"+963"},{"name":"Taiwan","code":"+886"},{"name":"Tajikistan","code":"+992"},{"name":"Tanzania","code":"+255"},{"name":"Thailand","code":"+66"},{"name":"Togo","code":"+228"},{"name":"Tonga","code":"+676"},{"name":"Trinidad and Tobago","code":"+1"},{"name":"Tunisia","code":"+216"},{"name":"Turkey","code":"+90"},{"name":"Turkmenistan","code":"+993"},{"name":"Tuvalu","code":"+688"},{"name":"Uganda","code":"+256"},{"name":"Ukraine","code":"+380"},{"name":"United Arab Emirates","code":"+971"},{"name":"United Kingdom","code":"+44"},{"name":"United States","code":"+1"},{"name":"Uruguay","code":"+598"},{"name":"Uzbekistan","code":"+998"},{"name":"Vanuatu","code":"+678"},{"name":"Vatican City","code":"+379"},{"name":"Venezuela","code":"+58"},{"name":"Vietnam","code":"+84"},{"name":"Yemen","code":"+967"},{"name":"Zambia","code":"+260"},{"name":"Zimbabwe","code":"+263"}
+  { "name": "Afghanistan", "code": "+93" }, { "name": "Albania", "code": "+355" }, { "name": "Algeria", "code": "+213" }, { "name": "Andorra", "code": "+376" }, { "name": "Angola", "code": "+244" }, { "name": "Argentina", "code": "+54" }, { "name": "Armenia", "code": "+374" }, { "name": "Australia", "code": "+61" }, { "name": "Austria", "code": "+43" }, { "name": "Azerbaijan", "code": "+994" }, { "name": "Bahrain", "code": "+973" }, { "name": "Bangladesh", "code": "+880" }, { "name": "Belarus", "code": "+375" }, { "name": "Belgium", "code": "+32" }, { "name": "Belize", "code": "+501" }, { "name": "Benin", "code": "+229" }, { "name": "Bhutan", "code": "+975" }, { "name": "Bolivia", "code": "+591" }, { "name": "Bosnia and Herzegovina", "code": "+387" }, { "name": "Botswana", "code": "+267" }, { "name": "Brazil", "code": "+55" }, { "name": "Brunei", "code": "+673" }, { "name": "Bulgaria", "code": "+359" }, { "name": "Burkina Faso", "code": "+226" }, { "name": "Burundi", "code": "+257" }, { "name": "Cambodia", "code": "+855" }, { "name": "Cameroon", "code": "+237" }, { "name": "Canada", "code": "+1" }, { "name": "Cape Verde", "code": "+238" }, { "name": "Central African Republic", "code": "+236" }, { "name": "Chad", "code": "+235" }, { "name": "Chile", "code": "+56" }, { "name": "China", "code": "+86" }, { "name": "Colombia", "code": "+57" }, { "name": "Comoros", "code": "+269" }, { "name": "Congo", "code": "+242" }, { "name": "Costa Rica", "code": "+506" }, { "name": "Croatia", "code": "+385" }, { "name": "Cuba", "code": "+53" }, { "name": "Cyprus", "code": "+357" }, { "name": "Czech Republic", "code": "+420" }, { "name": "Denmark", "code": "+45" }, { "name": "Djibouti", "code": "+253" }, { "name": "Dominican Republic", "code": "+1" }, { "name": "Ecuador", "code": "+593" }, { "name": "Egypt", "code": "+20" }, { "name": "El Salvador", "code": "+503" }, { "name": "Equatorial Guinea", "code": "+240" }, { "name": "Eritrea", "code": "+291" }, { "name": "Estonia", "code": "+372" }, { "name": "Ethiopia", "code": "+251" }, { "name": "Fiji", "code": "+679" }, { "name": "Finland", "code": "+358" }, { "name": "France", "code": "+33" }, { "name": "Gabon", "code": "+241" }, { "name": "Gambia", "code": "+220" }, { "name": "Georgia", "code": "+995" }, { "name": "Germany", "code": "+49" }, { "name": "Ghana", "code": "+233" }, { "name": "Greece", "code": "+30" }, { "name": "Guatemala", "code": "+502" }, { "name": "Guinea", "code": "+224" }, { "name": "Guyana", "code": "+592" }, { "name": "Haiti", "code": "+509" }, { "name": "Honduras", "code": "+504" }, { "name": "Hungary", "code": "+36" }, { "name": "Iceland", "code": "+354" }, { "name": "India", "code": "+91" }, { "name": "Indonesia", "code": "+62" }, { "name": "Iran", "code": "+98" }, { "name": "Iraq", "code": "+964" }, { "name": "Ireland", "code": "+353" }, { "name": "Israel", "code": "+972" }, { "name": "Italy", "code": "+39" }, { "name": "Jamaica", "code": "+1" }, { "name": "Japan", "code": "+81" }, { "name": "Jordan", "code": "+962" }, { "name": "Kazakhstan", "code": "+7" }, { "name": "Kenya", "code": "+254" }, { "name": "Kiribati", "code": "+686" }, { "name": "North Korea", "code": "+850" }, { "name": "South Korea", "code": "+82" }, { "name": "Kuwait", "code": "+965" }, { "name": "Kyrgyzstan", "code": "+996" }, { "name": "Laos", "code": "+856" }, { "name": "Latvia", "code": "+371" }, { "name": "Lebanon", "code": "+961" }, { "name": "Lesotho", "code": "+266" }, { "name": "Liberia", "code": "+231" }, { "name": "Libya", "code": "+218" }, { "name": "Liechtenstein", "code": "+423" }, { "name": "Lithuania", "code": "+370" }, { "name": "Luxembourg", "code": "+352" }, { "name": "Madagascar", "code": "+261" }, { "name": "Malawi", "code": "+265" }, { "name": "Malaysia", "code": "+60" }, { "name": "Maldives", "code": "+960" }, { "name": "Mali", "code": "+223" }, { "name": "Malta", "code": "+356" }, { "name": "Mauritania", "code": "+222" }, { "name": "Mauritius", "code": "+230" }, { "name": "Mexico", "code": "+52" }, { "name": "Micronesia", "code": "+691" }, { "name": "Moldova", "code": "+373" }, { "name": "Monaco", "code": "+377" }, { "name": "Mongolia", "code": "+976" }, { "name": "Montenegro", "code": "+382" }, { "name": "Morocco", "code": "+212" }, { "name": "Mozambique", "code": "+258" }, { "name": "Myanmar", "code": "+95" }, { "name": "Namibia", "code": "+264" }, { "name": "Nauru", "code": "+674" }, { "name": "Nepal", "code": "+977" }, { "name": "Netherlands", "code": "+31" }, { "name": "New Zealand", "code": "+64" }, { "name": "Nicaragua", "code": "+505" }, { "name": "Niger", "code": "+227" }, { "name": "Nigeria", "code": "+234" }, { "name": "Norway", "code": "+47" }, { "name": "Oman", "code": "+968" }, { "name": "Pakistan", "code": "+92" }, { "name": "Palau", "code": "+680" }, { "name": "Panama", "code": "+507" }, { "name": "Papua New Guinea", "code": "+675" }, { "name": "Paraguay", "code": "+595" }, { "name": "Peru", "code": "+51" }, { "name": "Philippines", "code": "+63" }, { "name": "Poland", "code": "+48" }, { "name": "Portugal", "code": "+351" }, { "name": "Qatar", "code": "+974" }, { "name": "Romania", "code": "+40" }, { "name": "Russia", "code": "+7" }, { "name": "Rwanda", "code": "+250" }, { "name": "Samoa", "code": "+685" }, { "name": "San Marino", "code": "+378" }, { "name": "Saudi Arabia", "code": "+966" }, { "name": "Senegal", "code": "+221" }, { "name": "Serbia", "code": "+381" }, { "name": "Seychelles", "code": "+248" }, { "name": "Sierra Leone", "code": "+232" }, { "name": "Singapore", "code": "+65" }, { "name": "Slovakia", "code": "+421" }, { "name": "Slovenia", "code": "+386" }, { "name": "Solomon Islands", "code": "+677" }, { "name": "Somalia", "code": "+252" }, { "name": "South Africa", "code": "+27" }, { "name": "Spain", "code": "+34" }, { "name": "Sri Lanka", "code": "+94" }, { "name": "Sudan", "code": "+249" }, { "name": "Suriname", "code": "+597" }, { "name": "Swaziland", "code": "+268" }, { "name": "Sweden", "code": "+46" }, { "name": "Switzerland", "code": "+41" }, { "name": "Syria", "code": "+963" }, { "name": "Taiwan", "code": "+886" }, { "name": "Tajikistan", "code": "+992" }, { "name": "Tanzania", "code": "+255" }, { "name": "Thailand", "code": "+66" }, { "name": "Togo", "code": "+228" }, { "name": "Tonga", "code": "+676" }, { "name": "Trinidad and Tobago", "code": "+1" }, { "name": "Tunisia", "code": "+216" }, { "name": "Turkey", "code": "+90" }, { "name": "Turkmenistan", "code": "+993" }, { "name": "Tuvalu", "code": "+688" }, { "name": "Uganda", "code": "+256" }, { "name": "Ukraine", "code": "+380" }, { "name": "United Arab Emirates", "code": "+971" }, { "name": "United Kingdom", "code": "+44" }, { "name": "United States", "code": "+1" }, { "name": "Uruguay", "code": "+598" }, { "name": "Uzbekistan", "code": "+998" }, { "name": "Vanuatu", "code": "+678" }, { "name": "Vatican City", "code": "+379" }, { "name": "Venezuela", "code": "+58" }, { "name": "Vietnam", "code": "+84" }, { "name": "Yemen", "code": "+967" }, { "name": "Zambia", "code": "+260" }, { "name": "Zimbabwe", "code": "+263" }
 ];
 
 const PREDEFINED_SKILLS = [
-  "React", "React Native", "Angular", "Vue.js", "Svelte", "Node.js", "Express", "Django", "Flask", "Spring Boot",
-  "Python", "JavaScript", "TypeScript", "Java", "C++", "C#", "Ruby", "Go", "Rust", "PHP", "Swift", "Kotlin",
-  "SQL", "MySQL", "PostgreSQL", "MongoDB", "Redis", "Firebase", "AWS", "Google Cloud", "Azure", "Docker", "Kubernetes",
-  "Full Stack Developer", "Frontend Developer", "Backend Developer", "Data Scientist", "Machine Learning Engineer",
-  "DevOps Engineer", "UI/UX Designer", "Product Manager", "Project Manager", "Scrum Master", "Agile", "Jira",
-  "Figma", "Adobe XD", "Photoshop", "Illustrator", "Premiere Pro", "After Effects",
-  "HTML", "CSS", "Tailwind CSS", "Sass", "Less", "Bootstrap", "Material-UI", "Chakra UI", "Next.js", "Nuxt.js",
-  "GraphQL", "REST API", "Redux", "Zustand", "Context API", "Webpack", "Vite", "Babel", "Jest", "Cypress", "Playwright",
-  "Git", "GitHub", "GitLab", "Bitbucket", "CI/CD", "Jenkins", "Travis CI", "CircleCI", "Linux", "Bash", "Shell Scripting"
+  "JavaScript", "TypeScript", "Python", "Java", "C++", "C#", "C", "Ruby", "Go", "Rust", "PHP", "Swift", "Kotlin", "Dart", "Scala", "Perl", "Haskell", "Lua", "R", "Objective-C", "Assembly", "MATLAB", "Groovy", "Shell Scripting", "Bash", "PowerShell",
+  "React", "React Native", "Angular", "Vue.js", "Svelte", "Ember.js", "Backbone.js", "Next.js", "Nuxt.js", "Gatsby", "HTML", "HTML5", "CSS", "CSS3", "Tailwind CSS", "Sass", "Less", "Bootstrap", "Material-UI", "Chakra UI", "Ant Design", "Redux", "Zustand", "Context API", "MobX", "Vuex", "RxJS", "Three.js", "WebGL", "Framer Motion", "jQuery",
+  "Node.js", "Express", "NestJS", "Django", "Flask", "FastAPI", "Spring Boot", "Spring", "Laravel", "Symfony", "Ruby on Rails", "ASP.NET", "ASP.NET Core", "GraphQL", "REST API", "gRPC", "Apollo", "Socket.io", "WebSockets", "Koa", "Meteor",
+  "SQL", "MySQL", "PostgreSQL", "MongoDB", "Redis", "SQLite", "MariaDB", "Oracle", "Microsoft SQL Server", "Cassandra", "DynamoDB", "CouchDB", "Neo4j", "Elasticsearch", "Supabase", "Firebase", "Firestore", "Realm", "Prisma", "TypeORM", "Sequelize", "Mongoose",
+  "AWS", "Google Cloud", "Google Cloud Platform", "GCP", "Azure", "Docker", "Kubernetes", "Terraform", "Ansible", "Puppet", "Chef", "Jenkins", "Travis CI", "CircleCI", "GitLab CI", "GitHub Actions", "Nginx", "Apache", "Linux", "Unix", "Ubuntu", "CentOS", "Vagrant", "CI/CD", "Prometheus", "Grafana", "DataDog", "New Relic", "DigitalOcean", "Heroku", "Vercel", "Netlify", "Cloudflare",
+  "Flutter", "Ionic", "Cordova", "Xamarin", "Android Studio", "Xcode", "Android SDK", "iOS SDK",
+  "Data Scientist", "Machine Learning Engineer", "TensorFlow", "PyTorch", "Keras", "Scikit-Learn", "Pandas", "NumPy", "Matplotlib", "Seaborn", "OpenCV", "NLTK", "Spacy", "Hugging Face", "LangChain", "Gemini", "ChatGPT", "LLM", "Data Analysis", "Data Visualization", "Jupyter", "Apache Spark", "Hadoop", "Kafka", "Airflow", "Tableau", "Power BI",
+  "UI/UX Designer", "Figma", "Adobe XD", "Sketch", "InVision", "Photoshop", "Illustrator", "Premiere Pro", "After Effects", "Blender", "Zeplin", "Wireframing", "Prototyping", "User Research", "Canva",
+  "Git", "GitHub", "GitLab", "Bitbucket", "Webpack", "Vite", "Babel", "npm", "Yarn", "pnpm", "ESLint", "Prettier", "Agile", "Scrum", "Kanban", "Jira", "Trello", "Asana", "Confluence", "Notion", "Slack", "Discord", "Postman", "Swagger", "Insomnia", "VS Code", "IntelliJ IDEA", "Eclipse", "Vim", "Neovim",
+  "Jest", "Cypress", "Playwright", "Mocha", "Chai", "Jasmine", "Karma", "Puppeteer", "Selenium", "JUnit", "PyTest", "RSpec", "Enzyme", "React Testing Library",
+  "Full Stack Developer", "Frontend Developer", "Backend Developer", "DevOps Engineer", "Product Manager", "Project Manager", "Scrum Master", "Software Engineer", "Systems Administrator", "QA Engineer", "Database Administrator"
 ];
 
 const TopNav = () => (
@@ -58,7 +61,7 @@ const ProgressBar = ({ currentStep }) => {
           <span className={`font-label-md mt-xs ${currentStep >= 1 ? 'text-primary-container' : 'text-text-muted'}`}>Account Setup</span>
         </div>
         <div className={`h-px flex-1 mb-6 transition-all duration-300 ${currentStep >= 2 ? 'bg-primary-container' : 'bg-outline-variant'}`}></div>
-        
+
         <div className="flex flex-col items-center flex-1">
           <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${currentStep >= 2 ? 'bg-primary-container text-on-primary' : 'bg-surface-container text-text-muted'}`}>
             {currentStep > 2 ? <span className="material-symbols-outlined text-[16px]">check</span> : '2'}
@@ -66,7 +69,7 @@ const ProgressBar = ({ currentStep }) => {
           <span className={`font-label-md mt-xs ${currentStep >= 2 ? 'text-primary-container' : 'text-text-muted'}`}>KYC Verification</span>
         </div>
         <div className={`h-px flex-1 mb-6 transition-all duration-300 ${currentStep >= 3 ? 'bg-primary-container' : 'bg-outline-variant'}`}></div>
-        
+
         <div className="flex flex-col items-center flex-1">
           <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${currentStep >= 3 ? 'bg-primary-container text-on-primary' : 'bg-surface-container text-text-muted'}`}>
             3
@@ -84,7 +87,7 @@ const Step1 = ({ onNext, role, setRole, formData, updateFormData }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [countryCode, setCountryCode] = useState('+1');
   const [isGoogleLinked, setIsGoogleLinked] = useState(false);
-  
+
   const handleInputChange = (e) => {
     updateFormData({ [e.target.name]: e.target.value });
   };
@@ -95,12 +98,12 @@ const Step1 = ({ onNext, role, setRole, formData, updateFormData }) => {
       alert("Passwords do not match!");
       return;
     }
-    
+
     if (!isGoogleLinked) {
       alert("You must link a Google Account before continuing.");
       return;
     }
-    
+
     try {
       if (isGoogleLinked) {
         // They already created the account via Google. Let's add the password so they can log in manually too!
@@ -133,20 +136,20 @@ const Step1 = ({ onNext, role, setRole, formData, updateFormData }) => {
       const additionalInfo = getAdditionalUserInfo(result);
 
       if (result.user.email) {
-         updateFormData({ email: result.user.email });
+        updateFormData({ email: result.user.email });
       }
       if (result.user.displayName) {
-         updateFormData({ fullName: result.user.displayName });
+        updateFormData({ fullName: result.user.displayName });
       }
       if (result.user.photoURL) {
-         updateFormData({ profileImage: result.user.photoURL });
+        updateFormData({ profileImage: result.user.photoURL });
       }
 
       if (!additionalInfo.isNewUser) {
         let docRef = doc(db, 'candidates', result.user.uid);
         let docSnap = await getDoc(docRef);
         let foundRole = 'candidate';
-        
+
         if (!docSnap.exists()) {
           docRef = doc(db, 'recruiters', result.user.uid);
           docSnap = await getDoc(docRef);
@@ -164,15 +167,15 @@ const Step1 = ({ onNext, role, setRole, formData, updateFormData }) => {
             return;
           }
         }
-        
-        alert("Your account setup is incomplete. Please finish the remaining steps.");
+
         setIsGoogleLinked(true);
+        onNext();
         return;
       }
 
       // New user successfully linked Google account. 
       setIsGoogleLinked(true);
-      alert("Google Account successfully linked! You may now click Continue.");
+      onNext();
     } catch (error) {
       console.error("Error signing up with Google", error);
       alert("Error linking Google account: " + error.message);
@@ -186,7 +189,7 @@ const Step1 = ({ onNext, role, setRole, formData, updateFormData }) => {
         <p className="font-body-md text-text-muted">Start your journey with a personality-first application.</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-md mb-lg">
-        <div 
+        <div
           onClick={() => setRole('candidate')}
           className={`cursor-pointer p-lg border rounded-xl flex flex-col items-center transition-all duration-300 ${role === 'candidate' ? 'border-primary-container shadow-[0_0_20px_rgba(108,92,231,0.2)] bg-primary-container/5' : 'border-border-input'}`}
         >
@@ -196,8 +199,8 @@ const Step1 = ({ onNext, role, setRole, formData, updateFormData }) => {
           <span className="font-headline-sm text-headline-sm text-text-primary">I'm a Candidate</span>
           <p className="font-body-sm text-text-muted text-center mt-xs">I want to showcase my personality and find a job.</p>
         </div>
-        
-        <div 
+
+        <div
           onClick={() => setRole('recruiter')}
           className={`cursor-pointer p-lg border rounded-xl flex flex-col items-center transition-all duration-300 ${role === 'recruiter' ? 'border-primary-container shadow-[0_0_20px_rgba(108,92,231,0.2)] bg-primary-container/5' : 'border-border-input'}`}
         >
@@ -208,32 +211,32 @@ const Step1 = ({ onNext, role, setRole, formData, updateFormData }) => {
           <p className="font-body-sm text-text-muted text-center mt-xs">I want to hire talent through video-first screening.</p>
         </div>
       </div>
-      
+
       <form onSubmit={handleManualSignUp} className="space-y-md">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
           <div className="flex flex-col gap-xs">
             <label className="font-label-md text-text-muted">Full Name</label>
-            <input name="fullName" value={formData.fullName || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="John Doe" type="text" required/>
+            <input name="fullName" value={formData.fullName || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="John Doe" type="text" required />
           </div>
           <div className="flex flex-col gap-xs">
             <label className="font-label-md text-text-muted">Email Address</label>
-            <input name="email" value={formData.email || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="john@example.com" type="email" required/>
+            <input name="email" value={formData.email || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="john@example.com" type="email" required />
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
           <div className="flex flex-col gap-xs">
             <label className="font-label-md text-text-muted">Password</label>
-            <input className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="••••••••" type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength="6"/>
+            <input className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="••••••••" type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength="6" />
           </div>
           <div className="flex flex-col gap-xs">
             <label className="font-label-md text-text-muted">Confirm Password</label>
-            <input className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="••••••••" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required minLength="6"/>
+            <input className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="••••••••" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required minLength="6" />
           </div>
         </div>
         <div className="flex flex-col gap-xs">
           <label className="font-label-md text-text-muted">Phone Number</label>
           <div className="flex gap-2">
-            <select 
+            <select
               name="countryCode"
               className="bg-border-base border border-border-input rounded-lg px-sm py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary w-1/3 min-w-[120px]"
               value={formData.countryCode || '+1'}
@@ -249,25 +252,25 @@ const Step1 = ({ onNext, role, setRole, formData, updateFormData }) => {
                 </option>
               ))}
             </select>
-            <input name="phone" value={formData.phone || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary flex-1" placeholder="(555) 000-0000" type="tel" required/>
+            <input name="phone" value={formData.phone || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary flex-1" placeholder="(555) 000-0000" type="tel" required />
           </div>
         </div>
-        
+
         {role === 'candidate' && (
           <div className="space-y-md border-t border-outline-variant pt-md mt-sm">
             <h3 className="font-label-md text-text-primary uppercase tracking-wider">Candidate Details</h3>
             <div className="flex flex-col gap-xs">
               <label className="font-label-md text-text-muted">Address</label>
-              <input name="address" value={formData.address || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="City, State, Country" type="text" required/>
+              <input name="address" value={formData.address || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="City, State, Country" type="text" required />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
               <div className="flex flex-col gap-xs">
                 <label className="font-label-md text-text-muted">Previous Experience</label>
-                <input name="previousExperience" value={formData.previousExperience || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="e.g. 3 yrs Frontend Dev" type="text" required/>
+                <input name="previousExperience" value={formData.previousExperience || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="e.g. 3 yrs Frontend Dev" type="text" required />
               </div>
               <div className="flex flex-col gap-xs">
                 <label className="font-label-md text-text-muted">Portfolio / Website</label>
-                <input name="portfolio" value={formData.portfolio || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="https://" type="url" required/>
+                <input name="portfolio" value={formData.portfolio || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="https://" type="url" required />
               </div>
             </div>
           </div>
@@ -279,16 +282,16 @@ const Step1 = ({ onNext, role, setRole, formData, updateFormData }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
               <div className="flex flex-col gap-xs">
                 <label className="font-label-md text-text-muted">Designation</label>
-                <input name="designation" value={formData.designation || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="e.g. Talent Acquisition" type="text" required/>
+                <input name="designation" value={formData.designation || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="e.g. Talent Acquisition" type="text" required />
               </div>
               <div className="flex flex-col gap-xs">
                 <label className="font-label-md text-text-muted">Department</label>
-                <input name="department" value={formData.department || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="e.g. Human Resources" type="text" required/>
+                <input name="department" value={formData.department || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="e.g. Human Resources" type="text" required />
               </div>
             </div>
           </div>
         )}
-        <button 
+        <button
           onClick={handleGoogleSignUp}
           type="button"
           className={`w-full border font-label-md py-md rounded-lg active:scale-[0.98] transition-all font-bold flex items-center justify-center gap-3 mt-4 ${isGoogleLinked ? 'bg-secondary/10 border-secondary text-secondary' : 'bg-surface-container border-border-input text-text-primary hover:bg-surface-dim'}`}
@@ -301,10 +304,10 @@ const Step1 = ({ onNext, role, setRole, formData, updateFormData }) => {
           ) : (
             <>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
               </svg>
               Link Google Account
             </>
@@ -318,126 +321,364 @@ const Step1 = ({ onNext, role, setRole, formData, updateFormData }) => {
 };
 
 const Step2 = ({ onNext, onBack, role, formData, updateFormData }) => {
+  const [aadhaarStatus, setAadhaarStatus] = useState('Pending Verification');
+  const [panStatus, setPanStatus] = useState('Pending Verification');
+  const [incStatus, setIncStatus] = useState('Pending Upload');
+  const [companyPanStatus, setCompanyPanStatus] = useState('Pending Upload');
+  const [isExistingConfirmed, setIsExistingConfirmed] = useState(false);
+  const [hasNewPhoto, setHasNewPhoto] = useState(false);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const [stream, setStream] = useState(null);
+
+  const startCamera = async () => {
+    setIsCameraOpen(true);
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', aspectRatio: 1 } });
+      setStream(mediaStream);
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = mediaStream;
+        }
+      }, 100);
+    } catch (err) {
+      console.error("Error accessing camera:", err);
+      alert("Could not access camera.");
+      setIsCameraOpen(false);
+    }
+  };
+
+  const stopCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+    }
+    setIsCameraOpen(false);
+  };
+
+  const capturePhoto = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+      
+      const size = Math.min(video.videoWidth, video.videoHeight);
+      const startX = (video.videoWidth - size) / 2;
+      const startY = (video.videoHeight - size) / 2;
+
+      canvas.width = size;
+      canvas.height = size;
+      
+      context.translate(size, 0);
+      context.scale(-1, 1);
+      context.drawImage(video, startX, startY, size, size, 0, 0, size, size);
+      
+      const dataUrl = canvas.toDataURL('image/png');
+      updateFormData({ profileImage: dataUrl });
+      setHasNewPhoto(true);
+      stopCamera();
+    }
+  };
+
+  const handleDocumentUpload = async (e, type) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const setStatus = type === 'aadhaar' ? setAadhaarStatus :
+      type === 'pan' ? setPanStatus :
+        type === 'inc' ? setIncStatus : setCompanyPanStatus;
+
+    setStatus('Verifying with AI...');
+
+    const uploadData = new FormData();
+    uploadData.append('file', file);
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/api/verify-kyc`, {
+        method: 'POST',
+        body: uploadData,
+      });
+      const data = await response.json();
+
+      if (data.verified) {
+        setStatus('Verified ✓');
+      } else {
+        setStatus('Failed');
+      }
+    } catch (error) {
+      console.error("KYC error", error);
+      setStatus('Failed');
+    }
+  };
+
   const handleInputChange = (e) => {
     updateFormData({ [e.target.name]: e.target.value });
   };
-  
+
   return (
-  <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-    <div className="mb-lg">
-      <button onClick={() => onBack()} className="flex items-center gap-1 text-text-muted hover:text-primary-container font-label-md transition-colors mb-sm group w-max">
-        <span className="material-symbols-outlined text-[18px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
-        Back
-      </button>
-      <h1 className="font-headline-lg text-headline-lg text-text-primary mb-xs">
-        {role === 'recruiter' ? 'Company KYC Verification' : 'Verify Your Identity'}
-      </h1>
-      <p className="font-body-md text-text-muted">
-        {role === 'recruiter' 
-          ? 'Required for company verification and secure job postings.' 
-          : 'Required for profile trust badge and secure application processing.'}
-      </p>
-    </div>
-
-    <div className="bg-surface-container border border-border-input rounded-xl p-lg flex flex-col sm:flex-row items-center justify-between gap-md mb-lg">
-      <div className="flex items-center gap-md">
-        <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm border border-outline-variant p-2">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/DigiLocker_logo.svg/512px-DigiLocker_logo.svg.png" alt="DigiLocker" className="w-full h-full object-contain" />
-        </div>
-        <div>
-          <h3 className="font-headline-sm text-text-primary text-left">Instant KYC with DigiLocker</h3>
-          <p className="font-body-sm text-text-muted mt-1 text-left">Fetch your official documents securely in seconds.</p>
-        </div>
+    <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="mb-lg">
+        <button onClick={() => onBack()} className="flex items-center gap-1 text-text-muted hover:text-primary-container font-label-md transition-colors mb-sm group w-max">
+          <span className="material-symbols-outlined text-[18px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
+          Back
+        </button>
+        <h1 className="font-headline-lg text-headline-lg text-text-primary mb-xs">
+          {role === 'recruiter' ? 'Company KYC Verification' : 'Verify Your Identity'}
+        </h1>
+        <p className="font-body-md text-text-muted">
+          {role === 'recruiter'
+            ? 'Required for company verification and secure job postings.'
+            : 'Required for profile trust badge and secure application processing.'}
+        </p>
       </div>
-      <button onClick={() => alert('Redirecting to DigiLocker OAuth for secure document fetch...')} className="bg-[#183a66] hover:bg-[#122b4d] text-white font-bold py-2.5 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 whitespace-nowrap shadow-md w-full sm:w-auto">
-        <span className="material-symbols-outlined text-[20px]">cloud_sync</span>
-        Connect DigiLocker
+
+      <div className="bg-surface-container border border-border-input rounded-xl p-lg flex flex-col sm:flex-row items-center justify-between gap-md mb-lg">
+        <div className="flex items-center gap-md">
+          <div>
+            <h3 className="font-headline-sm text-text-primary text-left">Instant KYC with DigiLocker</h3>
+            <p className="font-body-sm text-text-muted mt-1 text-left">Fetch your official documents securely in seconds.</p>
+          </div>
+        </div>
+        <button onClick={() => alert('Redirecting to DigiLocker OAuth for secure document fetch...')} className="bg-[#183a66] hover:bg-[#122b4d] text-white font-bold py-2.5 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 whitespace-nowrap shadow-md w-full sm:w-auto">
+          <span className="material-symbols-outlined text-[20px]">cloud_sync</span>
+          Connect DigiLocker
+        </button>
+      </div>
+
+      <div className="flex items-center gap-4 py-2 mb-lg">
+        <div className="h-px bg-border-input flex-1"></div>
+        <span className="text-text-muted font-label-md text-sm uppercase tracking-wider">Or Upload Manually</span>
+        <div className="h-px bg-border-input flex-1"></div>
+      </div>
+
+      {role === 'recruiter' ? (
+        <>
+          <div className="space-y-md mb-lg">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
+              <div className="flex flex-col gap-xs">
+                <label className="font-label-md text-text-muted">Company Name</label>
+                <input name="companyName" value={formData.companyName || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="Acme Corp" type="text" />
+              </div>
+              <div className="flex flex-col gap-xs">
+                <label className="font-label-md text-text-muted">Company Registration Number (CIN)</label>
+                <input name="cin" value={formData.cin || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="U12345MH2024PTC123456" type="text" />
+              </div>
+            </div>
+            <div className="flex flex-col gap-xs">
+              <label className="font-label-md text-text-muted">Registered Company Address</label>
+              <input name="registeredAddress" value={formData.registeredAddress || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="123 Business Park, City, State, ZIP" type="text" />
+            </div>
+            <div className="flex flex-col gap-xs">
+              <label className="font-label-md text-text-muted">Company Website</label>
+              <input name="website" value={formData.website || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="https://" type="url" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-md mb-xl">
+            <label className="p-lg border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center bg-card-bg group hover:border-primary-container transition-colors cursor-pointer relative">
+              <input type="file" className="hidden" accept="image/*" onChange={(e) => handleDocumentUpload(e, 'inc')} />
+              <span className="material-symbols-outlined text-text-muted group-hover:text-primary-container mb-sm text-xl" style={{ fontSize: '40px' }}>upload_file</span>
+              <span className="font-headline-sm text-text-primary text-center">Certificate of Incorporation</span>
+              <div className={`mt-md px-md py-1 rounded-full font-label-md ${incStatus.includes('Verified') ? 'bg-[#34A853]/10 text-[#34A853]' : incStatus.includes('AI') ? 'bg-[#4285F4]/10 text-[#4285F4]' : 'bg-[#ffc107]/10 text-[#ffc107]'}`}>{incStatus}</div>
+            </label>
+            <label className="p-lg border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center bg-card-bg group hover:border-primary-container transition-colors cursor-pointer relative">
+              <input type="file" className="hidden" accept="image/*" onChange={(e) => handleDocumentUpload(e, 'company_pan')} />
+              <span className="material-symbols-outlined text-text-muted group-hover:text-primary-container mb-sm text-xl" style={{ fontSize: '40px' }}>upload_file</span>
+              <span className="font-headline-sm text-text-primary text-center">Company PAN Card</span>
+              <div className={`mt-md px-md py-1 rounded-full font-label-md ${companyPanStatus.includes('Verified') ? 'bg-[#34A853]/10 text-[#34A853]' : companyPanStatus.includes('AI') ? 'bg-[#4285F4]/10 text-[#4285F4]' : 'bg-[#ffc107]/10 text-[#ffc107]'}`}>{companyPanStatus}</div>
+            </label>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-md mb-lg">
+            <label className="p-lg border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center bg-card-bg group hover:border-primary-container transition-colors cursor-pointer relative">
+              <input type="file" className="hidden" accept="image/*" onChange={(e) => handleDocumentUpload(e, 'aadhaar')} />
+              <span className="material-symbols-outlined text-text-muted group-hover:text-primary-container mb-sm text-xl" style={{ fontSize: '40px' }}>upload_file</span>
+              <span className="font-headline-sm text-text-primary text-center">Upload Aadhaar Card</span>
+              <div className={`mt-md px-md py-1 rounded-full font-label-md ${aadhaarStatus.includes('Verified') ? 'bg-[#34A853]/10 text-[#34A853]' : aadhaarStatus.includes('AI') ? 'bg-[#4285F4]/10 text-[#4285F4]' : 'bg-[#ffc107]/10 text-[#ffc107]'}`}>{aadhaarStatus}</div>
+            </label>
+            <label className="p-lg border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center bg-card-bg group hover:border-primary-container transition-colors cursor-pointer relative">
+              <input type="file" className="hidden" accept="image/*" onChange={(e) => handleDocumentUpload(e, 'pan')} />
+              <span className="material-symbols-outlined text-text-muted group-hover:text-primary-container mb-sm text-xl" style={{ fontSize: '40px' }}>upload_file</span>
+              <span className="font-headline-sm text-text-primary text-center">Upload PAN Card</span>
+              <div className={`mt-md px-md py-1 rounded-full font-label-md ${panStatus.includes('Verified') ? 'bg-[#34A853]/10 text-[#34A853]' : panStatus.includes('AI') ? 'bg-[#4285F4]/10 text-[#4285F4]' : 'bg-[#ffc107]/10 text-[#ffc107]'}`}>{panStatus}</div>
+            </label>
+          </div>
+          <div className="mb-xl">
+            <div className="bg-card-bg border border-border-input rounded-xl p-lg flex flex-col sm:flex-row items-center gap-xl">
+              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-surface-container-highest shrink-0 relative group">
+                {isCameraOpen ? (
+                  <>
+                    <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover scale-x-[-1]" />
+                    <button type="button" onClick={capturePhoto} className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-primary-container text-white w-8 h-8 rounded-full shadow-lg hover:brightness-110 flex items-center justify-center z-10">
+                      <span className="material-symbols-outlined text-[16px]">camera</span>
+                    </button>
+                    <button type="button" onClick={stopCamera} className="absolute top-2 right-2 bg-black/50 text-white w-6 h-6 rounded-full hover:bg-black/80 flex items-center justify-center z-10">
+                      <span className="material-symbols-outlined text-[12px]">close</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <img src={formData.profileImage || 'https://ui-avatars.com/api/?name=User&background=random'} referrerPolicy="no-referrer" alt="Profile" className="w-full h-full object-cover" />
+                    <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+                      <span className="material-symbols-outlined text-white">upload_file</span>
+                      <input type="file" className="hidden" accept="image/*" onChange={(e) => {
+                        if (e.target.files[0]) {
+                          const url = URL.createObjectURL(e.target.files[0]);
+                          updateFormData({ profileImage: url });
+                          setHasNewPhoto(true);
+                        }
+                      }} />
+                    </label>
+                  </>
+                )}
+                <canvas ref={canvasRef} className="hidden" />
+              </div>
+              <div className="flex flex-col gap-3 flex-1 items-center sm:items-start text-center sm:text-left">
+                <h3 className="font-headline-sm text-text-primary">Profile Picture</h3>
+                <p className="font-body-sm text-text-muted mb-2 max-w-sm">We've pulled your profile picture from Google. You can continue with this or upload/take a new one.</p>
+                <div className="flex flex-col sm:flex-row flex-wrap gap-3">
+                  <label className="bg-surface-container hover:bg-surface-container-high text-text-primary border border-border-input font-label-md py-2 px-4 rounded-lg cursor-pointer transition-colors flex items-center justify-center gap-2">
+                    <span className="material-symbols-outlined text-[20px]">upload_file</span>
+                    Upload Photo
+                    <input type="file" className="hidden" accept="image/*" onChange={(e) => {
+                      if (e.target.files[0]) {
+                        const url = URL.createObjectURL(e.target.files[0]);
+                        updateFormData({ profileImage: url });
+                        setHasNewPhoto(true);
+                      }
+                    }} />
+                  </label>
+                  <button type="button" onClick={startCamera} className="bg-surface-container hover:bg-surface-container-high text-text-primary border border-border-input font-label-md py-2 px-4 rounded-lg cursor-pointer transition-colors flex items-center justify-center gap-2">
+                    <span className="material-symbols-outlined text-[20px]">photo_camera</span>
+                    Take Photo
+                  </button>
+                  <button type="button" onClick={() => setIsExistingConfirmed(true)} className={`font-label-md py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 ${isExistingConfirmed ? 'bg-[#34A853]/10 text-[#34A853]' : 'text-primary-container bg-primary-container/10 hover:bg-primary-container/20'}`}>
+                    {isExistingConfirmed ? (
+                      <>
+                        <span className="material-symbols-outlined text-[20px] animate-in zoom-in duration-300">check_circle</span>
+                        {hasNewPhoto ? 'Photo Confirmed' : 'Using Existing'}
+                      </>
+                    ) : (
+                      hasNewPhoto ? 'Continue' : 'Continue with Existing'
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+      <button
+        onClick={() => {
+          const isValid = role === 'recruiter'
+            ? incStatus.includes('Verified') && companyPanStatus.includes('Verified')
+            : aadhaarStatus.includes('Verified') && panStatus.includes('Verified');
+          if (!isValid) {
+            alert('Please upload and verify all required documents to proceed.');
+            return;
+          }
+          onNext();
+        }}
+        className={`w-full font-label-md py-md rounded-lg transition-all uppercase tracking-wider font-bold ${(role === 'recruiter' ? incStatus.includes('Verified') && companyPanStatus.includes('Verified') : aadhaarStatus.includes('Verified') && panStatus.includes('Verified'))
+            ? 'bg-primary-container text-white hover:brightness-110 active:scale-[0.98]'
+            : 'bg-surface-container-highest text-text-muted cursor-not-allowed'
+          }`}
+      >
+        Submit for Verification
       </button>
-    </div>
-
-    <div className="flex items-center gap-4 py-2 mb-lg">
-      <div className="h-px bg-border-input flex-1"></div>
-      <span className="text-text-muted font-label-md text-sm uppercase tracking-wider">Or Upload Manually</span>
-      <div className="h-px bg-border-input flex-1"></div>
-    </div>
-    
-    {role === 'recruiter' ? (
-      <>
-        <div className="space-y-md mb-lg">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
-            <div className="flex flex-col gap-xs">
-              <label className="font-label-md text-text-muted">Company Name</label>
-              <input name="companyName" value={formData.companyName || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="Acme Corp" type="text"/>
-            </div>
-            <div className="flex flex-col gap-xs">
-              <label className="font-label-md text-text-muted">Company Registration Number (CIN)</label>
-              <input name="cin" value={formData.cin || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="U12345MH2024PTC123456" type="text"/>
-            </div>
-          </div>
-          <div className="flex flex-col gap-xs">
-            <label className="font-label-md text-text-muted">Registered Company Address</label>
-            <input name="registeredAddress" value={formData.registeredAddress || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="123 Business Park, City, State, ZIP" type="text"/>
-          </div>
-          <div className="flex flex-col gap-xs">
-            <label className="font-label-md text-text-muted">Company Website</label>
-            <input name="website" value={formData.website || ''} onChange={handleInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="https://" type="url"/>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-md mb-xl">
-          <div className="p-lg border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center bg-card-bg group hover:border-primary-container transition-colors cursor-pointer">
-            <span className="material-symbols-outlined text-text-muted group-hover:text-primary-container mb-sm text-xl" style={{ fontSize: '40px' }}>upload_file</span>
-            <span className="font-headline-sm text-text-primary text-center">Certificate of Incorporation</span>
-            <div className="mt-md bg-[#ffc107]/10 text-[#ffc107] px-md py-1 rounded-full font-label-md">Pending Upload</div>
-          </div>
-          <div className="p-lg border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center bg-card-bg group hover:border-primary-container transition-colors cursor-pointer">
-            <span className="material-symbols-outlined text-text-muted group-hover:text-primary-container mb-sm text-xl" style={{ fontSize: '40px' }}>upload_file</span>
-            <span className="font-headline-sm text-text-primary text-center">Company PAN Card</span>
-            <div className="mt-md bg-[#ffc107]/10 text-[#ffc107] px-md py-1 rounded-full font-label-md">Pending Upload</div>
-          </div>
-        </div>
-      </>
-    ) : (
-      <>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-md mb-lg">
-          <div className="p-lg border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center bg-card-bg group hover:border-primary-container transition-colors cursor-pointer">
-            <span className="material-symbols-outlined text-text-muted group-hover:text-primary-container mb-sm text-xl" style={{ fontSize: '40px' }}>upload_file</span>
-            <span className="font-headline-sm text-text-primary text-center">Upload Aadhaar Card</span>
-            <div className="mt-md bg-[#ffc107]/10 text-[#ffc107] px-md py-1 rounded-full font-label-md">Pending Verification</div>
-          </div>
-          <div className="p-lg border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center bg-card-bg group hover:border-primary-container transition-colors cursor-pointer">
-            <span className="material-symbols-outlined text-text-muted group-hover:text-primary-container mb-sm text-xl" style={{ fontSize: '40px' }}>upload_file</span>
-            <span className="font-headline-sm text-text-primary text-center">Upload PAN Card</span>
-            <div className="mt-md bg-[#ffc107]/10 text-[#ffc107] px-md py-1 rounded-full font-label-md">Pending Verification</div>
-          </div>
-        </div>
-        <div className="mb-xl">
-          <div className="bg-card-bg border border-border-input rounded-xl p-xl flex flex-col items-center justify-center text-center">
-            <button className="w-20 h-20 rounded-full bg-surface-container-high flex items-center justify-center hover:bg-primary-container/20 transition-all border border-border-input group">
-              <span className="material-symbols-outlined text-text-primary group-hover:text-primary-container" style={{ fontSize: '32px' }}>photo_camera</span>
-            </button>
-            <span className="font-headline-sm text-text-primary mt-md">Take Selfie or Upload Photo</span>
-            <p className="font-body-sm text-text-muted mt-xs max-w-sm">Ensure your face is clearly visible and well-lit for automated verification.</p>
-          </div>
-        </div>
-      </>
-    )}
-    <button onClick={() => onNext()} className="w-full bg-primary-container text-white font-label-md py-md rounded-lg hover:brightness-110 active:scale-[0.98] transition-all uppercase tracking-wider font-bold">Submit for Verification</button>
-  </section>
+    </section>
   );
 };
 
 const Step3 = ({ onBack, role, formData, updateFormData }) => {
   const navigate = useNavigate();
-  const [skills, setSkills] = useState(['React', 'Tailwind CSS']);
+  const [skills, setSkills] = useState([]);
   const [inputVal, setInputVal] = useState('');
   const [suggestions, setSuggestions] = useState([]);
+  const [extracting, setExtracting] = useState(false);
+  const [extractedSkills, setExtractedSkills] = useState([]);
+  const [uploadedResumes, setUploadedResumes] = useState([]);
+
+  const handleResumeUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setExtracting(true);
+    const tempResume = { name: file.name, localUrl: null, url: 'mock_url', uploading: true };
+    setUploadedResumes(prev => [...prev, tempResume]);
+    
+    // 1. Upload to backend for localUrl and extraction
+    const uploadData = new FormData();
+    uploadData.append('file', file);
+    let extractedLocalUrl = null;
+    let finalExtractedSkills = [];
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/api/extract-skills`, {
+        method: 'POST',
+        body: uploadData,
+      });
+      const data = await response.json();
+      extractedLocalUrl = data.localUrl || null;
+      finalExtractedSkills = data.skills || [];
+    } catch (error) {
+      console.error("Extraction error", error);
+    }
+    
+    // 2. Upload to Firebase Storage
+    let firebaseDownloadUrl = 'mock_url';
+    if (auth.currentUser) {
+      try {
+        const storageRef = ref(storage, `resumes/${auth.currentUser.uid}/${Date.now()}_${file.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+        await Promise.race([
+          uploadTask,
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Firebase upload timeout')), 15000))
+        ]);
+        firebaseDownloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+      } catch (fbError) {
+        console.warn("Firebase upload timed out or failed, proceeding with local URL", fbError);
+      }
+    }
+
+    setUploadedResumes(prev => {
+      const newArr = [...prev];
+      const idx = newArr.findIndex(r => r.name === file.name && r.uploading);
+      if (idx !== -1) {
+        newArr[idx] = { name: file.name, localUrl: extractedLocalUrl, url: firebaseDownloadUrl, uploading: false };
+      }
+      return newArr;
+    });
+
+    if (finalExtractedSkills.length > 0) {
+      setExtractedSkills(finalExtractedSkills);
+    } else {
+      setExtractedSkills([]);
+      if (!extractedLocalUrl) alert("Failed to extract skills. Is the backend running?");
+    }
+
+    setExtracting(false);
+  };
+
+  const handleApplySkills = () => {
+    setSkills(prev => {
+      const newSkills = [...prev];
+      extractedSkills.forEach(skill => {
+        if (!newSkills.includes(skill)) newSkills.push(skill);
+      });
+      return newSkills;
+    });
+    setExtractedSkills([]);
+  };
 
   const handleInputChange = (e) => {
     const val = e.target.value;
     setInputVal(val);
     if (val.trim()) {
-      const filtered = PREDEFINED_SKILLS.filter(skill => 
+      const filtered = PREDEFINED_SKILLS.filter(skill =>
         skill.toLowerCase().includes(val.toLowerCase()) && !skills.includes(skill)
       );
       setSuggestions(filtered);
@@ -478,6 +719,7 @@ const Step3 = ({ onBack, role, formData, updateFormData }) => {
       profileComplete: true,
       createdAt: new Date().toISOString(),
       skills: skills,
+      documentResumes: uploadedResumes.map((resume, i) => ({ id: `resume_${Date.now()}_${i}`, name: resume.name, localUrl: resume.localUrl || null, url: resume.url || 'mock_url' })),
       // Default some structure if empty so settings page doesn't crash
       bio: '',
       dob: '',
@@ -493,10 +735,10 @@ const Step3 = ({ onBack, role, formData, updateFormData }) => {
       ],
       companySize: '50-200'
     };
-    
+
     // Firestore throws errors if ANY value is strictly undefined. Remove them safely:
     Object.keys(completeData).forEach(key => completeData[key] === undefined && delete completeData[key]);
-    
+
     try {
       if (auth.currentUser) {
         const collectionName = role === 'recruiter' ? 'recruiters' : 'candidates';
@@ -507,9 +749,9 @@ const Step3 = ({ onBack, role, formData, updateFormData }) => {
       alert("There was an error saving your profile to the database. Please make sure the Firestore database is created and try again.");
       return;
     }
-    
+
     localStorage.setItem('visume_profile_data', JSON.stringify(completeData));
-    
+
     await auth.signOut();
     alert("Profile completely set up! Please log in to access your dashboard.");
     navigate('/login', { state: { redirectTo: role === 'recruiter' ? '/recruiter' : '/dashboard' } });
@@ -527,7 +769,7 @@ const Step3 = ({ onBack, role, formData, updateFormData }) => {
       </div>
       <div className="flex justify-center mb-xl">
         <div className="relative w-[96px] h-[96px] group cursor-pointer">
-          <img alt="Profile" className="w-full h-full rounded-full object-cover border-2 border-primary-container" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=256&h=256&q=80"/>
+          <img alt="Profile" referrerPolicy="no-referrer" className="w-full h-full rounded-full object-cover border-2 border-primary-container" src={formData.profileImage || "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=256&h=256&q=80"} />
           <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
             <span className="material-symbols-outlined text-white">photo_camera</span>
           </div>
@@ -538,22 +780,80 @@ const Step3 = ({ onBack, role, formData, updateFormData }) => {
           <label className="font-label-md text-text-muted">
             {role === 'recruiter' ? 'Hiring Focus / Headline' : 'Professional Headline'}
           </label>
-          <input name="headline" value={formData.headline || ''} onChange={handleFormInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder={role === 'recruiter' ? 'e.g. Seeking top engineering talent' : 'e.g. Senior Frontend Developer with 5 years experience'} type="text"/>
+          <input name="headline" value={formData.headline || ''} onChange={handleFormInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder={role === 'recruiter' ? 'e.g. Seeking top engineering talent' : 'e.g. Senior Frontend Developer with 5 years experience'} type="text" />
         </div>
         <div className="flex flex-col gap-xs relative">
+          {role === 'candidate' && (
+            <div className="mb-4 p-4 border border-border-input rounded-xl bg-surface-container/50">
+              <h4 className="font-label-md text-text-primary mb-2 flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary">auto_awesome</span>
+                Auto-fill Skills with AI
+              </h4>
+              <p className="text-body-sm text-text-muted mb-3">Upload your resume to automatically extract your skills and tech stack.</p>
+
+              {extractedSkills.length > 0 && (
+                <div className="mb-3">
+                  <h5 className="font-label-sm text-text-primary mb-2 uppercase tracking-wide">Extracted Skills</h5>
+                  <div className="p-3 bg-surface-container-high rounded-lg border border-outline-variant/30 flex flex-wrap gap-2">
+                    {extractedSkills.map((skill, idx) => (
+                      <span key={idx} className="bg-primary/20 text-primary-container text-[11px] font-bold tracking-wide uppercase px-2 py-1 rounded-full animate-in zoom-in duration-300">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center gap-3">
+                {extractedSkills.length > 0 ? (
+                  <button type="button" onClick={handleApplySkills} className="bg-[#34A853] text-white px-4 py-2 rounded-lg font-label-md hover:brightness-110 transition-all text-sm flex items-center gap-2 animate-in zoom-in duration-300">
+                    <span className="material-symbols-outlined text-[18px]">done_all</span>
+                    Auto-fill Skills
+                  </button>
+                ) : (
+                  <label className="inline-flex items-center gap-2 bg-primary-container text-white px-4 py-2 rounded-lg font-label-md cursor-pointer hover:brightness-110 transition-all text-sm">
+                    {extracting ? (
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    ) : (
+                      <span className="material-symbols-outlined text-[18px]">upload_file</span>
+                    )}
+                    {extracting ? 'Extracting Skills...' : 'Upload Resume'}
+                    <input type="file" className="hidden" accept=".pdf" disabled={extracting} onChange={handleResumeUpload} />
+                  </label>
+                )}
+              </div>
+
+              {uploadedResumes.length > 0 && (
+                <div className="mt-4 flex flex-col gap-2 border-t border-border-input pt-3">
+                  {uploadedResumes.map((resume, idx) => (
+                    <div key={idx} className="flex items-center gap-2 text-text-muted text-sm animate-in slide-in-from-bottom-2">
+                      <span className="material-symbols-outlined text-[16px] text-primary">description</span>
+                      <span className="truncate">{resume.name}</span>
+                      {resume.uploading && (
+                        <span className="text-xs italic text-text-muted ml-auto animate-pulse">Extracting...</span>
+                      )}
+                      {!resume.uploading && resume.localUrl && (
+                        <a href={`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}${resume.localUrl}`} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline ml-auto bg-primary/10 px-2 py-1 rounded">View</a>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
           <label className="font-label-md text-text-muted">
             {role === 'recruiter' ? 'Roles Hiring For (Press Enter to add)' : 'Skills (Press Enter to add)'}
           </label>
           <div className="bg-border-base border border-border-input rounded-lg px-md py-2 flex flex-wrap gap-2 min-h-[46px] relative">
             {skills.map((skill, idx) => (
               <span key={idx} className="bg-primary-container/20 text-primary-container text-label-md px-3 py-1 rounded-full flex items-center gap-2 animate-in fade-in zoom-in duration-200">
-                {skill} 
+                {skill}
                 <span className="material-symbols-outlined text-[14px] cursor-pointer" onClick={() => removeSkill(idx)}>close</span>
               </span>
             ))}
-            <input 
-              className="bg-transparent border-none outline-none focus:ring-0 p-1 flex-1 text-body-sm text-text-primary min-w-[100px]" 
-              placeholder="Type to search..." 
+            <input
+              className="bg-transparent border-none outline-none focus:ring-0 p-1 flex-1 text-body-sm text-text-primary min-w-[100px]"
+              placeholder="Type to search..."
               type="text"
               value={inputVal}
               onChange={handleInputChange}
@@ -563,12 +863,12 @@ const Step3 = ({ onBack, role, formData, updateFormData }) => {
           {suggestions.length > 0 && (
             <div className="absolute top-[100%] left-0 w-full mt-1 bg-surface-container-high border border-border-input rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto">
               {suggestions.map((skill, idx) => (
-                <div 
-                  key={idx} 
+                <div
+                  key={idx}
                   className="px-md py-sm hover:bg-primary-container/10 cursor-pointer text-text-primary font-body-sm transition-colors"
                   onMouseDown={(e) => {
                     // use onMouseDown instead of onClick to prevent onBlur issues if we ever add onBlur
-                    e.preventDefault(); 
+                    e.preventDefault();
                     addSkill(skill);
                   }}
                 >
@@ -581,10 +881,10 @@ const Step3 = ({ onBack, role, formData, updateFormData }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
           <div className="flex flex-col gap-xs">
             <label className="font-label-md text-text-muted">Location</label>
-            <input 
+            <input
               name="location" value={formData.location || ''} onChange={handleFormInputChange}
-              className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" 
-              placeholder="Type or select a city..." 
+              className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary"
+              placeholder="Type or select a city..."
               type="text"
               list="locations"
             />
@@ -613,7 +913,7 @@ const Step3 = ({ onBack, role, formData, updateFormData }) => {
           </div>
           <div className="flex flex-col gap-xs">
             <label className="font-label-md text-text-muted">LinkedIn URL <span className="text-text-muted opacity-60">(Optional)</span></label>
-            <input name="linkedin" value={formData.linkedin || ''} onChange={handleFormInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="linkedin.com/in/username" type="url"/>
+            <input name="linkedin" value={formData.linkedin || ''} onChange={handleFormInputChange} className="bg-border-base border border-border-input rounded-lg px-md py-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all text-text-primary" placeholder="linkedin.com/in/username" type="url" />
           </div>
         </div>
         <button onClick={handleComplete} className="w-full bg-primary-container text-white font-label-md py-md rounded-lg hover:brightness-110 active:scale-[0.98] transition-all uppercase tracking-wider font-bold mt-4">Complete Profile</button>

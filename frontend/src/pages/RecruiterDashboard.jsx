@@ -98,11 +98,8 @@ const formatRelativeTime = (value) => {
 };
 
 const getDeterministicMatch = (candidate, jobs) => {
-  const candidateSkills = (candidate.skills || []).map(skill => skill.toLowerCase());
-  const jobSkills = jobs.flatMap(job => job.skills || []).map(skill => String(skill).toLowerCase());
-  const sharedSkills = candidateSkills.filter(skill => jobSkills.includes(skill)).length;
-  const nameSeed = (candidate.name || candidate.id || '').split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
-  return Math.min(99, 82 + sharedSkills * 4 + (nameSeed % 8));
+  const candidateSkills = (candidate.skills || []).length;
+  return Math.min(99, 65 + (candidateSkills * 7));
 };
 
 const HeaderSection = () => {
@@ -205,11 +202,6 @@ const AIMatchedCandidates = ({ candidates, onViewProfile }) => {
             </div>
 
             <div className="space-y-md mb-md">
-              <div className="flex flex-wrap gap-1.5 min-h-7">
-                {candidate.skills.slice(0, 3).map(tag => (
-                  <span key={tag} className="bg-surface-bright/20 px-2 py-0.5 rounded-full text-[10px] text-text-muted font-bold uppercase tracking-widest">{tag}</span>
-                ))}
-              </div>
               <div className="bg-secondary-container text-secondary px-3 py-2 rounded-lg flex items-center justify-between">
                 <span className="font-label-md font-bold">AI Match Score</span>
                 <span className="font-headline-sm">{candidate.match}%</span>
@@ -415,7 +407,7 @@ const CandidateProfileModal = ({ candidate, loading, onClose }) => {
                   Document Resume
                 </h4>
                 {candidate.resume ? (
-                  <a href={getMediaUrl(candidate.resume.url)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-surface-container-low border border-outline-variant/30 rounded-xl hover:border-primary-container/50 transition-all">
+                  <a href={getMediaUrl(candidate.resume.url) || '#'} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-surface-container-low border border-outline-variant/30 rounded-xl hover:border-primary-container/50 transition-all">
                     <span className="material-symbols-outlined text-primary">picture_as_pdf</span>
                     <span className="flex-1 truncate font-bold text-text-primary">{candidate.resume.name}</span>
                     <span className="material-symbols-outlined text-text-muted">open_in_new</span>
@@ -435,6 +427,7 @@ const CandidateProfileModal = ({ candidate, loading, onClose }) => {
 const RecruiterDashboard = () => {
   const [postedJobs, setPostedJobs] = useState([]);
   const [candidates, setCandidates] = useState([]);
+  const [recruiterInterviews, setRecruiterInterviews] = useState([]);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
 
@@ -493,6 +486,30 @@ const RecruiterDashboard = () => {
   }, []);
 
   useEffect(() => {
+    const fetchInterviews = async () => {
+      const { query, where } = await import('firebase/firestore');
+      const recruiterId = auth.currentUser?.uid;
+      if (!recruiterId) return;
+      
+      const q = query(collection(db, 'interviews'), where('recruiterId', '==', recruiterId));
+      const unsubscribeInterviews = onSnapshot(q, (snapshot) => {
+         const ints = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+         setRecruiterInterviews(ints);
+      });
+      return unsubscribeInterviews;
+    };
+    
+    let unsub = null;
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        fetchInterviews().then(u => { unsub = u; });
+      }
+    });
+    
+    return () => { if (unsub) unsub(); };
+  }, []);
+
+  useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, 'candidates'), (snapshot) => {
       const loadedCandidates = snapshot.docs.map(docSnap => {
         const data = docSnap.data();
@@ -534,12 +551,23 @@ const RecruiterDashboard = () => {
     const allViewers = postedJobs.flatMap(job => Array.isArray(job.viewers) ? job.viewers : []);
     const totalViews = postedJobs.reduce((sum, job) => sum + (job.viewCount || (Array.isArray(job.viewers) ? job.viewers.length : 0)), 0);
     const totalApplicants = new Set(allViewers.map(viewer => viewer.uid || viewer.name)).size;
-    const today = new Date().toISOString().slice(0, 10);
-    const interviews = JSON.parse(localStorage.getItem('visume_interviews') || '[]');
-    const todaysInterviews = interviews.filter(interview => String(interview.date || '').startsWith(today));
+    const today = new Date();
+    
+    const todaysInterviews = recruiterInterviews.filter(interview => {
+      if (!interview.startTime) return false;
+      const d = new Date(interview.startTime);
+      return d.toDateString() === today.toDateString();
+    }).sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+    
     const hires = JSON.parse(localStorage.getItem('visume_hires') || '[]');
     const currentMonth = new Date().toISOString().slice(0, 7);
     const hiresThisMonth = hires.filter(hire => String(hire.date || '').startsWith(currentMonth)).length;
+
+    let nextIntvString = '';
+    if (todaysInterviews.length > 0) {
+      const nextInt = todaysInterviews[0];
+      nextIntvString = `Next at ${new Date(nextInt.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'})}`;
+    }
 
     return {
       activeJobs,
@@ -547,11 +575,11 @@ const RecruiterDashboard = () => {
       totalApplicants,
       totalViews,
       interviewsToday: todaysInterviews.length,
-      nextInterview: todaysInterviews[0]?.time ? `Next at ${todaysInterviews[0].time}` : '',
+      nextInterview: nextIntvString || 'No interviews today',
       hiresThisMonth,
       hiringGoal: 5
     };
-  }, [postedJobs]);
+  }, [postedJobs, recruiterInterviews]);
 
   const activities = useMemo(() => {
     const jobCreated = postedJobs.map(job => ({
@@ -589,6 +617,24 @@ const RecruiterDashboard = () => {
       const candidateData = candidateDoc.exists() ? candidateDoc.data() : {};
       const videosSnap = await getDocs(collection(db, 'candidates', candidate.id, 'videoResumes'));
       const videos = videosSnap.docs.map(videoDoc => ({ id: videoDoc.id, ...videoDoc.data() }));
+      let profileResumeObj = null;
+      const defaultDocId = candidateData.defaultDocumentResumeId;
+      if (candidateData.documentResumes && Array.isArray(candidateData.documentResumes) && candidateData.documentResumes.length > 0) {
+        const defaultDoc = candidateData.documentResumes.find(r => r.id === defaultDocId);
+        const docToShow = defaultDoc || candidateData.documentResumes[candidateData.documentResumes.length - 1];
+        if (docToShow) {
+          profileResumeObj = {
+            name: docToShow.name,
+            url: (docToShow.url && docToShow.url !== 'mock_url') ? docToShow.url : docToShow.localUrl
+          };
+        }
+      } else if (candidateData.resumeUrl || candidateData.localResumeUrl) {
+        profileResumeObj = {
+          name: candidateData.resumeName || 'Resume Document',
+          url: (candidateData.resumeUrl && candidateData.resumeUrl !== 'mock_url') ? candidateData.resumeUrl : candidateData.localResumeUrl
+        };
+      }
+
       setSelectedCandidate({
         ...candidate,
         skills: candidateData.skills || candidate.skills,
@@ -597,12 +643,7 @@ const RecruiterDashboard = () => {
         location: candidateData.location || candidate.location,
         imgSrc: candidateData.profileImage || candidateData.photoURL || candidate.imgSrc,
         videos,
-        resume: candidateData.resumeUrl || candidateData.localResumeUrl
-          ? {
-              name: candidateData.resumeName || 'Resume Document',
-              url: candidateData.resumeUrl || candidateData.localResumeUrl
-            }
-          : null
+        resume: profileResumeObj
       });
     } catch (error) {
       console.error('Error loading candidate profile:', error);

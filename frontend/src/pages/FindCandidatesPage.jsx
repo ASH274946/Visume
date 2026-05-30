@@ -87,7 +87,7 @@ const candidatesData = [
     name: "Julian Vance",
     role: "UX/UI Design Lead",
     location: "San Francisco, CA",
-    match: "94%",
+    match: `${Math.min(99, 65 + (["Figma", "Prototyping", "User Research"].length * 7))}%`,
     skills: ["Figma", "Prototyping", "User Research"],
     experience: "8 years",
     imgSrc: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=256&h=256&q=80"
@@ -97,7 +97,7 @@ const candidatesData = [
     name: "Lila Chen",
     role: "Senior Product Architect",
     location: "Remote",
-    match: "91%",
+    match: `${Math.min(99, 65 + (["Growth", "SaaS", "Strategy"].length * 7))}%`,
     skills: ["Growth", "SaaS", "Strategy"],
     experience: "6 years",
     imgSrc: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80"
@@ -107,7 +107,7 @@ const candidatesData = [
     name: "Marcus Thorne",
     role: "Frontend Developer",
     location: "New York, NY",
-    match: "88%",
+    match: `${Math.min(99, 65 + (["React", "TypeScript", "Tailwind"].length * 7))}%`,
     skills: ["React", "TypeScript", "Tailwind"],
     experience: "4 years",
     imgSrc: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=256&h=256&q=80"
@@ -117,7 +117,7 @@ const candidatesData = [
     name: "Sarah Jenkins",
     role: "Full Stack Engineer",
     location: "London, UK",
-    match: "85%",
+    match: `${Math.min(99, 65 + (["Node.js", "MongoDB", "AWS"].length * 7))}%`,
     skills: ["Node.js", "MongoDB", "AWS"],
     experience: "5 years",
     imgSrc: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&h=256&q=80"
@@ -127,7 +127,7 @@ const candidatesData = [
     name: "David Kim",
     role: "Product Manager",
     location: "Seattle, WA",
-    match: "82%",
+    match: `${Math.min(99, 65 + (["Agile", "Jira", "Roadmapping"].length * 7))}%`,
     skills: ["Agile", "Jira", "Roadmapping"],
     experience: "7 years",
     imgSrc: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&h=256&q=80"
@@ -137,7 +137,7 @@ const candidatesData = [
     name: "Elena Rodriguez",
     role: "Data Scientist",
     location: "Remote",
-    match: "79%",
+    match: `${Math.min(99, 65 + (["Python", "Machine Learning", "SQL"].length * 7))}%`,
     skills: ["Python", "Machine Learning", "SQL"],
     experience: "3 years",
     imgSrc: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=256&h=256&q=80"
@@ -196,8 +196,8 @@ const FindCandidatesPage = () => {
               name: data.fullName || 'Unknown Candidate',
               role: data.headline || 'Candidate',
               location: data.location || 'Remote',
-              match: `${Math.floor(Math.random() * 15) + 85}%`,
-              skills: skills.slice(0, 4),
+              match: `${Math.min(99, 65 + ((data.skills || []).length * 7))}%`,
+              skills: skills,
               experience: `${expYears} years`,
               imgSrc: data.profileImage || data.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.fullName || 'U')}&background=6C5CE7&color=fff&size=256`,
               isLive: true
@@ -232,7 +232,7 @@ const FindCandidatesPage = () => {
             role: data.headline || 'Candidate',
             location: data.location || 'Remote',
             match: `${Math.floor(Math.random() * 15) + 85}%`,
-            skills: skills.slice(0, 4),
+            skills: skills,
             experience: `${expYears} years`,
             imgSrc: data.profileImage || data.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.fullName || 'U')}&background=6C5CE7&color=fff&size=256`,
             isLive: true
@@ -359,14 +359,14 @@ const FindCandidatesPage = () => {
           if (docToShow) {
             setProfileResume({
               name: docToShow.name,
-              url: docToShow.url || docToShow.localUrl
+              url: docToShow.url && docToShow.url !== 'mock_url' ? docToShow.url : docToShow.localUrl
             });
           }
         } else if (data.resumeUrl || data.localResumeUrl) {
           // Legacy single resume
           setProfileResume({
             name: data.resumeName || 'Resume Document',
-            url: data.resumeUrl || data.localResumeUrl
+            url: (data.resumeUrl && data.resumeUrl !== 'mock_url') ? data.resumeUrl : data.localResumeUrl
           });
         }
       } catch (err) {
@@ -587,17 +587,7 @@ const FindCandidatesPage = () => {
                 </div>
               </div>
               
-              <div className="mb-6 flex-grow">
-                <div className="flex flex-wrap gap-2">
-                  {candidate.skills.map((skill, idx) => (
-                    <span key={idx} className="px-2 py-1 bg-surface-container-highest rounded text-[11px] font-bold text-text-muted tracking-wide uppercase">
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between mb-6 bg-surface-container/50 p-3 rounded-lg border border-outline-variant/30">
+              <div className="flex items-center justify-between mb-6 bg-surface-container/50 p-3 rounded-lg border border-outline-variant/30 flex-grow mt-4">
                 <div>
                   <p className="text-[11px] text-text-muted uppercase tracking-wider font-bold mb-1">AI Match Score</p>
                   <div className="flex items-center gap-2">
@@ -748,7 +738,7 @@ const FindCandidatesPage = () => {
                     </h4>
                     {profileResume ? (
                       <a
-                        href={profileResume.url}
+                        href={getPlayableMediaUrl(profileResume.url) || '#'}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-3 p-4 bg-surface-container-low border border-outline-variant/30 rounded-xl hover:border-primary-container/50 transition-all group"

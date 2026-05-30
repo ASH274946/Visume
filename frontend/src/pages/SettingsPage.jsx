@@ -186,11 +186,48 @@ const SettingsPage = () => {
     }));
   };
 
-  const handleUploadResume = (e) => {
+  const [extracting, setExtracting] = useState(false);
+
+  const handleUploadResume = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    
+    // Normal document upload logic
     startDocumentUpload(file, role);
     e.target.value = null;
+
+    if (role === 'candidate') {
+      setExtracting(true);
+      const uploadData = new FormData();
+      uploadData.append('file', file);
+
+      try {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/api/extract-skills`, {
+          method: 'POST',
+          body: uploadData,
+        });
+        const data = await response.json();
+        
+        if (data.skills && data.skills.length > 0) {
+          setFormData(prev => {
+            const currentSkills = prev.skills || [];
+            const newSkills = [...currentSkills];
+            data.skills.forEach(skill => {
+              if (!newSkills.includes(skill)) newSkills.push(skill);
+            });
+            const newData = { ...prev, skills: newSkills };
+            // Also save to local storage immediately so it persists
+            localStorage.setItem('visume_profile_data', JSON.stringify(newData));
+            return newData;
+          });
+          // alert to inform user that AI extracted skills
+          alert(`AI extracted ${data.skills.length} skills from your newly uploaded resume!`);
+        }
+      } catch (error) {
+        console.error("Extraction error", error);
+      }
+      setExtracting(false);
+    }
   };
 
   const confirmDeleteResume = async (resumeIdToDelete) => {
@@ -331,13 +368,12 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-144px)] overflow-hidden">
-
+    <div className="flex flex-col">
 
       {/* Content Container */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-lg min-h-0 overflow-hidden">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-lg items-start">
         {/* Sub Navigation Tabs */}
-        <div className="lg:col-span-1 flex flex-col gap-2 overflow-y-auto custom-scrollbar pr-2 pb-4">
+        <div className="lg:col-span-1 flex flex-col gap-2 sticky top-0 pr-2">
           <button
             onClick={() => setActiveTab('profile')}
             className={`flex items-center gap-3 px-4 py-3 rounded-lg font-label-md font-bold text-left transition-all ${activeTab === 'profile' ? 'bg-primary-container/10 border border-primary-container text-primary-container' : 'border border-transparent text-text-muted hover:bg-surface-container hover:text-text-primary'}`}
@@ -382,7 +418,7 @@ const SettingsPage = () => {
         </div>
 
         {/* Form Settings Panels */}
-        <div className="lg:col-span-3 overflow-y-auto custom-scrollbar pr-2 pb-10">
+        <div className="lg:col-span-3 pb-10">
           <form onSubmit={handleSubmit} className="bg-card-bg border border-border-input rounded-xl p-md md:p-lg flex flex-col gap-lg shadow-2xl relative">
             {/* Profile Settings Tab */}
             {activeTab === 'profile' && (
@@ -473,14 +509,18 @@ const SettingsPage = () => {
                   {role === 'candidate' && (
                     <>
                       <div className="flex flex-col gap-2">
-                        <label className="text-label-md text-text-primary font-bold">Full Address</label>
-                        <input
-                          type="text"
-                          name="address"
-                          value={formData.address}
-                          onChange={handleInputChange}
-                          className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all"
-                        />
+                        <label className="text-label-md text-text-primary font-bold">Skills</label>
+                        <div className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary flex flex-wrap gap-2 min-h-[46px] items-center">
+                          {formData.skills && formData.skills.length > 0 ? (
+                            formData.skills.map((skill, idx) => (
+                              <span key={idx} className="bg-primary/20 text-primary-container text-[11px] font-bold tracking-wide uppercase px-2 py-1 rounded-full">
+                                {skill}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-text-muted text-sm italic">No skills added yet.</span>
+                          )}
+                        </div>
                       </div>
                       <div className="flex flex-col gap-2">
                         <label className="text-label-md text-text-primary font-bold">Previous Experience (Summary)</label>
@@ -492,13 +532,24 @@ const SettingsPage = () => {
                           className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all"
                         />
                       </div>
-                      <div className="flex flex-col gap-2 md:col-span-2">
+                      <div className="flex flex-col gap-2">
+                        <label className="text-label-md text-text-primary font-bold">Full Address</label>
+                        <textarea
+                          rows="4"
+                          name="address"
+                          value={formData.address}
+                          onChange={handleInputChange}
+                          className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all custom-scrollbar resize-y"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
                         <label className="text-label-md text-text-primary font-bold">Education Details</label>
                         <textarea
+                          rows="4"
                           name="education"
                           value={formData.education}
                           onChange={handleInputChange}
-                          className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all min-h-[100px] resize-y"
+                          className="w-full bg-surface-container border border-border-input rounded-lg px-4 py-3 text-text-primary focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all custom-scrollbar resize-y"
                           placeholder="Degree, University, Graduation Year"
                         />
                       </div>

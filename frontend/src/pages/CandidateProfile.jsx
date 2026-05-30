@@ -192,19 +192,22 @@ const VideoResumesGrid = ({ profileData, onPlayVideo, onDeleteVideo, onSetDefaul
   );
 };
 
-const Skills = () => (
-  <div className="card-bg border border-border-input rounded-xl p-lg space-y-md">
-    <h3 className="font-headline-sm text-headline-sm font-bold text-text-primary">Technical Expertise</h3>
-    <div className="flex flex-wrap gap-2">
-      <span className="bg-surface-container border border-outline-variant px-4 py-2 rounded-full text-text-primary font-body-sm text-body-sm hover:border-primary transition-colors cursor-default">Figma</span>
-      <span className="bg-surface-container border border-outline-variant px-4 py-2 rounded-full text-text-primary font-body-sm text-body-sm hover:border-primary transition-colors cursor-default">After Effects</span>
-      <span className="bg-surface-container border border-outline-variant px-4 py-2 rounded-full text-text-primary font-body-sm text-body-sm hover:border-primary transition-colors cursor-default">Three.js</span>
-      <span className="bg-surface-container border border-outline-variant px-4 py-2 rounded-full text-text-primary font-body-sm text-body-sm hover:border-primary transition-colors cursor-default">Webflow</span>
-      <span className="bg-surface-container border border-outline-variant px-4 py-2 rounded-full text-text-primary font-body-sm text-body-sm hover:border-primary transition-colors cursor-default">Prototyping</span>
-      <span className="bg-[#00CEC9]/10 text-[#00CEC9] border border-[#00CEC9]/20 px-4 py-2 rounded-full text-text-primary font-body-sm text-body-sm">AI-Driven Design</span>
+const Skills = ({ profileData }) => {
+  const skills = profileData?.skills || ['Figma', 'After Effects', 'Three.js', 'Webflow', 'Prototyping', 'AI-Driven Design'];
+  
+  return (
+    <div className="card-bg border border-border-input rounded-xl p-lg space-y-md">
+      <h3 className="font-headline-sm text-headline-sm font-bold text-text-primary">Technical Expertise</h3>
+      <div className="flex flex-wrap gap-2">
+        {skills.map((skill, index) => (
+          <span key={index} className="bg-surface-container border border-outline-variant px-4 py-2 rounded-full text-text-primary font-body-sm text-body-sm hover:border-primary transition-colors cursor-default">
+            {skill}
+          </span>
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const Experience = ({ profileData }) => {
   const previousExperience = profileData?.previousExperience || "3 years as Frontend Developer";
@@ -436,6 +439,87 @@ const CandidateProfile = () => {
 
   const handleScheduleInterview = () => {
     setShowInterviewModal(true);
+  };
+
+  const getDynamicSlots = () => {
+    const slots = [];
+    const today = new Date();
+    
+    // Tomorrow at 2 PM
+    const tmr = new Date(today);
+    tmr.setDate(today.getDate() + 1);
+    tmr.setHours(14, 0, 0, 0);
+    const tmrEnd = new Date(tmr);
+    tmrEnd.setHours(15, 0, 0, 0);
+    slots.push({ id: 1, label: `Tomorrow, ${tmr.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - ${tmrEnd.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`, start: tmr, end: tmrEnd });
+
+    // In 3 days at 10 AM
+    const d3 = new Date(today);
+    d3.setDate(today.getDate() + 3);
+    d3.setHours(10, 0, 0, 0);
+    const d3End = new Date(d3);
+    d3End.setHours(11, 0, 0, 0);
+    slots.push({ id: 2, label: `${d3.toLocaleDateString('en-US', {weekday: 'long'})}, ${d3.toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}, 10:00 AM - 11:00 AM`, start: d3, end: d3End });
+
+    // In 5 days at 3 PM
+    const d5 = new Date(today);
+    d5.setDate(today.getDate() + 5);
+    d5.setHours(15, 0, 0, 0);
+    const d5End = new Date(d5);
+    d5End.setHours(16, 0, 0, 0);
+    slots.push({ id: 3, label: `${d5.toLocaleDateString('en-US', {weekday: 'long'})}, ${d5.toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}, 3:00 PM - 4:00 PM`, start: d5, end: d5End });
+
+    return slots;
+  };
+
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  const [isScheduling, setIsScheduling] = useState(false);
+
+  const confirmInterview = async () => {
+    if (!selectedSlot || !selectedApplicationForInterview) return;
+    
+    setIsScheduling(true);
+    try {
+      const { auth, db } = await import('../firebase');
+      const { collection, addDoc, serverTimestamp, doc, updateDoc } = await import('firebase/firestore');
+      
+      const app = selectedApplicationForInterview;
+      
+      // Generate Google Calendar Link
+      const formatGCalDate = (date) => {
+        return date.toISOString().replace(/-|:|\.\d\d\d/g, "");
+      };
+      
+      const title = encodeURIComponent(`Interview: ${app.jobTitle} at ${app.company}`);
+      const details = encodeURIComponent(`Visume Automated Interview for ${app.jobTitle}.\nPlease ensure your microphone and camera are ready.`);
+      const dates = `${formatGCalDate(selectedSlot.start)}/${formatGCalDate(selectedSlot.end)}`;
+      const calendarLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=Online`;
+
+      // Save to Firestore
+      await addDoc(collection(db, 'interviews'), {
+        candidateId: auth.currentUser.uid,
+        candidateName: profileData?.fullName || 'Candidate',
+        jobId: app.jobId,
+        jobTitle: app.jobTitle,
+        companyName: app.company,
+        recruiterId: app.recruiterId || null,
+        startTime: selectedSlot.start.toISOString(),
+        endTime: selectedSlot.end.toISOString(),
+        calendarLink: calendarLink,
+        status: 'scheduled',
+        createdAt: serverTimestamp()
+      });
+      
+      alert('Interview scheduled successfully! You can add it to your calendar from the dashboard.');
+      setShowInterviewModal(false);
+      setSelectedApplicationForInterview(null);
+      setSelectedSlot(null);
+    } catch (e) {
+      console.error("Error scheduling interview:", e);
+      alert("Failed to schedule interview. Please try again.");
+    } finally {
+      setIsScheduling(false);
+    }
   };
 
   const handleUploadResume = async (e) => {
@@ -743,6 +827,7 @@ const CandidateProfile = () => {
             <Education profileData={profileData} />
           </div>
           <div className="lg:col-span-5 space-y-lg">
+            <Skills profileData={profileData} />
             <StatsCard />
             <Portfolio onViewProject={handleViewProject} profileData={profileData} />
           </div>
@@ -802,22 +887,30 @@ const CandidateProfile = () => {
                 <>
                   <p className="text-body-md text-text-muted mb-6">Select a time slot for your interview at <strong>{selectedApplicationForInterview.company}</strong> for <strong>{selectedApplicationForInterview.jobTitle}</strong>.</p>
                   <div className="space-y-3 mb-6">
-                    <button className="w-full p-3 border border-outline-variant rounded-lg text-left text-body-md text-text-primary hover:bg-surface-container-highest focus:ring-2 focus:ring-primary-container transition-all">
-                       Tomorrow, 2:00 PM - 3:00 PM
-                    </button>
-                    <button className="w-full p-3 border border-outline-variant rounded-lg text-left text-body-md text-text-primary hover:bg-surface-container-highest focus:ring-2 focus:ring-primary-container transition-all">
-                       Next Monday, 10:00 AM - 11:00 AM
-                    </button>
-                    <button className="w-full p-3 border border-outline-variant rounded-lg text-left text-body-md text-text-primary hover:bg-surface-container-highest focus:ring-2 focus:ring-primary-container transition-all">
-                       Next Wednesday, 3:00 PM - 4:00 PM
-                    </button>
+                    {getDynamicSlots().map(slot => (
+                      <button 
+                        key={slot.id}
+                        onClick={() => setSelectedSlot(slot)}
+                        className={`w-full p-3 border rounded-lg text-left text-body-md transition-all ${selectedSlot?.id === slot.id ? 'border-primary-container bg-primary-container/10 text-primary-container font-bold ring-2 ring-primary-container/30' : 'border-outline-variant text-text-primary hover:bg-surface-container-highest'}`}
+                      >
+                         {slot.label}
+                      </button>
+                    ))}
                   </div>
                   <div className="flex gap-3">
-                    <button onClick={() => setSelectedApplicationForInterview(null)} className="flex-1 py-2 border border-border-input text-text-muted font-bold rounded-lg hover:bg-surface-container-highest transition-colors">
+                    <button onClick={() => { setSelectedApplicationForInterview(null); setSelectedSlot(null); }} className="flex-1 py-2 border border-border-input text-text-muted font-bold rounded-lg hover:bg-surface-container-highest transition-colors">
                       Back
                     </button>
-                    <button onClick={() => { setShowInterviewModal(false); setSelectedApplicationForInterview(null); alert('Interview scheduled successfully!'); }} className="flex-1 py-2 bg-primary text-white font-bold rounded-lg hover:brightness-110 transition-all shadow-lg shadow-primary/20">
-                      Confirm
+                    <button 
+                      onClick={confirmInterview} 
+                      disabled={!selectedSlot || isScheduling}
+                      className={`flex-1 flex justify-center items-center py-2 bg-primary text-white font-bold rounded-lg transition-all shadow-lg shadow-primary/20 ${(!selectedSlot || isScheduling) ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-110 active:scale-95'}`}
+                    >
+                      {isScheduling ? (
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      ) : (
+                        'Confirm & Schedule'
+                      )}
                     </button>
                   </div>
                 </>

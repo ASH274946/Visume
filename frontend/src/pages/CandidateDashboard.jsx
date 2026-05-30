@@ -206,89 +206,126 @@ const LibrarySection = ({ resumes, profileData, onPlayVideo }) => {
   );
 };
 
-const RecommendedJobs = ({ onApplyJob }) => (
+const RecommendedJobs = ({ onApplyJob, jobs, loading }) => (
   <section>
     <div className="flex justify-between items-end mb-lg">
       <h2 className="font-display text-headline-md text-text-primary">Recommended for You</h2>
       <Link className="text-primary-container font-label-md text-label-md hover:underline" to="/discover">View All Openings</Link>
     </div>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
-      <div className="bg-card-bg border border-border-base rounded-xl p-lg hover:border-primary-container transition-all">
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex gap-4 items-center">
-            <div className="w-12 h-12 rounded-full bg-surface-bright/20 flex items-center justify-center border border-outline-variant overflow-hidden">
-              <img alt="Company Logo" className="w-full h-full object-cover" src="https://logo.clearbit.com/spotify.com" />
-            </div>
-            <div>
-              <h3 className="font-display text-headline-sm text-text-primary">Lead UI Designer</h3>
-              <p className="text-text-muted text-label-md">Stellar AI Solutions</p>
-            </div>
-          </div>
-          <div className="bg-secondary/10 text-secondary px-3 py-1.5 rounded-full flex flex-col items-center">
-            <span className="text-[18px] font-bold">98%</span>
-            <span className="text-[8px] uppercase font-bold">Match</span>
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-2 mb-6">
-          <span className="px-3 py-1 rounded-full bg-surface-container-high text-text-muted text-[12px] flex items-center gap-1">
-            <span className="material-symbols-outlined text-[14px]">location_on</span> San Francisco
-          </span>
-          <span className="px-3 py-1 rounded-full bg-surface-container-high text-text-muted text-[12px] flex items-center gap-1">
-            <span className="material-symbols-outlined text-[14px]">home_work</span> Remote
-          </span>
-          <span className="px-3 py-1 rounded-full bg-surface-container-high text-text-muted text-[12px] flex items-center gap-1">
-            <span className="material-symbols-outlined text-[14px]">payments</span> $140k - $180k
-          </span>
-        </div>
-        <div className="flex gap-2 mb-6">
-          <span className="bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">Figma</span>
-          <span className="bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">Product Strategy</span>
-          <span className="bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">Design Systems</span>
-        </div>
-        <button onClick={() => onApplyJob('Lead UI Designer', 'Stellar AI Solutions')} className="w-full bg-primary-container text-white py-3 rounded-lg font-bold hover:bg-on-primary-fixed-variant active:scale-95 transition-all">
-          Apply Now
-        </button>
+    
+    {loading ? (
+      <div className="py-10 text-center text-text-muted">Analyzing your profile & finding matches...</div>
+    ) : (!jobs || jobs.length === 0) ? (
+      <div className="bg-card-bg border border-dashed border-outline-variant rounded-xl p-lg text-center text-text-muted">
+        No job matches found. Try adding more skills to your profile or wait for new postings!
       </div>
-
-      <div className="bg-card-bg border border-border-base rounded-xl p-lg hover:border-primary-container transition-all">
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex gap-4 items-center">
-            <div className="w-12 h-12 rounded-full bg-surface-bright/20 flex items-center justify-center border border-outline-variant overflow-hidden">
-              <img alt="Company Logo" className="w-full h-full object-cover" src="https://logo.clearbit.com/airbnb.com" />
+    ) : (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+        {jobs.map((job) => (
+          <div key={job.id} className="bg-card-bg border border-border-base rounded-xl p-lg hover:border-primary-container transition-all">
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex gap-4 items-center min-w-0">
+                <div className="w-12 h-12 rounded-full bg-surface-bright/20 flex items-center justify-center border border-outline-variant overflow-hidden shrink-0">
+                  <span className="material-symbols-outlined text-primary text-[28px]">domain</span>
+                </div>
+                <div className="min-w-0">
+                  <h3 className="font-display text-headline-sm text-text-primary truncate">{job.title}</h3>
+                  <p className="text-text-muted text-label-md truncate">{job.company}</p>
+                </div>
+              </div>
+              <div className="bg-secondary/10 text-secondary px-3 py-1.5 rounded-full flex flex-col items-center shrink-0 ml-2">
+                <span className="text-[18px] font-bold">{job.matchScore}%</span>
+                <span className="text-[8px] uppercase font-bold">Match</span>
+              </div>
             </div>
-            <div>
-              <h3 className="font-display text-headline-sm text-text-primary">Product Manager</h3>
-              <p className="text-text-muted text-label-md">Nexus Creative</p>
+            <div className="flex flex-wrap gap-2 mb-6">
+              <span className="px-3 py-1 rounded-full bg-surface-container-high text-text-muted text-[12px] flex items-center gap-1 truncate max-w-[150px]">
+                <span className="material-symbols-outlined text-[14px]">location_on</span> {job.location}
+              </span>
+              <span className="px-3 py-1 rounded-full bg-surface-container-high text-text-muted text-[12px] flex items-center gap-1">
+                <span className="material-symbols-outlined text-[14px]">{job.workMode?.toLowerCase() === 'remote' ? 'home_work' : 'apartment'}</span> {job.workMode || 'Remote'}
+              </span>
+              <span className="px-3 py-1 rounded-full bg-surface-container-high text-text-muted text-[12px] flex items-center gap-1 truncate max-w-[150px]">
+                <span className="material-symbols-outlined text-[14px]">payments</span> {job.salaryDisplay || 'Competitive'}
+              </span>
             </div>
+            <div className="flex gap-2 mb-6 overflow-x-auto custom-scrollbar pb-1">
+              {(job.skills || []).slice(0, 4).map(skill => (
+                <span key={skill} className="whitespace-nowrap bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">{skill}</span>
+              ))}
+              {(job.skills?.length > 4) && (
+                <span className="whitespace-nowrap bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">+{job.skills.length - 4}</span>
+              )}
+            </div>
+            <button onClick={() => onApplyJob(job.title, job.company)} className="w-full bg-primary-container text-white py-3 rounded-lg font-bold hover:bg-on-primary-fixed-variant active:scale-95 transition-all">
+              Apply Now
+            </button>
           </div>
-          <div className="bg-secondary/10 text-secondary px-3 py-1.5 rounded-full flex flex-col items-center">
-            <span className="text-[18px] font-bold">92%</span>
-            <span className="text-[8px] uppercase font-bold">Match</span>
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-2 mb-6">
-          <span className="px-3 py-1 rounded-full bg-surface-container-high text-text-muted text-[12px] flex items-center gap-1">
-            <span className="material-symbols-outlined text-[14px]">location_on</span> New York
-          </span>
-          <span className="px-3 py-1 rounded-full bg-surface-container-high text-text-muted text-[12px] flex items-center gap-1">
-            <span className="material-symbols-outlined text-[14px]">apartment</span> Hybrid
-          </span>
-          <span className="px-3 py-1 rounded-full bg-surface-container-high text-text-muted text-[12px] flex items-center gap-1">
-            <span className="material-symbols-outlined text-[14px]">payments</span> $120k - $160k
-          </span>
-        </div>
-        <div className="flex gap-2 mb-6">
-          <span className="bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">Agile</span>
-          <span className="bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">Data Analysis</span>
-          <span className="bg-border-base text-text-muted px-3 py-1 rounded-full text-[11px] font-medium border border-outline-variant/30">User Testing</span>
-        </div>
-        <button onClick={() => onApplyJob('Product Manager', 'Nexus Creative')} className="w-full bg-primary-container text-white py-3 rounded-lg font-bold hover:bg-on-primary-fixed-variant active:scale-95 transition-all">
-          Apply Now
-        </button>
+        ))}
       </div>
-    </div>
+    )}
   </section>
 );
+    <div className="flex justify-between items-end mb-lg">
+      <h2 className="font-display text-headline-md text-text-primary">Recommended for You</h2>
+      <Link className="text-primary-container font-label-md text-label-md hover:underline" to="/discover">View All Openings</Link>
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+
+
+const UpcomingInterviews = ({ interviews }) => {
+  if (!interviews || interviews.length === 0) return null;
+  
+  return (
+    <section className="mb-xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex justify-between items-end mb-lg">
+        <h2 className="font-display text-headline-md text-text-primary">Upcoming Interviews</h2>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+        {interviews.map(interview => {
+          const startDate = new Date(interview.startTime);
+          const endDate = new Date(interview.endTime);
+          return (
+            <div key={interview.id} className="bg-primary-container/10 border border-primary-container/30 rounded-xl p-md hover:border-primary-container transition-all group">
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex gap-3 items-center min-w-0">
+                  <div className="w-10 h-10 rounded-full bg-primary-container text-white flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined">videocam</span>
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-display font-bold text-text-primary truncate">{interview.jobTitle}</h3>
+                    <p className="text-text-muted text-label-sm truncate">{interview.companyName}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-surface-container-low rounded-lg p-3 mb-4">
+                <div className="flex items-center gap-2 text-text-primary text-body-sm mb-1">
+                  <span className="material-symbols-outlined text-[16px] text-primary">event</span>
+                  {startDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                </div>
+                <div className="flex items-center gap-2 text-text-primary text-body-sm">
+                  <span className="material-symbols-outlined text-[16px] text-primary">schedule</span>
+                  {startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
+              </div>
+              {interview.calendarLink && (
+                <a 
+                  href={interview.calendarLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-2 py-2 bg-surface-container border border-outline-variant rounded-lg text-body-sm font-bold text-text-primary hover:bg-surface-container-highest transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[18px]">calendar_add_on</span>
+                  Add to Calendar
+                </a>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+};
 
 const Footer = () => (
   <footer className="mt-xxl pt-lg border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-md text-text-muted pb-lg">
@@ -316,6 +353,11 @@ const CandidateDashboard = () => {
   const [userApplications, setUserApplications] = useState(() => JSON.parse(localStorage.getItem('visume_applications') || '[]'));
   const [withdrawnHardcoded, setWithdrawnHardcoded] = useState(() => JSON.parse(localStorage.getItem('visume_withdrawn_hardcoded') || '[]'));
   const [videoResumes, setVideoResumes] = useState(null);
+  
+  const [upcomingInterviews, setUpcomingInterviews] = useState([]);
+  
+  const [recommendedJobs, setRecommendedJobs] = useState([]);
+  const [loadingJobs, setLoadingJobs] = useState(true);
   
   const [profileData, setProfileData] = useState(() => {
     const savedData = localStorage.getItem('visume_profile_data');
@@ -349,17 +391,111 @@ const CandidateDashboard = () => {
         
         setVideoResumes(videos);
       } catch (err) {
-        console.error("Error fetching videos:", err);
+        console.error('Error fetching videos:', err);
         setVideoResumes([]);
       }
     };
 
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        fetchVideos(user.uid);
-      } else {
-        setVideoResumes([]);
+    const fetchRecommendations = async () => {
+      try {
+        const { auth, db } = await import('../firebase');
+        const { collection, getDocs, getDoc, doc } = await import('firebase/firestore');
+        
+        // Wait for auth to settle
+        let attempts = 0;
+        let userId = auth.currentUser?.uid;
+        while (!userId && attempts < 10) {
+          await new Promise(resolve => setTimeout(resolve, 300));
+          userId = auth.currentUser?.uid;
+          attempts++;
+        }
+
+        let userSkills = new Set(profileData.skills || []);
+        if (userId) {
+           const userDoc = await getDoc(doc(db, 'candidates', userId));
+           if (userDoc.exists()) {
+             const data = userDoc.data();
+             if (data.skills && Array.isArray(data.skills)) {
+               data.skills.forEach(s => userSkills.add(s));
+             }
+             if (data.documentResumes && Array.isArray(data.documentResumes)) {
+               data.documentResumes.forEach(res => {
+                 if (res.extractedSkills && Array.isArray(res.extractedSkills)) {
+                   res.extractedSkills.forEach(s => userSkills.add(s));
+                 }
+               });
+             }
+           }
+        }
+        
+        userSkills = Array.from(userSkills);
+        
+        const jobsSnapshot = await getDocs(collection(db, 'jobs'));
+        const activeJobs = [];
+        jobsSnapshot.forEach(d => {
+          const job = { id: d.id, ...d.data() };
+          if (job.status !== 'closed' && job.status !== 'paused') {
+            activeJobs.push(job);
+          }
+        });
+        
+        const userSkillsLower = userSkills.map(s => s.toLowerCase());
+        
+        const scoredJobs = activeJobs.map(job => {
+          const jobSkills = job.skills || [];
+          if (jobSkills.length === 0) return { ...job, matchScore: 40 + Math.floor(Math.random() * 20) };
+          
+          let matchCount = 0;
+          jobSkills.forEach(s => {
+            if (userSkillsLower.includes(s.toLowerCase())) matchCount++;
+          });
+          
+          let matchScore = Math.round((matchCount / jobSkills.length) * 100);
+          
+          if (matchCount > 0 && matchScore < 40) matchScore = 45 + Math.floor(Math.random() * 20); 
+          if (matchScore === 0) matchScore = 20 + Math.floor(Math.random() * 30);
+          
+          return { ...job, matchScore: Math.min(99, matchScore) };
+        });
+        
+        scoredJobs.sort((a, b) => b.matchScore - a.matchScore);
+        setRecommendedJobs(scoredJobs);
+        
+        // Fetch Upcoming Interviews
+        if (userId) {
+          const { query, where } = await import('firebase/firestore');
+          const interviewsQuery = query(collection(db, 'interviews'), where('candidateId', '==', userId));
+          const interviewsSnap = await getDocs(interviewsQuery);
+          const interviewsData = [];
+          interviewsSnap.forEach(d => {
+             interviewsData.push({ id: d.id, ...d.data() });
+          });
+          
+          const now = new Date();
+          const upcoming = interviewsData.filter(inv => {
+             return inv.status === 'scheduled' && new Date(inv.endTime) > now;
+          });
+          upcoming.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+          setUpcomingInterviews(upcoming);
+        }
+
+      } catch (e) {
+        console.error("Error fetching data:", e);
+      } finally {
+        setLoadingJobs(false);
       }
+    };
+
+    import('../firebase').then(({ auth }) => {
+      const unsubscribe = auth.onAuthStateChanged(user => {
+        if (user) {
+          fetchVideos(user.uid);
+        } else {
+          setVideoResumes([]);
+        }
+      });
+      fetchRecommendations();
+      return () => unsubscribe();
     });
 
     const handleVideoUpdate = () => {
@@ -383,7 +519,6 @@ const CandidateDashboard = () => {
     window.addEventListener('visumeProfileUpdated', handleProfileUpdate);
 
     return () => {
-      unsubscribe();
       window.removeEventListener('visumeVideoUpdated', handleVideoUpdate);
       window.removeEventListener('visumeProfileUpdated', handleProfileUpdate);
     };
@@ -559,18 +694,19 @@ const CandidateDashboard = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
   return (
     <>
       {videoResumes === null && <GlobalLoadingOverlay />}
       <div className={videoResumes === null ? "opacity-30 pointer-events-none transition-opacity duration-500 blur-[2px]" : "transition-opacity duration-500"}>
-        <Header onNotifications={handleNotifications} onRecordVideo={handleRecordVideo} />
-        <StatsRow />
-        <LibrarySection resumes={videoResumes} profileData={profileData} onPlayVideo={handlePlayVideo} />
-        <AppliedJobsSection applications={combinedApplications} />
-        <RecommendedJobs onApplyJob={handleApplyJob} />
-        <Footer />
+        <div className="max-w-7xl mx-auto">
+          <Header onNotifications={handleNotifications} onRecordVideo={handleRecordVideo} />
+          <StatsRow />
+          <UpcomingInterviews interviews={upcomingInterviews} />
+          <LibrarySection resumes={videoResumes} profileData={profileData} onPlayVideo={handlePlayVideo} />
+          <AppliedJobsSection applications={combinedApplications} />
+          <RecommendedJobs onApplyJob={handleApplyJob} jobs={recommendedJobs} loading={loadingJobs} />
+          <Footer />
+        </div>
       </div>
 
       {/* Apply Confirmation Modal */}

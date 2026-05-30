@@ -1,0 +1,49 @@
+aswin kumar reddy koothedhula
+ +91 88857 77104 # koothedhulaa@gmail.com ï linkedin.com/in/ash274946 § github.com/ash274946
+objective
+a computer science (ai & ml) student with hands-on experience in building practical ai and web-based solutions. skilled in developing
+ai-driven applications, automation workflows, and functional tools across cross-platform environments.
+education
+bachelor of technology in cse (ai & ml)
+2023 – 2027
+st. peter’s engineering college (jntuh affiliated) — 82.5%
+intermediate (mpc)
+2021 – 2023
+telangana state board — 85%
+ssc
+2021
+telangana state board — 100%
+technical proficiency
+programming languages: python, java, dart, sql, javascript, html, css
+frameworks & libraries: flutter, react, node.js, fastapi, tensorflow, pandas, numpy, tailwind css
+databases & cloud: sqlite, supabase, firebase, google cloud console, mongodb
+tools: git, github, gitlab, vs code, android studio, streamlit
+internship experience
+ai developer intern
+may 2025 – nov 2025
+swecha corpus - viswam.ai
+– contributed to a telugu-based llm, improving training data diversity and model accuracy
+– learned and applied core llm techniques including tokenization and attention mechanisms to enhance model performance
+– coordinated timelines to deliver scalable cloud-based ai modules using vs code, streamlit, and supabase
+– guided peers on software practices and devops workflows to maintain high-quality code output
+project experience
+fillora - ai form automation app | flutter, dart, sqlite, gcp, google cloud auth
+– built a mobile application for ai-driven form automation with multilingual support and smart auto-fill
+– integrated conversational ai assistance with voice input (stt & tts), biometric authentication, and pdf export
+– developed during the agentathon 36-hour hackathon by google developer groups
+examease - ai exam platform | react, tailwind css, supabase, google cloud oauth
+– built an ai-powered platform that auto-generates structured question banks from uploaded pdfs and docx files
+– developed a smart study planner with calendar views, task categorization, and session progress tracking
+– implemented a pomodoro-based focus system with customizable timers and productivity streak tracking
+finscribe.ai - ai financial reports | fastapi, react, chromadb, langchain, google gemini
+– automated the generation of management discussion & analysis (md&a) reports from financial statements
+– engineered backend logic using fastapi, integrated with gemini for extracting insights and computing metrics
+– developed during the genai buildathon 24-hour hackathon by genaiversity
+mailx - smart email manager | react, node.js, express, mongodb
+– created an ai-powered email management system for organizing, prioritizing, and generating smart insights
+– developed during the 16-hour openai academy x nxtwave regional buildathon
+certifications
+• swecha ai-hackdays 2025 internship certification
+• ai & ml virtual internship certification
+• basics of python & css (hackerrank)
+
