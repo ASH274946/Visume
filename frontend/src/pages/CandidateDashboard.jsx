@@ -698,6 +698,8 @@ const CandidateDashboard = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
     <>
       {videoResumes === null && <GlobalLoadingOverlay />}
