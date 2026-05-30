@@ -273,13 +273,6 @@ const RecommendedJobs = ({ onApplyJob, jobs, loading }) => (
     )}
   </section>
 );
-    <div className="flex justify-between items-end mb-lg">
-      <h2 className="font-display text-headline-md text-text-primary">Recommended for You</h2>
-      <Link className="text-primary-container font-label-md text-label-md hover:underline" to="/discover">View All Openings</Link>
-    </div>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
-
-
 const UpcomingInterviews = ({ interviews }) => {
   if (!interviews || interviews.length === 0) return null;
   
