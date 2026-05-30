@@ -131,13 +131,20 @@ const LibrarySection = ({ resumes, profileData, onPlayVideo }) => {
                 <div className="flex flex-col gap-2">
                   {documentResumes.map(resume => (
                     <div key={resume.id} className="flex items-center justify-between p-2 rounded-lg bg-surface-container-low hover:bg-surface-container border border-outline-variant transition-colors group">
-                      <div className="flex items-center gap-2 overflow-hidden">
+                      <div className="flex items-center gap-2 overflow-hidden flex-1">
                         <span className="material-symbols-outlined text-text-muted text-sm shrink-0">picture_as_pdf</span>
                         <span className="text-body-sm text-text-primary truncate" title={resume.name}>{resume.name}</span>
                       </div>
-                      <Link to="/profile" className="text-primary-container hover:text-primary shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-1">
-                        <span className="material-symbols-outlined text-sm">edit</span>
-                      </Link>
+                      <div className="flex items-center gap-3 shrink-0">
+                        {resume.aiScore && (
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-sm ${resume.aiScore > 80 ? 'bg-[#34A853]/10 text-[#34A853]' : resume.aiScore > 60 ? 'bg-[#4285F4]/10 text-[#4285F4]' : 'bg-[#ffc107]/10 text-[#ffc107]'}`} title="AI Score">
+                            {resume.aiScore}
+                          </span>
+                        )}
+                        <Link to="/profile" className="text-primary-container hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity p-1 flex items-center">
+                          <span className="material-symbols-outlined text-sm">edit</span>
+                        </Link>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -349,6 +356,8 @@ const CandidateDashboard = () => {
   const [activeVideoTitle, setActiveVideoTitle] = useState('');
   const [activeVideoDuration, setActiveVideoDuration] = useState('');
   const [activeVideoUrl, setActiveVideoUrl] = useState('');
+  const [activeVideoTranscript, setActiveVideoTranscript] = useState('');
+  const [activeVideoSummary, setActiveVideoSummary] = useState('');
 
   const [userApplications, setUserApplications] = useState(() => JSON.parse(localStorage.getItem('visume_applications') || '[]'));
   const [withdrawnHardcoded, setWithdrawnHardcoded] = useState(() => JSON.parse(localStorage.getItem('visume_withdrawn_hardcoded') || '[]'));
@@ -540,6 +549,8 @@ const CandidateDashboard = () => {
     setActiveVideoTitle(resume.title);
     setActiveVideoDuration(resume.duration);
     setActiveVideoUrl(finalUrl);
+    setActiveVideoTranscript(resume.transcript || '');
+    setActiveVideoSummary(resume.summary || '');
     setShowVideoModal(true);
   };
 
@@ -766,12 +777,35 @@ const CandidateDashboard = () => {
             <div className="relative aspect-video bg-black">
               <CustomVideoPlayer src={activeVideoUrl} className="w-full aspect-video" />
             </div>
-            <div className="p-6 flex justify-between items-center bg-surface-container border-t border-outline-variant/30">
-              <div>
-                <h3 className="text-headline-md font-display text-text-primary">{activeVideoTitle}</h3>
-                <p className="text-body-md text-text-muted mt-1">Duration: {activeVideoDuration}</p>
+            <div className="p-6 flex justify-between items-start bg-surface-container border-t border-outline-variant/30">
+              <div className="flex-1 max-h-[30vh] overflow-y-auto custom-scrollbar pr-4 space-y-4">
+                <div>
+                  <h3 className="text-headline-md font-display text-text-primary">{activeVideoTitle}</h3>
+                  <p className="text-body-md text-text-muted mt-1">Duration: {activeVideoDuration}</p>
+                </div>
+                
+                {activeVideoSummary && (
+                  <div className="bg-surface-container-high rounded-xl p-4 border border-outline-variant/50">
+                    <h4 className="text-label-md font-bold text-text-primary mb-2 flex items-center gap-2">
+                      <span className="material-symbols-outlined text-primary text-sm">auto_awesome</span>
+                      AI Summary
+                    </h4>
+                    <p className="text-body-sm text-text-muted">{activeVideoSummary}</p>
+                  </div>
+                )}
+                
+                {activeVideoTranscript && (
+                  <div className="bg-surface-container-low rounded-xl p-4 border border-outline-variant/50">
+                    <h4 className="text-label-md font-bold text-text-primary mb-2 flex items-center gap-2">
+                      <span className="material-symbols-outlined text-text-muted text-sm">subtitles</span>
+                      Transcript
+                    </h4>
+                    <p className="text-body-sm text-text-muted leading-relaxed">{activeVideoTranscript}</p>
+                  </div>
+                )}
               </div>
-              <button onClick={() => setShowVideoModal(false)} className="text-text-muted hover:text-white transition-colors bg-surface-container-high hover:bg-surface-container-highest w-10 h-10 flex items-center justify-center rounded-full border border-outline-variant">
+              
+              <button onClick={() => setShowVideoModal(false)} className="text-text-muted hover:text-white transition-colors bg-surface-container-high hover:bg-surface-container-highest w-10 h-10 flex items-center justify-center rounded-full border border-outline-variant shrink-0 ml-4">
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>

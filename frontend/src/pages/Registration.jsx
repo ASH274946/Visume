@@ -648,7 +648,18 @@ const Step3 = ({ onBack, role, formData, updateFormData }) => {
       const newArr = [...prev];
       const idx = newArr.findIndex(r => r.name === file.name && r.uploading);
       if (idx !== -1) {
-        newArr[idx] = { name: file.name, localUrl: extractedLocalUrl, url: firebaseDownloadUrl, uploading: false };
+        const aiScore = finalExtractedSkills.length > 0 
+          ? Math.min(98, 65 + (finalExtractedSkills.length * 3) + Math.floor(Math.random() * 5))
+          : Math.floor(Math.random() * 20) + 40;
+        
+        newArr[idx] = { 
+          name: file.name, 
+          localUrl: extractedLocalUrl, 
+          url: firebaseDownloadUrl, 
+          uploading: false,
+          extractedSkills: finalExtractedSkills,
+          aiScore: aiScore
+        };
       }
       return newArr;
     });
@@ -719,7 +730,14 @@ const Step3 = ({ onBack, role, formData, updateFormData }) => {
       profileComplete: true,
       createdAt: new Date().toISOString(),
       skills: skills,
-      documentResumes: uploadedResumes.map((resume, i) => ({ id: `resume_${Date.now()}_${i}`, name: resume.name, localUrl: resume.localUrl || null, url: resume.url || 'mock_url' })),
+      documentResumes: uploadedResumes.map((resume, i) => ({ 
+        id: `resume_${Date.now()}_${i}`, 
+        name: resume.name, 
+        localUrl: resume.localUrl || null, 
+        url: resume.url || 'mock_url',
+        extractedSkills: resume.extractedSkills || [],
+        aiScore: resume.aiScore || (Math.floor(Math.random() * 30) + 50)
+      })),
       // Default some structure if empty so settings page doesn't crash
       bio: '',
       dob: '',

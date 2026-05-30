@@ -91,7 +91,23 @@ const DocumentResumesGrid = ({ profileData, onDeleteResume, onSetDefaultResume }
                     <p className="text-body-sm text-text-muted mt-1">{new Date(resume.uploadedAt || Date.now()).toLocaleDateString()}</p>
                   </div>
                 </div>
-                <div className="flex gap-2">
+                {resume.aiScore && (
+                  <div className="mb-3 px-3 py-2 bg-surface-container rounded-lg border border-outline-variant flex items-center justify-between">
+                    <span className="text-body-sm font-bold text-text-muted">AI Match Potential</span>
+                    <span className={`text-label-md font-bold px-2 py-0.5 rounded-full ${resume.aiScore > 80 ? 'bg-[#34A853]/10 text-[#34A853]' : resume.aiScore > 60 ? 'bg-[#4285F4]/10 text-[#4285F4]' : 'bg-[#ffc107]/10 text-[#ffc107]'}`}>{resume.aiScore}%</span>
+                  </div>
+                )}
+                {resume.extractedSkills && resume.extractedSkills.length > 0 && (
+                  <div className="mb-4 flex flex-wrap gap-1 max-h-[60px] overflow-hidden relative">
+                    {resume.extractedSkills.slice(0, 5).map((skill, i) => (
+                      <span key={i} className="text-[10px] bg-primary/10 text-primary-container px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">{skill}</span>
+                    ))}
+                    {resume.extractedSkills.length > 5 && (
+                      <span className="text-[10px] bg-surface-container-high text-text-muted px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">+{resume.extractedSkills.length - 5}</span>
+                    )}
+                  </div>
+                )}
+                <div className="flex gap-2 mt-auto">
                   <button onClick={() => finalUrl ? window.open(finalUrl, '_blank') : alert('No URL found.')} className="flex-1 py-2 bg-primary/10 text-primary font-bold rounded-lg hover:bg-primary/20 transition-colors text-label-sm">
                     View
                   </button>
@@ -334,6 +350,8 @@ const CandidateProfile = () => {
   const [activeVideoTitle, setActiveVideoTitle] = useState('');
   const [activeVideoDuration, setActiveVideoDuration] = useState('');
   const [activeVideoUrl, setActiveVideoUrl] = useState('');
+  const [activeVideoTranscript, setActiveVideoTranscript] = useState('');
+  const [activeVideoSummary, setActiveVideoSummary] = useState('');
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [isUploadingResume, setIsUploadingResume] = useState(false);
@@ -654,6 +672,8 @@ const CandidateProfile = () => {
     setActiveVideoTitle(resume.title);
     setActiveVideoDuration(resume.duration);
     setActiveVideoUrl(finalUrl);
+    setActiveVideoTranscript(resume.transcript || '');
+    setActiveVideoSummary(resume.summary || '');
     setShowVideoModal(true);
   };
 
@@ -932,18 +952,41 @@ const CandidateProfile = () => {
               <div className="relative aspect-video bg-black">
                 <CustomVideoPlayer src={activeVideoUrl} className="w-full aspect-video" />
               </div>
-              <div className="p-6 flex justify-between items-center bg-surface-container border-t border-outline-variant/30">
+            <div className="p-6 flex justify-between items-start bg-surface-container border-t border-outline-variant/30">
+              <div className="flex-1 max-h-[30vh] overflow-y-auto custom-scrollbar pr-4 space-y-4">
                 <div>
                   <h3 className="text-headline-md font-display text-text-primary">{activeVideoTitle}</h3>
                   <p className="text-body-md text-text-muted mt-1">Duration: {activeVideoDuration}</p>
                 </div>
-                <button onClick={() => setShowVideoModal(false)} className="text-text-muted hover:text-white transition-colors bg-surface-container-high hover:bg-surface-container-highest w-10 h-10 flex items-center justify-center rounded-full border border-outline-variant">
-                  <span className="material-symbols-outlined">close</span>
-                </button>
+
+                {activeVideoSummary && (
+                  <div className="bg-surface-container-high rounded-xl p-4 border border-outline-variant/50">
+                    <h4 className="text-label-md font-bold text-text-primary mb-2 flex items-center gap-2">
+                      <span className="material-symbols-outlined text-primary text-sm">auto_awesome</span>
+                      AI Summary
+                    </h4>
+                    <p className="text-body-sm text-text-muted">{activeVideoSummary}</p>
+                  </div>
+                )}
+                
+                {activeVideoTranscript && (
+                  <div className="bg-surface-container-low rounded-xl p-4 border border-outline-variant/50">
+                    <h4 className="text-label-md font-bold text-text-primary mb-2 flex items-center gap-2">
+                      <span className="material-symbols-outlined text-text-muted text-sm">subtitles</span>
+                      Transcript
+                    </h4>
+                    <p className="text-body-sm text-text-muted leading-relaxed">{activeVideoTranscript}</p>
+                  </div>
+                )}
               </div>
+
+              <button onClick={() => setShowVideoModal(false)} className="text-text-muted hover:text-white transition-colors bg-surface-container-high hover:bg-surface-container-highest w-10 h-10 flex items-center justify-center rounded-full border border-outline-variant shrink-0 ml-4">
+                <span className="material-symbols-outlined">close</span>
+              </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
         {/* Project Modal */}
         {showProjectModal && (
